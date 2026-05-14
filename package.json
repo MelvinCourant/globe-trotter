@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node bin/server.js",
     "build": "node ace build",
-    "dev": "node ace serve --hmr",
+    "dev": "docker compose up -d && node ace serve --hmr",
     "test": "node ace test",
     "lint": "eslint globe-trotter",
     "format": "prettier --write globe-trotter",
@@ -74,6 +74,7 @@
     "better-sqlite3": "^12.9.0",
     "edge.js": "^6.5.0",
     "luxon": "^3.7.2",
+    "pg": "^8.20.0",
     "reflect-metadata": "^0.2.2",
     "vue": "^3.5.32",
     "vue-sonner": "^2.0.9"
