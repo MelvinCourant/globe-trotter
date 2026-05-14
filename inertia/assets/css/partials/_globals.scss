@@ -1,0 +1,56 @@
+@use 'fonts';
+@use "variables";
+@use "mixins";
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: fonts.$alexandria;
+  color: var(--color);
+
+  &:focus {
+    outline: 2px solid var(--primary);
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+
+  body {
+    min-height: 100vh;
+    background: var(--background);
+
+    #app,
+    main {
+      min-height: 100vh;
+    }
+
+    video,
+    img,
+    svg,
+    object {
+      max-width: 100%;
+      height: auto;
+      vertical-align: middle;
+
+      &::selection {
+        background: none;
+      }
+    }
+
+    li {
+      list-style: none;
+      text-decoration: none;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    .hidden-title {
+      position: absolute;
+      font-size: fonts.$hidden;
+    }
+  }
+}

@@ -1,0 +1,50 @@
+$light-theme: (
+  // Colors
+  'color': hsla(0, 79%, 2%, 1),
+  'color-secondary': hsla(0, 0%, 60%, 1),
+  'background': hsla(0, 79%, 98%, 1),
+  'background-hover': hsla(0, 80%, 94%, 1),
+  'surface': hsla(0, 79%, 94%, 1),
+
+  // Shadows
+  'shadow': 0 0 4px 0 rgba(29, 37, 43, 0.10)
+);
+
+$dark-theme: (
+  // Colors
+  'color': hsla(0, 79%, 98%, 1),
+  'color-secondary': hsla(0, 0%, 74%, 1),
+  'background': hsla(0, 0%, 15%, 1),
+  'background-hover': hsla(0, 0%, 28%, 1),
+  'surface': hsla(0, 0%, 20%, 1),
+
+  // Shadows
+  'shadow': 0 0 4px 0 rgba(3, 146, 250, 0.60)
+);
+
+$global: (
+  // Colors
+  'danger': hsla(0, 98%, 50%, 1),
+  'primary': hsla(0, 79%, 63%, 1),
+  'primary-hover': hsla(0, 79%, 73%, 1),
+  'primary-transparent': hsla(0, 79%, 63%, 0.2),
+  'white': hsla(0, 79%, 98%, 1),
+);
+
+:root {
+  @media (prefers-color-scheme: light) {
+    @each $name, $value in $light-theme {
+      --#{$name}: #{$value};
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    @each $name, $value in $dark-theme {
+      --#{$name}: #{$value};
+    }
+  }
+
+  @each $name, $value in $global {
+    --#{$name}: #{$value};
+  }
+}

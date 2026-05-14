@@ -1,0 +1,5 @@
+{
+  "$schema": "https://json.schemastore.org/prettierrc",
+  "extends": "@adonisjs/prettier-config",
+  "plugins": ["prettier-plugin-edgejs", "prettier-plugin-vue"]
+}

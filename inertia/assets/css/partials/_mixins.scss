@@ -1,0 +1,11 @@
+@use "functions";
+
+@mixin resetButton($border, $background) {
+  cursor: pointer;
+  background: $background;
+  border: $border;
+}
+
+@mixin font-type($type) {
+
+}
