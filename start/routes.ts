@@ -26,5 +26,7 @@ router
 router
   .group(() => {
     router.post('logout', [controllers.Session, 'destroy'])
+    router.post('steps', [controllers.Steps, 'create'])
+    router.post('travels', [controllers.Travels, 'create'])
   })
   .use(middleware.auth())

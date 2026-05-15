@@ -7,6 +7,69 @@
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
+export class StepSchema extends BaseModel {
+  static $columns = ['city', 'country', 'createdAt', 'description', 'endDate', 'id', 'latitude', 'link', 'longitude', 'medias', 'startDate', 'title', 'travelId', 'updatedAt'] as const
+  $columns = StepSchema.$columns
+  @column()
+  declare city: string
+  @column()
+  declare country: string
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column()
+  declare description: string | null
+  @column.date()
+  declare endDate: DateTime
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare latitude: string
+  @column()
+  declare link: string | null
+  @column()
+  declare longitude: string
+  @column()
+  declare medias: string | null
+  @column.date()
+  declare startDate: DateTime
+  @column()
+  declare title: string
+  @column()
+  declare travelId: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class TravelStepSchema extends BaseModel {
+  static $columns = ['createdAt', 'id', 'stepId', 'travelId', 'updatedAt'] as const
+  $columns = TravelStepSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare stepId: string
+  @column()
+  declare travelId: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+}
+
+export class TravelSchema extends BaseModel {
+  static $columns = ['createdAt', 'id', 'title', 'updatedAt', 'userId'] as const
+  $columns = TravelSchema.$columns
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime | null
+  @column({ isPrimary: true })
+  declare id: string
+  @column()
+  declare title: string
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime | null
+  @column()
+  declare userId: string
+}
+
 export class UserSchema extends BaseModel {
   static $columns = ['createdAt', 'email', 'firstname', 'id', 'image', 'lastname', 'password', 'updatedAt'] as const
   $columns = UserSchema.$columns

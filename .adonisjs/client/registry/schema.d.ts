@@ -79,4 +79,28 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/session_controller').default['destroy']>>>
     }
   }
+  'steps.create': {
+    methods: ["POST"]
+    pattern: '/steps'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/step').createStepValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/step').createStepValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/steps_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/steps_controller').default['create']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
+  'travels.create': {
+    methods: ["POST"]
+    pattern: '/travels'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/travel').createTravelValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/travel').createTravelValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/travels_controller').default['create']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/travels_controller').default['create']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
 }

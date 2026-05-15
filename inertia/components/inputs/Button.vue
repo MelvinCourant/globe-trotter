@@ -3,6 +3,10 @@ import '../../assets/css/components/inputs/_button.scss'
 import { Link } from '@adonisjs/inertia/vue'
 
 defineProps({
+  className: {
+    type: String,
+    default: ''
+  },
   disabled: {
     type: Boolean,
     default: false
@@ -29,7 +33,7 @@ defineProps({
 <template>
   <button
     v-if="!route"
-    :class="[`button button--${style}`, iconOnly && 'button--icon-only']"
+    :class="[`button button--${style}`, iconOnly && 'button--icon-only', className]"
     :type="type"
   >
     <slot />
@@ -37,7 +41,7 @@ defineProps({
   <Link
     v-else
     :route="route"
-    :class="[`button button--${style}`, iconOnly && 'button--icon-only']"
+    :class="[`button button--${style}`, iconOnly && 'button--icon-only', className]"
   >
     <slot />
   </Link>

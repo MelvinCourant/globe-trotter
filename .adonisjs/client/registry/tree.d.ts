@@ -12,4 +12,10 @@ export interface ApiDefinition {
     store: typeof routes['session.store']
     destroy: typeof routes['session.destroy']
   }
+  steps: {
+    create: typeof routes['steps.create']
+  }
+  travels: {
+    create: typeof routes['travels.create']
+  }
 }
