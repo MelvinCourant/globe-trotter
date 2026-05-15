@@ -1,67 +1,105 @@
 <script setup lang="ts">
-import { Form } from '@adonisjs/inertia/vue'
+import '../../assets/css/pages/auth/_login-signup.scss'
+import {Form, Link} from "@adonisjs/inertia/vue";
+import FormContainer from "~/components/FormContainer.vue";
+import InputString from "~/components/inputs/InputString.vue";
+import Button from "~/components/inputs/Button.vue";
+import ProfilePictureInput from "~/components/inputs/ProfilePictureInput.vue";
+
+const emailAttributes = {
+  'type': 'email',
+  'name': 'email',
+  'id': 'email',
+  'autocomplete': 'lastname',
+  'placeholder': 'john.doe@email.com',
+};
+const firstnameAttributes = {
+  'type': 'text',
+  'name': 'firstname',
+  'id': 'firstname',
+  'placeholder': 'John',
+};
+const lastnameAttributes = {
+  'type': 'text',
+  'name': 'lastname',
+  'id': 'lastname',
+  'placeholder': 'Doe',
+};
+const passwordAttributes = {
+  'type': 'password',
+  'name': 'password',
+  'id': 'password',
+  'autocomplete': 'new-password',
+  'placeholder': '********'
+}
+const passwordConfirmationAttributes = {
+  'type': 'password',
+  'name': 'passwordConfirmation',
+  'id': 'passwordConfirmation',
+  'autocomplete': 'new-password',
+  'placeholder': '********'
+}
 </script>
 
 <template>
-  <div class="form-container">
-    <div>
-      <h1>Signup</h1>
-      <p>Enter your details below to create your account</p>
-    </div>
-
-    <div>
-      <Form route="new_account.store" #default="{ processing, errors }">
+  <section class="login-signup">
+    <FormContainer
+      size="medium"
+      title="Inscription"
+    >
+      <Form
+        v-slot="{ processing, errors }"
+        route="new_account.store"
+      >
+        <ProfilePictureInput :error="errors.image" />
+        <InputString
+          :attributes="emailAttributes"
+          :error="errors.email"
+          label="Email*"
+          :data-invalid="!!errors.email"
+        />
         <div>
-          <label for="fullName">Full name</label>
-          <input
-            type="text"
-            name="fullName"
-            id="fullName"
-            :data-invalid="errors.fullName ? 'true' : undefined"
+          <InputString
+            :attributes="firstnameAttributes"
+            :error="errors.firstname"
+            label="Prénom*"
+            :data-invalid="!!errors.firstname"
           />
-          <div v-if="errors.fullName">{{ errors.fullName }}</div>
-        </div>
-
-        <div>
-          <label for="email">Email</label>
-          <input
-            type="email"
-            name="email"
-            id="email"
-            autocomplete="email"
-            :data-invalid="errors.email ? 'true' : undefined"
+          <InputString
+            :attributes="lastnameAttributes"
+            :error="errors.lastname"
+            label="Nom"
+            :data-invalid="!!errors.lastname"
           />
-          <div v-if="errors.email">{{ errors.email }}</div>
         </div>
+        <InputString
+          :attributes="passwordAttributes"
+          :data-invalid="!!errors.password"
+          label="Mot de passe*"
+          :error="errors.password"
+        />
+        <InputString
+          :attributes="passwordConfirmationAttributes"
+          :data-invalid="!!errors.passwordConfirmation"
+          label="Confirmer le mot de passe*"
+          :error="errors.password"
+        />
 
-        <div>
-          <label for="password">Password</label>
-          <input
-            type="password"
-            name="password"
-            id="password"
-            autocomplete="new-password"
-            :data-invalid="errors.password ? 'true' : undefined"
-          />
-          <div v-if="errors.password">{{ errors.password }}</div>
-        </div>
-
-        <div>
-          <label for="passwordConfirmation">Confirm password</label>
-          <input
-            type="password"
-            name="passwordConfirmation"
-            id="passwordConfirmation"
-            autocomplete="new-password"
-            :data-invalid="errors.passwordConfirmation ? 'true' : undefined"
-          />
-          <div v-if="errors.passwordConfirmation">{{ errors.passwordConfirmation }}</div>
-        </div>
-
-        <div>
-          <button type="submit" class="button" :disabled="processing">Sign up</button>
+        <div class="form-container__bottom">
+          <Button
+            :disabled="processing"
+            :style="'primary'"
+            type="submit"
+          >
+            S'inscrire
+          </Button>
+          <p>
+            Vous possédez déjà un compte ? <Link route="session.create">
+              Se connecter
+            </Link>
+          </p>
         </div>
       </Form>
-    </div>
-  </div>
+    </FormContainer>
+  </section>
 </template>

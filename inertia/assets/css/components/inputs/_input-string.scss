@@ -1,0 +1,44 @@
+@use "../../partials/functions";
+@use "../../partials/mixins";
+
+.input-string {
+  display: flex;
+  flex-direction: column;
+
+  &__label {
+    @include mixins.font-type('text-medium');
+    margin-bottom: functions.rem(4);
+  }
+
+  &__input {
+    @include mixins.font-type('text-medium');
+    background: var(--input);
+    padding: 9px 12px;
+    border: none;
+    border-radius: var(--border-radius-xs);
+    box-shadow: var(--shadow);
+
+    &::placeholder {
+      color: var(--color-secondary);
+    }
+
+    &[data-invalid="true"] {
+      border: 1px solid var(--danger);
+    }
+
+    &:autofill {
+      background: var(--input);
+    }
+  }
+
+  &__error {
+    @include mixins.font-type('text-medium');
+    color: var(--danger);
+    margin-top: functions.rem(4);
+  }
+
+  a {
+    @include mixins.font-type('text-medium');
+    margin-top: functions.rem(8);
+  }
+}

@@ -1,44 +1,65 @@
 <script setup lang="ts">
-import { Form } from '@adonisjs/inertia/vue'
+import '../../assets/css/pages/auth/_login-signup.scss'
+import {Form, Link} from '@adonisjs/inertia/vue'
+import FormContainer from "~/components/FormContainer.vue";
+import InputString from "~/components/inputs/InputString.vue";
+import Button from "~/components/inputs/Button.vue";
+
+const emailAttributes = {
+  'type': 'email',
+  'name': 'email',
+  'id': 'email',
+  'autocomplete': 'username',
+  'placeholder': 'john.doe@email.com',
+};
+const passwordAttributes = {
+  'type': 'password',
+  'name': 'password',
+  'id': 'password',
+  'autocomplete': 'current-password',
+  'placeholder': '********',
+}
 </script>
 
 <template>
-  <div class="form-container">
-    <div>
-      <h1>Login</h1>
-      <p>Enter your details below to login to your account</p>
-    </div>
-
-    <div>
-      <Form route="session.store" #default="{ processing, errors }">
-        <div>
-          <label for="email">Email</label>
-          <input
-            type="email"
-            name="email"
-            id="email"
-            autocomplete="username"
-            :data-invalid="errors.email ? 'true' : undefined"
-          />
-          <div v-if="errors.email">{{ errors.email }}</div>
-        </div>
-
-        <div>
-          <label for="password">Password</label>
-          <input
-            type="password"
-            name="password"
-            id="password"
-            autocomplete="current-password"
-            :data-invalid="errors.password ? 'true' : undefined"
-          />
-          <div v-if="errors.password">{{ errors.password }}</div>
-        </div>
-
-        <div>
-          <button type="submit" class="button" :disabled="processing">Login</button>
+  <section class="login-signup">
+    <FormContainer
+      size="medium"
+      title="Connexion"
+    >
+      <Form
+        v-slot="{ processing, errors }"
+        route="session.store"
+      >
+        <InputString
+          :attributes="emailAttributes"
+          :error="errors.email"
+          label="Email*"
+          :data-invalid="!!errors.email"
+        />
+        <InputString
+          :attributes="passwordAttributes"
+          :data-invalid="!!errors.password"
+          label="Mot de passe*"
+          :error="errors.password"
+        >
+          <a href="#">Mot de passe oublié ?</a>
+        </InputString>
+        <div class="form-container__bottom">
+          <Button
+            :disabled="processing"
+            :style="'primary'"
+            type="submit"
+          >
+            Se connecter
+          </Button>
+          <p>
+            Vous n'avez pas de compte ? <Link route="new_account.create">
+              S'inscrire
+            </Link>
+          </p>
         </div>
       </Form>
-    </div>
-  </div>
+    </FormContainer>
+  </section>
 </template>

@@ -7,7 +7,7 @@ $light-theme: (
   'surface': hsla(0, 79%, 94%, 1),
 
   // Shadows
-  'shadow': 0 0 4px 0 rgba(29, 37, 43, 0.10)
+  'shadow': 0 0 2px 0 rgba(0, 0, 0, 0.50)
 );
 
 $dark-theme: (
@@ -19,7 +19,7 @@ $dark-theme: (
   'surface': hsla(0, 0%, 20%, 1),
 
   // Shadows
-  'shadow': 0 0 4px 0 rgba(3, 146, 250, 0.60)
+  'shadow': 0 0 2px 0 rgba(255, 255, 255, 0.50)
 );
 
 $global: (

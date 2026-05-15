@@ -1,6 +1,7 @@
 import User from '#models/user'
 import { signupValidator } from '#validators/user'
 import type { HttpContext } from '@adonisjs/core/http'
+import app from "@adonisjs/core/services/app";
 
 export default class NewAccountController {
   async create({ inertia }: HttpContext) {
@@ -9,7 +10,14 @@ export default class NewAccountController {
 
   async store({ request, response, auth }: HttpContext) {
     const payload = await request.validateUsing(signupValidator)
-    const user = await User.create({ ...payload })
+    let imagePath: string | null = null
+
+    if (payload.image) {
+      await payload.image.move(app.makePath('uploads'))
+      imagePath = payload.image.fileName ?? null
+    }
+
+    const user = await User.create({ ...payload, image: imagePath })
 
     await auth.use('web').login(user)
     response.redirect().toRoute('home')

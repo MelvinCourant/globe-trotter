@@ -1,0 +1,39 @@
+@use "../../partials/functions";
+@use "../../partials/mixins";
+
+.button {
+  display: flex;
+  padding: 15px 20px;
+  justify-content: center;
+  align-items: center;
+  gap: functions.rem(8);
+  height: fit-content;
+  @include mixins.font-type('text-medium');
+  color: var(--white);
+  border-radius: var(--border-radius-xl);
+
+  &--primary {
+    @include mixins.resetButton(none, var(--primary));
+
+    &:hover,
+    &:active {
+      background: var(--primary-hover);
+    }
+  }
+
+  &--default {
+    @include mixins.resetButton(none, var(--surface));
+
+    &:hover,
+    &:active {
+      background: var(--surface-hover);
+    }
+  }
+
+  &--icon-only {
+    padding: 15px !important;
+    width: 47px;
+    height: 47px;
+    border-radius: 50%;
+  }
+}

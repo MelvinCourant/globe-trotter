@@ -2,6 +2,7 @@
 import { watch } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import { toast, Toaster } from 'vue-sonner'
+import '../assets/css/components/_toaster.scss'
 import type { Data } from '@generated/data'
 import { Link, Form } from '@adonisjs/inertia/vue'
 
@@ -32,14 +33,11 @@ watch(
       <div>
         <nav>
           <template v-if="page.props.user">
-            <span>{{ page.props.user.initials }}</span>
-            <Form route="session.destroy">
-              <button type="submit">Logout</button>
-            </Form>
+            <span>{{ page.props.user.firstname }}</span>
           </template>
           <template v-else>
-            <Link route="new_account.create">Signup</Link>
-            <Link route="session.create">Login</Link>
+            <Link route="new_account.create">Inscription</Link>
+            <Link route="session.create">Connexion</Link>
           </template>
         </nav>
       </div>
@@ -50,5 +48,7 @@ watch(
     <slot />
   </main>
 
-  <Toaster position="top-center" rich-colors />
+  <Toaster position="top-center" rich-colors :toastOptions="{
+    class: 'toaster',
+  }"/>
 </template>

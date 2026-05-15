@@ -1,0 +1,53 @@
+@use "../partials/functions";
+@use "../partials/mixins";
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: functions.rem(20);
+  border-radius: var(--border-radius-xxl);
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: functions.rem(50) functions.rem(40);
+  background: var(--background);
+  box-shadow: var(--shadow);
+
+  @media screen and (max-width: 767px) {
+    padding: functions.rem(30) functions.rem(20);
+  }
+
+  &__title {
+    @include mixins.font-type('title');
+    text-align: center;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: functions.rem(12);
+    width: 100%;
+  }
+
+  a {
+    text-decoration: underline;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+
+  .button {
+    margin-top: functions.rem(8);
+    width: 100%;
+  }
+
+  &__bottom {
+    p {
+      @include mixins.font-type('text-medium');
+      text-align: center;
+      margin-top: functions.rem(8);
+    }
+  }
+}
