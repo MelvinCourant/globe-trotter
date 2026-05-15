@@ -5,4 +5,21 @@
     bottom: 50px;
     transform: translateX(-50%);
   }
+
+  .step-form {
+    position: fixed;
+    top: 50%;
+    left: 20px;
+    transform: translate(0, -50%);
+    animation: slideToRight 0.2s forwards;
+
+    @keyframes slideToRight {
+      0% {
+        transform: translate(calc(-100% - 20px), -50%);
+      }
+      100% {
+        transform: translate(0, -50%);
+      }
+    }
+  }
 }

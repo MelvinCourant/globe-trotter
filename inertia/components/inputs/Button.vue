@@ -19,6 +19,10 @@ defineProps({
     type: String,
     default: '',
   },
+  size: {
+    type: String,
+    default: 'medium'
+  },
   style: {
     type: String,
     default: 'default',
@@ -33,7 +37,7 @@ defineProps({
 <template>
   <button
     v-if="!route"
-    :class="[`button button--${style}`, iconOnly && 'button--icon-only', className]"
+    :class="[`button button--${size} button--${style}`, iconOnly && 'button--icon-only', className]"
     :type="type"
   >
     <slot />
@@ -41,7 +45,7 @@ defineProps({
   <Link
     v-else
     :route="route"
-    :class="[`button button--${style}`, iconOnly && 'button--icon-only', className]"
+    :class="[`button button--${size} button--${style}`, iconOnly && 'button--icon-only', className]"
   >
     <slot />
   </Link>

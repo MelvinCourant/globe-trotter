@@ -9,7 +9,7 @@
   width: fit-content;
   height: fit-content;
   color: var(--white);
-  border-radius: var(--border-radius-xs);
+  border-radius: var(--border-radius-s);
   @include mixins.font-type('text-medium');
 
   &--primary {
@@ -30,11 +30,18 @@
     &:active {
       background: var(--background-hover);
     }
+
+    .button--icon-only {
+      width: functions.rem(50);
+      height: functions.rem(50);
+      border-radius: 50%;
+    }
   }
 
-  &--icon-only {
-    width: functions.rem(50);
-    height: functions.rem(50);
-    border-radius: 50%;
+  &--small {
+    width: functions.rem(24);
+    height: functions.rem(24);
+    border-radius: var(--border-radius-xs);
+    padding: 2px;
   }
 }

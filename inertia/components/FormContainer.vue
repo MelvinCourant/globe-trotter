@@ -3,6 +3,10 @@ import '../assets/css/components/_form-container.scss';
 import {onMounted} from "vue";
 
 defineProps({
+  className: {
+    type: String,
+    default: ''
+  },
   size: {
     type: String,
     default: 'medium'
@@ -26,7 +30,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div :class="`form-container form-container--${size}`">
+  <div :class="`form-container form-container--${size} ${className}`">
     <h2
       v-if="title"
       class="form-container__title"
