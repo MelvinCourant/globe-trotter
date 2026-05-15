@@ -1,0 +1,21 @@
+.navbar {
+  position: fixed;
+  z-index: 9998;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+
+  .account {
+    @media screen and (max-width: 767px) {
+      position: fixed;
+      bottom: 20px;
+    }
+  }
+
+  &__authentification {
+    position: fixed;
+    right: 20px;
+    display: flex;
+    gap: 8px;
+  }
+}

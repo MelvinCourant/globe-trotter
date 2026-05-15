@@ -1,4 +1,8 @@
 .map {
   width: 100%;
   height: 100svh;
+
+  .mapboxgl-ctrl-bottom-left {
+    display: none;
+  }
 }

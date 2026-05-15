@@ -1,0 +1,27 @@
+@use '../partials/functions';
+@use "../partials/mixins";
+
+.account {
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  gap: functions.rem(6);
+  padding: functions.rem(4.5) functions.rem(14) functions.rem(4.5) functions.rem(6);
+  background: var(--background);
+  border-radius: functions.rem(22);
+  box-shadow: var(--shadow);
+
+  &__profile-picture {
+    min-width: functions.rem(27);
+    max-width: functions.rem(27);
+    min-height: functions.rem(27);
+    max-height: functions.rem(27);
+    object-fit: cover;
+    object-position: center;
+    border-radius: 50%;
+  }
+
+  &__firstname {
+    @include mixins.font-type('text-medium');
+  }
+}

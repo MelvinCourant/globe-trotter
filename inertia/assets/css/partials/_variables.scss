@@ -19,7 +19,7 @@ $dark-theme: (
   'surface': hsla(0, 0%, 20%, 1),
 
   // Shadows
-  'shadow': 0 0 2px 0 rgba(255, 255, 255, 0.50)
+  'shadow': 0 0 2px 0 rgba(255, 255, 255, 1)
 );
 
 $global: (
@@ -29,6 +29,10 @@ $global: (
   'primary-hover': hsla(0, 79%, 73%, 1),
   'primary-transparent': hsla(0, 79%, 63%, 0.2),
   'white': hsla(0, 79%, 98%, 1),
+
+  // Border-radius
+  'border-radius-xl': 14px,
+  'border-radius-xs': 8px
 );
 
 :root {

@@ -4,6 +4,7 @@ import {Form, Link} from '@adonisjs/inertia/vue'
 import FormContainer from "~/components/FormContainer.vue";
 import InputString from "~/components/inputs/InputString.vue";
 import Button from "~/components/inputs/Button.vue";
+import {Head} from "@inertiajs/vue3";
 
 const emailAttributes = {
   'type': 'email',
@@ -22,7 +23,9 @@ const passwordAttributes = {
 </script>
 
 <template>
-  <section class="login-signup">
+  <main class="login-signup">
+    <Head title="Connexion" />
+    <h1 class="hidden-title">Connexion</h1>
     <FormContainer
       size="medium"
       title="Connexion"
@@ -61,5 +64,5 @@ const passwordAttributes = {
         </div>
       </Form>
     </FormContainer>
-  </section>
+  </main>
 </template>

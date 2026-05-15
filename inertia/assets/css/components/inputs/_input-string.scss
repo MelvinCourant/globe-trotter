@@ -7,7 +7,7 @@
 
   &__label {
     @include mixins.font-type('text-medium');
-    margin-bottom: functions.rem(4);
+    margin-bottom: functions.rem(6);
   }
 
   &__input {
@@ -38,7 +38,9 @@
   }
 
   a {
-    @include mixins.font-type('text-medium');
-    margin-top: functions.rem(8);
+    @include mixins.font-type('text-small');
+    display: flex;
+    width: fit-content;
+    margin-top: functions.rem(6);
   }
 }

@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3'
-import Map from '../components/map.vue'
+import Map from '../components/Map.vue'
 </script>
 
 <template>
-  <Head title="Ma carte" />
-  <Map/>
+  <main class="home">
+    <Head title="Ma carte" />
+    <h1 class="hidden-title">Ma carte</h1>
+    <Map/>
+  </main>
 </template>

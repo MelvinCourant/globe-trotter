@@ -5,6 +5,7 @@ import FormContainer from "~/components/FormContainer.vue";
 import InputString from "~/components/inputs/InputString.vue";
 import Button from "~/components/inputs/Button.vue";
 import ProfilePictureInput from "~/components/inputs/ProfilePictureInput.vue";
+import {Head} from "@inertiajs/vue3";
 
 const emailAttributes = {
   'type': 'email',
@@ -42,7 +43,9 @@ const passwordConfirmationAttributes = {
 </script>
 
 <template>
-  <section class="login-signup">
+  <main class="login-signup">
+    <Head title="Inscription" />
+    <h1 class="hidden-title">Inscription</h1>
     <FormContainer
       size="medium"
       title="Inscription"
@@ -58,7 +61,7 @@ const passwordConfirmationAttributes = {
           label="Email*"
           :data-invalid="!!errors.email"
         />
-        <div>
+        <div class="form-container__row">
           <InputString
             :attributes="firstnameAttributes"
             :error="errors.firstname"
@@ -82,9 +85,8 @@ const passwordConfirmationAttributes = {
           :attributes="passwordConfirmationAttributes"
           :data-invalid="!!errors.passwordConfirmation"
           label="Confirmer le mot de passe*"
-          :error="errors.password"
+          :error="errors.passwordConfirmation"
         />
-
         <div class="form-container__bottom">
           <Button
             :disabled="processing"
@@ -101,5 +103,5 @@ const passwordConfirmationAttributes = {
         </div>
       </Form>
     </FormContainer>
-  </section>
+  </main>
 </template>

@@ -7,5 +7,12 @@
 }
 
 @mixin font-type($type) {
-
+  @if($type == 'text-small') {
+    font-size: functions.rem(12);
+    font-weight: 400;
+  } @if($type == 'text-medium') {
+    font-size: functions.rem(14);
+    font-weight: 400;
+    line-height: 1;
+  }
 }
