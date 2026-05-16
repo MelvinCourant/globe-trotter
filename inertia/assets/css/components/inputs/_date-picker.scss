@@ -3,7 +3,8 @@
 
 .date-picker {
   &__label {
-    display: block;
+    display: flex;
+    width: fit-content;
     @include mixins.font-type('text-medium');
     margin-bottom: functions.rem(6);
   }
@@ -22,10 +23,15 @@
       box-shadow: var(--shadow);
       line-height: 1;
 
+      &::placeholder {
+        color: var(--color-secondary) !important;
+        opacity: 1;
+      }
+
       &_icons {
         width: 18px;
         height: 18px;
-        padding: functions.rem(0) functions.rem(6);
+        padding: functions.rem(0) functions.rem(9);
       }
     }
 

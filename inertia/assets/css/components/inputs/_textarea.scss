@@ -1,7 +1,7 @@
 @use "../../partials/functions";
 @use "../../partials/mixins";
 
-.input-string {
+.textarea {
   display: flex;
   flex-direction: column;
 
@@ -12,13 +12,14 @@
     margin-bottom: functions.rem(6);
   }
 
-  &__input {
+  textarea {
     @include mixins.font-type('text-medium');
     background: var(--input);
     padding: functions.rem(9) functions.rem(12);
     border: none;
     border-radius: var(--border-radius-s);
     box-shadow: var(--shadow);
+    min-height: 100px;
 
     &::placeholder {
       color: var(--color-secondary);
@@ -27,22 +28,5 @@
     &[data-invalid="true"] {
       border: 1px solid var(--danger);
     }
-
-    &:autofill {
-      background: var(--input);
-    }
-  }
-
-  &__error {
-    @include mixins.font-type('text-medium');
-    color: var(--danger);
-    margin-top: functions.rem(4);
-  }
-
-  a {
-    @include mixins.font-type('text-small');
-    display: flex;
-    width: fit-content;
-    margin-top: functions.rem(6);
   }
 }

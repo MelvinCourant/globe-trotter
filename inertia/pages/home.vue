@@ -11,6 +11,7 @@ import InputString from "~/components/inputs/InputString.vue";
 import GalleryInput from "~/components/inputs/GalleryInput.vue";
 import Combobox from "~/components/inputs/Combobox.vue";
 import DatePicker from "~/components/inputs/DatePicker.vue";
+import Textarea from "~/components/inputs/Textarea.vue";
 
 const page = usePage<Data.SharedProps>()
 const displayStepCreation = ref<boolean>(false)
@@ -38,12 +39,19 @@ const titleAttributes = {
   'name': 'title',
   'id': 'title',
   'placeholder': 'Visite de Mexico',
+  'maxlength': 100
 };
 const datesAttributes = {
   'placeholder': 'Sélectionner les dates',
   'range': true,
   'multi-calendars': true,
   'text-input': true
+};
+const descriptionAttributes = {
+  'name': 'description',
+  'id': 'description',
+  'placeholder': 'Visite du Musée du Louvres, de la Tour Eiffel et de Notre-Dame de Paris',
+  'maxlength': 255
 };
 const linkAttributes = {
   'type': 'text',
@@ -100,7 +108,11 @@ function updateTravel(travelValue: object) {
           label="Titre*"
           :data-invalid="!!errors.title"
         />
-        <DatePicker label="Date de début et de fin*" :attributes="datesAttributes" />
+        <DatePicker
+          label="Date de début et de fin*"
+          :attributes="datesAttributes"
+        />
+        <Textarea label="Description" :attributes="descriptionAttributes"/>
         <InputString
           :attributes="linkAttributes"
           :error="errors.link"
@@ -108,8 +120,8 @@ function updateTravel(travelValue: object) {
           :data-invalid="!!errors.link"
         />
         <div class="form-container__actions">
+          <Button :style="'primary'" type="submit">Ajouter l'étape</Button>
           <Button>Annuler</Button>
-          <Button :style="'primary'">Ajouter l'étape</Button>
         </div>
       </Form>
     </FormContainer>
