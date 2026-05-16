@@ -30,12 +30,6 @@
     &:active {
       background: var(--background-hover);
     }
-
-    .button--icon-only {
-      width: functions.rem(50);
-      height: functions.rem(50);
-      border-radius: 50%;
-    }
   }
 
   &--small {
@@ -43,5 +37,13 @@
     height: functions.rem(24);
     border-radius: var(--border-radius-xs);
     padding: 2px;
+  }
+
+  &--medium {
+    &.button--icon-only {
+      width: functions.rem(50);
+      height: functions.rem(50);
+      border-radius: 50%;
+    }
   }
 }

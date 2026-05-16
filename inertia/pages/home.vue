@@ -8,7 +8,7 @@ import FormContainer from "~/components/FormContainer.vue";
 import {ref} from "vue";
 import {Form} from "@adonisjs/inertia/vue";
 import InputString from "~/components/inputs/InputString.vue";
-import GaleryInput from "~/components/inputs/GaleryInput.vue";
+import GalleryInput from "~/components/inputs/GalleryInput.vue";
 
 const page = usePage<Data.SharedProps>()
 const displayStepCreation = ref<boolean>(false)
@@ -42,7 +42,7 @@ function displayStepForm() {
         v-slot="{ processing, errors }"
         route="steps.create"
       >
-        <GaleryInput/>
+        <GalleryInput/>
         <InputString
           :attributes="linkAttributes"
           :error="errors.link"
