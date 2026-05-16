@@ -10,6 +10,7 @@ import {Form} from "@adonisjs/inertia/vue";
 import InputString from "~/components/inputs/InputString.vue";
 import GalleryInput from "~/components/inputs/GalleryInput.vue";
 import Combobox from "~/components/inputs/Combobox.vue";
+import DatePicker from "~/components/inputs/DatePicker.vue";
 
 const page = usePage<Data.SharedProps>()
 const displayStepCreation = ref<boolean>(false)
@@ -31,6 +32,18 @@ const travelAttributes = {
   'name': 'travel',
   'id': 'travel',
   'placeholder': 'Road trip en Amérique du Sud',
+};
+const titleAttributes = {
+  'type': 'text',
+  'name': 'title',
+  'id': 'title',
+  'placeholder': 'Visite de Mexico',
+};
+const datesAttributes = {
+  'placeholder': 'Sélectionner les dates',
+  'range': true,
+  'multi-calendars': true,
+  'text-input': true
 };
 const linkAttributes = {
   'type': 'text',
@@ -82,11 +95,22 @@ function updateTravel(travelValue: object) {
           @updateChips="updateTravel"
         />
         <InputString
+          :attributes="titleAttributes"
+          :error="errors.title"
+          label="Titre*"
+          :data-invalid="!!errors.title"
+        />
+        <DatePicker label="Date de début et de fin*" :attributes="datesAttributes" />
+        <InputString
           :attributes="linkAttributes"
           :error="errors.link"
           label="Lien"
           :data-invalid="!!errors.link"
         />
+        <div class="form-container__actions">
+          <Button>Annuler</Button>
+          <Button :style="'primary'">Ajouter l'étape</Button>
+        </div>
       </Form>
     </FormContainer>
   </main>

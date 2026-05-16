@@ -67,6 +67,11 @@
     }
   }
 
+  &__actions {
+    display: flex;
+    gap: 8px;
+  }
+
   &__bottom {
     p {
       @include mixins.font-type('text-medium');

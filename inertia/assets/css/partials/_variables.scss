@@ -1,3 +1,6 @@
+@use "fonts";
+@use "functions";
+
 $light-theme: (
   // Colors
   'color': hsla(0, 79%, 2%, 1),
@@ -33,7 +36,13 @@ $global: (
   // Border-radius
   'border-radius-xl': 14px,
   'border-radius-s': 8px,
-  'border-radius-xs': 4px
+  'border-radius-xs': 4px,
+
+  // Vue Datepicker
+  'dp-font-family': fonts.$alexandria !important,
+  'dp-font-size': functions.rem(14) !important,
+  'dp-input-icon-padding': functions.rem(30) !important,
+  'dp-input-padding': functions.rem(9) functions.rem(30) functions.rem(9) functions.rem(12) !important,
 );
 
 :root {

@@ -8,12 +8,12 @@
   align-items: center;
   width: fit-content;
   height: fit-content;
-  color: var(--white);
   border-radius: var(--border-radius-s);
   @include mixins.font-type('text-medium');
 
   &--primary {
     @include mixins.resetButton(none, var(--primary));
+    color: var(--white);
 
     &:hover,
     &:active {
