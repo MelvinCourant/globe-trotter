@@ -133,7 +133,7 @@ function search(value) {
           autocomplete="off"
           @input="search($event.target.value)"
           @keydown.enter.prevent="customEntry && addCustomEntry($event)"
-          @focus="isOpen = true"
+          @focus="isOpen = options.some((o) => o.display)"
           v-if="(chipsMax > 0 && chips.length < chipsMax) || chipsMax === 0"
         />
         <div

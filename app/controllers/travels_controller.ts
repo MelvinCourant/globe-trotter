@@ -9,4 +9,13 @@ export default class TravelsController {
 
     return response.created(travel)
   }
+
+  async index({ response, auth }: HttpContext) {
+    const travels = await Travel.query()
+      .where('user_id', auth.user!.id)
+      .select('id', 'title')
+      .orderBy('title', 'asc')
+
+    return response.status(200).send(travels)
+  }
 }

@@ -17,5 +17,6 @@ export interface ApiDefinition {
   }
   travels: {
     create: typeof routes['travels.create']
+    index: typeof routes['travels.index']
   }
 }

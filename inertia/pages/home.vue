@@ -5,7 +5,7 @@ import Map from '../components/Map.vue'
 import Button from "~/components/inputs/Button.vue";
 import type {Data} from "@generated/data";
 import FormContainer from "~/components/FormContainer.vue";
-import {ref} from "vue";
+import {ref, onMounted} from "vue";
 import {Form} from "@adonisjs/inertia/vue";
 import InputString from "~/components/inputs/InputString.vue";
 import GalleryInput from "~/components/inputs/GalleryInput.vue";
@@ -13,17 +13,19 @@ import Combobox from "~/components/inputs/Combobox.vue";
 
 const page = usePage<Data.SharedProps>()
 const displayStepCreation = ref<boolean>(false)
-const travelOptions = ref([
-  {
-    value: "9ed20851-0c60-4bdf-973d-4822ade5a3de",
-    text: "Amazonie 2026",
+const travelOptions = ref([]);
+
+onMounted(async () => {
+  if (!page.props.user) return;
+
+  const response = await fetch('/travels');
+  const travels = await response.json();
+  travelOptions.value = travels.map((travel: { id: string; title: string }) => ({
+    value: travel.id,
+    text: travel.title,
     display: true,
-  },{
-    value: "7d1d58bb-0b39-4d92-8e64-2e95c15e7f55",
-    text: "Road trip en Amérique du Sud",
-    display: true,
-  }
-]);
+  }));
+});
 const travelAttributes = {
   'type': 'text',
   'name': 'travel',
@@ -61,7 +63,7 @@ function updateTravel(travelValue: object) {
       </svg>
     </Button>
     <FormContainer
-      v-if="displayStepCreation"
+      v-if="displayStepCreation && page.props.user"
       className="step-form"
       size="large"
       title="Ajouter une étape"

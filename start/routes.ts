@@ -28,5 +28,6 @@ router
     router.post('logout', [controllers.Session, 'destroy'])
     router.post('steps', [controllers.Steps, 'create'])
     router.post('travels', [controllers.Travels, 'create'])
+    router.get('travels', [controllers.Travels, 'index'])
   })
   .use(middleware.auth())

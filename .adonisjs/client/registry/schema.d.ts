@@ -103,4 +103,16 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/travels_controller').default['create']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'travels.index': {
+    methods: ["GET","HEAD"]
+    pattern: '/travels'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/travels_controller').default['index']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/travels_controller').default['index']>>>
+    }
+  }
 }
