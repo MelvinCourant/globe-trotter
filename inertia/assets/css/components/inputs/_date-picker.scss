@@ -1,0 +1,70 @@
+@use "../../partials/functions";
+@use "../../partials/mixins";
+
+.date-picker {
+  &__label {
+    display: block;
+    @include mixins.font-type('text-medium');
+    margin-bottom: functions.rem(6);
+  }
+
+  .dp {
+    &__theme_light {
+      --dp-background-color: var(--background);
+      --dp-primary-color: var(--primary);
+      --dp-secondary-color : var(--color-secondary);
+      --dp-text-color: var(--color);
+    }
+
+    &__input {
+      border-radius: var(--border-radius-s);
+      border: none;
+      box-shadow: var(--shadow);
+      line-height: 1;
+
+      &_icons {
+        width: 18px;
+        height: 18px;
+        padding: functions.rem(0) functions.rem(6);
+      }
+    }
+
+    &__calendar_item {
+      &[aria-selected="true"] {
+        &:focus {
+          outline: none;
+        }
+      }
+    }
+
+    &__action {
+      &_button {
+        padding: 11px 14px;
+        width: fit-content;
+        height: fit-content;
+        border-radius: var(--border-radius-s);
+        @include mixins.font-type('text-medium');
+        border: none;
+      }
+
+      &_cancel {
+        box-shadow: var(--shadow);
+
+        &:hover {
+          background: var(--background-hover) !important;
+          transition: none !important;
+        }
+      }
+
+      &_select {
+        color: var(--white) !important;
+        margin-inline-start: 8px !important;
+
+        &:hover {
+          background: var(--primary-hover) !important;
+          transition: none !important;
+        }
+      }
+    }
+  }
+}
