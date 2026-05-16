@@ -13,7 +13,7 @@
   &__input {
     @include mixins.font-type('text-medium');
     background: var(--input);
-    padding: 9px 12px;
+    padding: functions.rem(9) functions.rem(12);
     border: none;
     border-radius: var(--border-radius-s);
     box-shadow: var(--shadow);

@@ -21,7 +21,7 @@ onMounted(() => {
   const form = document.querySelector('.form-container form')
 
   if(form) {
-    const inputs = form.querySelectorAll('input:not([type="file"])')
+    const inputs = form.querySelectorAll('input:not([type="file"]):not(.combobox__input)')
     const firstInput = inputs[0]
 
     firstInput.focus()

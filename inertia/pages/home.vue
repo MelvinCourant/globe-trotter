@@ -9,20 +9,43 @@ import {ref} from "vue";
 import {Form} from "@adonisjs/inertia/vue";
 import InputString from "~/components/inputs/InputString.vue";
 import GalleryInput from "~/components/inputs/GalleryInput.vue";
+import Combobox from "~/components/inputs/Combobox.vue";
 
 const page = usePage<Data.SharedProps>()
 const displayStepCreation = ref<boolean>(false)
+const travelOptions = ref([
+  {
+    value: "9ed20851-0c60-4bdf-973d-4822ade5a3de",
+    text: "Amazonie 2026",
+    display: true,
+  },{
+    value: "7d1d58bb-0b39-4d92-8e64-2e95c15e7f55",
+    text: "Road trip en Amérique du Sud",
+    display: true,
+  }
+]);
+const travelAttributes = {
+  'type': 'text',
+  'name': 'travel',
+  'id': 'travel',
+  'placeholder': 'Road trip en Amérique du Sud',
+};
 const linkAttributes = {
   'type': 'text',
   'name': 'link',
   'id': 'link',
   'placeholder': 'https://www.mesphotos.fr',
 };
+const travel = ref({})
 
 function displayStepForm() {
   if (!displayStepCreation.value) {
     displayStepCreation.value = true;
   }
+}
+
+function updateTravel(travelValue: object) {
+  travel.value = travelValue
 }
 </script>
 
@@ -37,12 +60,25 @@ function displayStepForm() {
         <path d="M17.3333 9.33334L1.33334 9.33334" stroke="var(--white)" stroke-width="2.66667" stroke-linecap="round"/>
       </svg>
     </Button>
-    <FormContainer v-if="displayStepCreation" className="step-form" size="large" title="Ajouter une étape">
+    <FormContainer
+      v-if="displayStepCreation"
+      className="step-form"
+      size="large"
+      title="Ajouter une étape"
+    >
       <Form
         v-slot="{ processing, errors }"
         route="steps.create"
       >
         <GalleryInput/>
+        <Combobox
+          label="Voyage*"
+          :options="travelOptions"
+          :attributes="travelAttributes"
+          :chipsMax="1"
+          :customEntry="true"
+          @updateChips="updateTravel"
+        />
         <InputString
           :attributes="linkAttributes"
           :error="errors.link"

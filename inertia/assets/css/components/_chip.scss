@@ -1,0 +1,23 @@
+@use "../partials/functions";
+@use "../partials/mixins";
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: functions.rem(4);
+  width: fit-content;
+  height: functions.rem(23);
+  @include mixins.font-type('text-small');
+  color: var(--primary);
+  padding: 0 functions.rem(9);
+  border-radius: var(--border-radius-xl);
+  background: var(--primary-transparent);
+
+  &:has(.chip__delete) {
+    border-radius: var(--border-radius-xs) !important;
+  }
+
+  &__delete {
+    @include mixins.resetButton(none, transparent);
+  }
+}
