@@ -10,7 +10,10 @@ const props = defineProps({
   }
 })
 
-const medias = ref(props.medias)
+const emit = defineEmits<{ updateMedias: [files: File[]] }>()
+
+const files = ref<File[]>([])
+const previews = ref<string[]>(props.medias as string[])
 const mediasSlider = useTemplateRef<HTMLDivElement>("mediasSlider")
 
 let isGrabbing = false
@@ -51,26 +54,19 @@ async function scrollToLastMedia() {
 
 async function addFiles(event: { target: any; }) {
   const input = event.target;
-  const files = input.files;
-
-  const reads = Array.from(files).map((file: any) => new Promise<void>((resolve) => {
-    const reader = new FileReader();
-
-    reader.addEventListener("load", (e) => {
-      const srcTarget = e.target?.result ?? "";
-      medias.value.push(srcTarget);
-      resolve();
-    });
-
-    reader.readAsDataURL(file);
-  }));
-
-  await Promise.all(reads);
+  Array.from(input.files as FileList).forEach((file: File) => {
+    files.value.push(file)
+    previews.value.push(URL.createObjectURL(file))
+  })
   await scrollToLastMedia();
+  emit('updateMedias', files.value);
 }
 
 function deleteFile(index: number) {
-  medias.value.splice(index, 1);
+  URL.revokeObjectURL(previews.value[index])
+  files.value.splice(index, 1)
+  previews.value.splice(index, 1)
+  emit('updateMedias', files.value);
 }
 </script>
 
@@ -84,7 +80,7 @@ function deleteFile(index: number) {
       @mouseup="onGrabEnd"
       @mouseleave="onGrabEnd"
     >
-      <div v-for="(media, index) in medias" class="gallery-input-media">
+      <div v-for="(media, index) in previews" class="gallery-input-media">
         <img :src="media" :alt="`Média ${index}`" draggable="false">
         <Button className="gallery-input-media__delete" size="small" :iconOnly="true" @click="deleteFile(index)">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">

@@ -10,7 +10,7 @@ const emailAttributes = {
   'type': 'email',
   'name': 'email',
   'id': 'email',
-  'autocomplete': 'username',
+  'autocomplete': 'email',
   'placeholder': 'john.doe@email.com',
 };
 const passwordAttributes = {

@@ -89,12 +89,12 @@ function search(value) {
           @input="search($event.target.value)"
           @focus="isOpen = options.length > 0"
         />
-        <div
-          v-if="error"
-          class="search__error"
-        >
-          {{ error }}
-        </div>
+      </div>
+      <div
+        v-if="error"
+        class="search__error"
+      >
+        {{ error }}
       </div>
       <ul
         ref="listRef"

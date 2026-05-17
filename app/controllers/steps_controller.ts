@@ -4,12 +4,18 @@ import app from "@adonisjs/core/services/app";
 import {randomUUID} from "node:crypto";
 import Step from "#models/step";
 import Travel from "#models/travel";
-import TravelStep from "#models/travel_step";
 
 export default class StepsController {
-  async create({ request, response }: HttpContext) {
+  async create({ request, response, auth }: HttpContext) {
     const payload = await request.validateUsing(createStepValidator)
-    const travel = await Travel.findOrFail(payload.travel_id)
+    let travel = await Travel.find(payload.travel_id)
+
+    if(!travel) {
+      travel = await Travel.create({
+        title: payload.travel_title,
+        userId: auth.user!.id
+      })
+    }
 
     let folderId: string | null = null
 
@@ -20,13 +26,9 @@ export default class StepsController {
       }
     }
 
-    const step = await Step.create({ ...payload, medias: folderId })
+    const { travel_title, ...stepPayload } = payload
+    await Step.create({ ...stepPayload, travel_id: travel.id, medias: folderId });
 
-    await TravelStep.create({
-      travelId: travel.id,
-      stepId: step.id
-    })
-
-    return response.created(step)
+    return response.redirect().back()
   }
 }

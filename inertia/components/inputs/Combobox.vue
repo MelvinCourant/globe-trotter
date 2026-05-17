@@ -136,12 +136,12 @@ function search(value) {
           @focus="isOpen = options.some((o) => o.display)"
           v-if="(chipsMax > 0 && chips.length < chipsMax) || chipsMax === 0"
         />
-        <div
-          v-if="error"
-          class="combobox__error"
-        >
-          {{ error }}
-        </div>
+      </div>
+      <div
+        v-if="error"
+        class="combobox__error"
+      >
+        {{ error }}
       </div>
       <ul
         ref="listRef"

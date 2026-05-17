@@ -8,6 +8,7 @@
 
   .step-form {
     position: fixed;
+    z-index: 9998;
     top: 50%;
     left: 20px;
     transform: translate(0, -50%);

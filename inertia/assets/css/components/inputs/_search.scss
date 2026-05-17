@@ -51,12 +51,14 @@
       color: var(--color-secondary);
     }
 
-    &[data-invalid="true"] {
-      border: 1px solid var(--danger);
-    }
-
     &:focus {
       outline: none;
+    }
+  }
+
+  &:has(.search__input[data-invalid="true"]) {
+    .search__entries {
+      border: 1px solid var(--danger);
     }
   }
 

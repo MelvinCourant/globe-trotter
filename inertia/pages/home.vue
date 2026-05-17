@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import '../assets/css/pages/_home.scss'
-import { Head, usePage} from '@inertiajs/vue3'
+import { Head, usePage, useForm } from '@inertiajs/vue3'
 import Map from '../components/Map.vue'
 import Button from "~/components/inputs/Button.vue";
 import type {Data} from "@generated/data";
 import FormContainer from "~/components/FormContainer.vue";
 import {ref, onMounted, reactive} from "vue";
-import {Form} from "@adonisjs/inertia/vue";
 import InputString from "~/components/inputs/InputString.vue";
 import GalleryInput from "~/components/inputs/GalleryInput.vue";
 import Combobox from "~/components/inputs/Combobox.vue";
@@ -72,11 +71,18 @@ const linkAttributes = {
   'id': 'link',
   'placeholder': 'https://www.mesphotos.fr',
 };
-const travel = ref({})
-const location = reactive({
-  latitude: 0,
-  longitude: 0,
-  place: ''
+const form = useForm({
+  travel_id: '',
+  travel_title: '',
+  title: '',
+  start_date: null as string | null,
+  end_date: null as string | null,
+  latitude: null as number | null,
+  longitude: null as number | null,
+  place: '',
+  description: '',
+  link: '',
+  medias: [] as File[],
 })
 
 async function displayStepForm() {
@@ -100,8 +106,25 @@ async function displayStepForm() {
   }
 }
 
-function updateTravel(travelValue: object) {
-  travel.value = travelValue
+function updateTravel(chips: Array<{ text: string, value: string }>) {
+  form.travel_id = chips[0]?.value ?? ''
+  form.travel_title = chips[0]?.text ?? ''
+}
+
+function toDateString(date: Date): string {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
+function updateDates(dates: [Date, Date] | null) {
+  form.start_date = dates?.[0] ? toDateString(dates[0]) : null
+  form.end_date = dates?.[1] ? toDateString(dates[1]) : null
+}
+
+function updateMedias(files: File[]) {
+  form.medias = files
 }
 
 async function suggestLocation(searchText: string) {
@@ -113,7 +136,7 @@ async function suggestLocation(searchText: string) {
 
     locationOptions.value = []
 
-    if(json.suggestions.length > 0){
+    if(json.suggestions && json.suggestions.length > 0){
       json.suggestions.forEach((suggestion: { mapbox_id: string; name: string, place_formatted: string }) => {
         const suggestionText = suggestion.place_formatted
           ? `${suggestion.name}, ${suggestion.place_formatted}`
@@ -135,12 +158,12 @@ async function findActualLocation() {
   const response = await fetch(`https://api.mapbox.com/search/searchbox/v1/reverse?longitude=${coords.longitude}&latitude=${coords.latitude}&access_token=${env.VITE_MAPBOX_ACCESSTOKEN}&language=fr&limit=1&types=country%2Cregion%2Cpostcode%2Clocality%2Cplace%2Cstreet%2Cdistrict%2Cneighborhood`)
   const json = await response.json();
 
-  if(json.features.length > 0) {
+  if(json.features && json.features.length > 0) {
     locationAttributes.value = json.features[0].properties.place_formatted;
     highlightLocation.value = coords;
-    location.latitude = coords.latitude;
-    location.longitude = coords.longitude;
-    location.place = locationAttributes.value;
+    form.latitude = coords.latitude;
+    form.longitude = coords.longitude;
+    form.place = locationAttributes.value;
   }
 }
 
@@ -150,7 +173,7 @@ async function retrieveLocation(locationSelected: {value: string, text: string})
   const response = await fetch(`https://api.mapbox.com/search/searchbox/v1/retrieve/${locationSelected.value}?session_token=${sessionToken.value}&access_token=${env.VITE_MAPBOX_ACCESSTOKEN}&language=fr`)
   const json = await response.json();
 
-  if(json.features.length > 0) {
+  if(json.features && json.features.length > 0) {
     if(json.features[0].properties.place_formatted) {
       locationAttributes.value = `${json.features[0].properties.name}, ${json.features[0].properties.place_formatted}`;
     } else {
@@ -161,9 +184,9 @@ async function retrieveLocation(locationSelected: {value: string, text: string})
       latitude: json.features[0].geometry.coordinates[1],
       longitude: json.features[0].geometry.coordinates[0],
     }
-    location.latitude = json.features[0].geometry.coordinates[1];
-    location.longitude = json.features[0].geometry.coordinates[0];
-    location.place = locationAttributes.value;
+    form.latitude = json.features[0].geometry.coordinates[1];
+    form.longitude = json.features[0].geometry.coordinates[0];
+    form.place = locationAttributes.value;
   }
 }
 </script>
@@ -185,37 +208,41 @@ async function retrieveLocation(locationSelected: {value: string, text: string})
       size="large"
       title="Ajouter une étape"
     >
-      <Form
-        v-slot="{ processing, errors }"
-        route="steps.create"
-      >
-        <GalleryInput/>
+      <form @submit.prevent="form.post('/steps', { forceFormData: true }); displayStepCreation = false;">
+        <GalleryInput @updateMedias="updateMedias"/>
         <Combobox
           label="Voyage*"
           :options="travelOptions"
           :attributes="travelAttributes"
           :chipsMax="1"
           :customEntry="true"
+          :data-invalid="!!form.errors.travel_id"
+          :error="form.errors.travel_id"
           @updateChips="updateTravel"
         />
         <InputString
+          v-model="form.title"
           :attributes="titleAttributes"
-          :error="errors.title"
+          :error="form.errors.title"
           label="Titre*"
-          :data-invalid="!!errors.title"
+          :data-invalid="!!form.errors.title"
         />
         <DatePicker
           label="Date de début et de fin*"
           :attributes="datesAttributes"
+          :error="form.errors.start_date || form.errors.end_date"
+          @updateDates="updateDates"
         />
         <Search
           label="Localisation*"
           :attributes="locationAttributes"
           :options="locationOptions"
+          :data-invalid="!!form.errors.longitude || !!form.errors.latitude || !!form.errors.place"
+          :error="form.errors.longitude || form.errors.latitude || form.errors.place"
           @search="suggestLocation"
           @updateValue="retrieveLocation"
         >
-          <button className="icon-button" @click="findActualLocation" type="button">
+          <button class="icon-button" @click="findActualLocation" type="button">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
               <circle cx="8.88889" cy="8.88872" r="6.22222" stroke="var(--color)" stroke-width="1.77778"/>
               <circle cx="8.88891" cy="8.8891" r="1.77778" fill="var(--color)" stroke="var(--color)" stroke-width="1.77778"/>
@@ -226,22 +253,23 @@ async function retrieveLocation(locationSelected: {value: string, text: string})
             </svg>
           </button>
         </Search>
-        <Textarea label="Description" :attributes="descriptionAttributes"/>
+        <Textarea v-model="form.description" label="Description" :attributes="descriptionAttributes"/>
         <InputString
+          v-model="form.link"
           :attributes="linkAttributes"
-          :error="errors.link"
+          :error="form.errors.link"
           label="Lien"
-          :data-invalid="!!errors.link"
+          :data-invalid="!!form.errors.link"
         />
         <div class="form-container__actions">
           <Button
-            :disabled="processing"
+            :disabled="form.processing"
             :style="'primary'"
             type="submit"
           >Ajouter l'étape</Button>
-          <Button :disabled="processing">Annuler</Button>
+          <Button :disabled="form.processing">Annuler</Button>
         </div>
-      </Form>
+      </form>
     </FormContainer>
   </main>
 </template>

@@ -37,12 +37,14 @@
       color: var(--color-secondary);
     }
 
-    &[data-invalid="true"] {
-      border: 1px solid var(--danger);
-    }
-
     &:focus {
       outline: none;
+    }
+  }
+
+  &:has(.combobox__input[data-invalid="true"]) {
+    .combobox__entries {
+      border: 1px solid var(--danger);
     }
   }
 

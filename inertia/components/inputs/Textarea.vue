@@ -6,6 +6,10 @@ defineProps({
     type: Object,
     required: true,
   },
+  modelValue: {
+    type: String,
+    default: '',
+  },
   dataInvalid: {
     type: Boolean,
     default: false,
@@ -15,6 +19,8 @@ defineProps({
     required: true,
   }
 })
+
+const emit = defineEmits(['update:modelValue'])
 </script>
 
 <template>
@@ -28,7 +34,9 @@ defineProps({
     </label>
     <textarea
       v-bind="attributes"
+      :value="modelValue"
       :data-invalid="dataInvalid"
+      @input="emit('update:modelValue', $event.target.value)"
     />
   </div>
 </template>

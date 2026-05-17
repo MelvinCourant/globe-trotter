@@ -73,4 +73,18 @@
       }
     }
   }
+
+  &__error {
+    @include mixins.font-type('text-medium');
+    color: var(--danger);
+    margin-top: functions.rem(4);
+  }
+
+  &:has(.date-picker__error) {
+    .dp {
+      &__input {
+        border: 1px solid var(--danger);
+      }
+    }
+  }
 }

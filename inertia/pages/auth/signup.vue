@@ -11,7 +11,7 @@ const emailAttributes = {
   'type': 'email',
   'name': 'email',
   'id': 'email',
-  'autocomplete': 'lastname',
+  'autocomplete': 'email',
   'placeholder': 'john.doe@email.com',
 };
 const firstnameAttributes = {

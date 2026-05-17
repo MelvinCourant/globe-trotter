@@ -38,21 +38,6 @@ export class StepSchema extends BaseModel {
   declare updatedAt: DateTime | null
 }
 
-export class TravelStepSchema extends BaseModel {
-  static $columns = ['createdAt', 'id', 'stepId', 'travelId', 'updatedAt'] as const
-  $columns = TravelStepSchema.$columns
-  @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime | null
-  @column({ isPrimary: true })
-  declare id: string
-  @column()
-  declare stepId: string
-  @column()
-  declare travelId: string
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  declare updatedAt: DateTime | null
-}
-
 export class TravelSchema extends BaseModel {
   static $columns = ['createdAt', 'id', 'title', 'updatedAt', 'userId'] as const
   $columns = TravelSchema.$columns

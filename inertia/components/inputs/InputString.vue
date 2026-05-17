@@ -3,8 +3,12 @@ import '../../assets/css/components/inputs/_input-string.scss'
 
 defineProps({
   attributes: {
-    type: Array,
+    type: Object,
     required: true,
+  },
+  modelValue: {
+    type: String,
+    default: '',
   },
   dataInvalid: {
     type: Boolean,
@@ -23,6 +27,8 @@ defineProps({
     default: 'default',
   }
 })
+
+const emit = defineEmits(['update:modelValue'])
 </script>
 
 <template>
@@ -36,8 +42,10 @@ defineProps({
     </label>
     <input
       v-bind="attributes"
+      :value="modelValue"
       :data-invalid="dataInvalid"
       class="input-string__input"
+      @input="emit('update:modelValue', $event.target.value)"
     >
     <div
       v-if="error"
