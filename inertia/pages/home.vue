@@ -21,6 +21,7 @@ const travelOptions = ref([]);
 const locationOptions = ref([]);
 const sessionToken = ref<string | null>(null);
 const userCoordinates = ref<{ latitude: number; longitude: number } | null>(null);
+const highlightLocation = ref<{ latitude: number; longitude: number } | null>(null);
 
 onMounted(async () => {
   const geoOptions = { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 };
@@ -32,6 +33,7 @@ onMounted(async () => {
     geoOptions
   );
 });
+
 const travelAttributes = {
   'type': 'text',
   'name': 'travel',
@@ -88,6 +90,7 @@ async function displayStepForm() {
 
     if(userCoordinates.value) {
       await findActualLocation()
+      highlightLocation.value = userCoordinates.value;
     }
   }
 }
@@ -99,32 +102,46 @@ function updateTravel(travelValue: object) {
 async function suggestLocation(searchText: string) {
   locationAttributes.value = searchText;
 
-  const response = await fetch(`https://api.mapbox.com/search/searchbox/v1/suggest?q=${searchText}&access_token=${env.VITE_MAPBOX_ACCESSTOKEN}&session_token=${sessionToken.value}&language=fr&limit=10&types=country%2Cregion%2Cpostcode%2Clocality%2Cplace%2Cstreet%2Cdistrict%2Cneighborhood`)
-  const json = await response.json();
+  if(searchText) {
+    const response = await fetch(`https://api.mapbox.com/search/searchbox/v1/suggest?q=${searchText}&access_token=${env.VITE_MAPBOX_ACCESSTOKEN}&session_token=${sessionToken.value}&language=fr&limit=10&types=country%2Cregion%2Cpostcode%2Clocality%2Cplace%2Cstreet%2Cdistrict%2Cneighborhood`)
+    const json = await response.json();
 
-  locationOptions.value = []
+    locationOptions.value = []
 
-  if(json.suggestions.length > 0){
-    json.suggestions.forEach((suggestion: { mapbox_id: string; name: string, place_formatted: string }) => {
-      locationOptions.value.push({
-        text: `${suggestion.name}, ${suggestion.place_formatted}`,
-        value: suggestion.mapbox_id,
+    if(json.suggestions.length > 0){
+      json.suggestions.forEach((suggestion: { mapbox_id: string; name: string, place_formatted: string }) => {
+        locationOptions.value.push({
+          text: `${suggestion.name}, ${suggestion.place_formatted}`,
+          value: suggestion.mapbox_id,
+        })
       })
-    })
+    }
   }
 }
 
 async function findActualLocation() {
-  const response = await fetch(`https://api.mapbox.com/search/searchbox/v1/reverse?longitude=${userCoordinates.value.longitude}&latitude=${userCoordinates.value.latitude}&access_token=${env.VITE_MAPBOX_ACCESSTOKEN}&limit=1&types=country%2Cregion%2Cpostcode%2Clocality%2Cplace%2Cstreet%2Cdistrict%2Cneighborhood`)
+  const response = await fetch(`https://api.mapbox.com/search/searchbox/v1/reverse?longitude=${userCoordinates.value.longitude}&latitude=${userCoordinates.value.latitude}&access_token=${env.VITE_MAPBOX_ACCESSTOKEN}&language=fr&limit=1&types=country%2Cregion%2Cpostcode%2Clocality%2Cplace%2Cstreet%2Cdistrict%2Cneighborhood`)
   const json = await response.json();
 
   if(json.features.length > 0) {
     locationAttributes.value = json.features[0].properties.place_formatted;
+    highlightLocation.value = userCoordinates.value;
   }
 }
 
-function retrieveLocation(location: {value: string, text: string}) {
+async function retrieveLocation(location: {value: string, text: string}) {
   locationAttributes.value = location.text;
+
+  const response = await fetch(`https://api.mapbox.com/search/searchbox/v1/retrieve/${location.value}?session_token=${sessionToken.value}&access_token=${env.VITE_MAPBOX_ACCESSTOKEN}&language=fr`)
+  const json = await response.json();
+
+  if(json.features.length > 0) {
+    locationAttributes.value = `${json.features[0].properties.name}, ${json.features[0].properties.place_formatted}`;
+    highlightLocation.value = {
+      latitude: json.features[0].geometry.coordinates[1],
+      longitude: json.features[0].geometry.coordinates[0],
+    }
+  }
 }
 </script>
 
@@ -132,7 +149,7 @@ function retrieveLocation(location: {value: string, text: string}) {
   <main class="home">
     <Head title="Ma carte" />
     <h1 class="hidden-title">Ma carte</h1>
-    <Map :userCoordinates="userCoordinates"/>
+    <Map :highlightLocation="highlightLocation" :userCoordinates="userCoordinates"/>
     <Button v-if="page.props.user" className="create-step" :iconOnly="true" :style="'primary'" @click="displayStepForm">
       <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 19 19" fill="none">
         <path d="M9.33334 1.33334L9.33334 17.3333" stroke="var(--white)" stroke-width="2.66667" stroke-linecap="round"/>
