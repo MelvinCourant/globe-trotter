@@ -4,7 +4,7 @@ import '../assets/css/components/_chip.scss'
 defineProps({
   canBeDeleted: {
     type: Boolean,
-    required: true,
+    default: false
   },
   text: {
     type: String,

@@ -1,0 +1,65 @@
+@use '../partials/functions';
+@use '../partials/mixins';
+
+.popup {
+  display: flex;
+  flex-direction: column;
+  width: 350px;
+  height: fit-content;
+  box-shadow: var(--shadow);
+  border-radius: var(--border-radius-xl);
+  overflow: hidden;
+
+  &__medias {
+    display: flex;
+    overflow-x: scroll;
+    scrollbar-width: none;
+    height: 180px;
+  }
+
+  &__media {
+    flex-shrink: 0;
+    height: 100%;
+    aspect-ratio: 350/180;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+  }
+
+  &__content {
+    display: flex;
+    padding: 14px 12px 16px 12px;
+    flex-direction: column;
+    background: var(--background);
+  }
+
+  &__title {
+    @include mixins.font-type('text-big');
+    line-height: 1;
+    margin-top: 10px;
+  }
+
+  &__details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 8px;
+  }
+
+  &__detail {
+    display: flex;
+    gap: 4px;
+    @include mixins.font-type('text-medium');
+    line-height: 1.14;
+    color: var(--color-secondary);
+
+    svg {
+      min-width: 14px;
+      height: 14px;
+    }
+  }
+}

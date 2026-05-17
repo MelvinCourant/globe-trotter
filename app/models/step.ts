@@ -14,7 +14,8 @@ export default class Step extends StepSchema {
   static async loadMedias(step: Step) {
     if (step.medias) {
       try {
-        step.$extras.mediaFiles = await fs.readdir(app.makePath(`uploads/${step.medias}`))
+        const files = await fs.readdir(app.makePath(`uploads/${step.medias}`))
+        step.$extras.mediaFiles = files.map(file => `${step.medias}/${file}`)
       } catch {
         step.$extras.mediaFiles = []
       }

@@ -4,7 +4,8 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import '../assets/css/components/_map.scss'
 import '../assets/css/components/_marker.scss'
 import '../assets/css/components/_user-position.scss'
-import { markRaw, onMounted, ref, useTemplateRef, watch } from "vue";
+import { createApp, markRaw, nextTick, onMounted, ref, useTemplateRef, watch } from "vue";
+import Popup from "~/components/Popup.vue";
 
 type Step = {
   id: string
@@ -113,9 +114,32 @@ watch([() => props.travels, mapInstance], ([travels, map]) => {
       markerEl.className = 'marker'
       markerEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="40" viewBox="0 0 36 40" fill="none"><path d="M17.6074 0C27.3318 0 35.2156 7.88308 35.2158 17.6074C35.2158 30.225 22.3401 37.8178 18.6094 39.7529C17.9733 40.0828 17.2425 40.0828 16.6064 39.7529C12.8761 37.818 0 30.2253 0 17.6074C0.000175233 7.88319 7.88319 0.000175244 17.6074 0Z" fill="var(--primary)"/></svg><span>${index + 1}</span>`
 
+      const container = document.createElement('div')
+      let app: ReturnType<typeof createApp> | null = null
+
+      const popup = new mapboxgl.Popup({ anchor: 'bottom', closeButton: false, offset: 48, maxWidth: '350px' })
+        .setDOMContent(container)
+
+      popup.on('open', () => {
+        app = createApp(Popup, {
+          dates: [step.startDate, step.endDate],
+          medias: step.medias,
+          place: step.place,
+          travel,
+          title: step.title,
+        })
+        app.mount(container)
+      })
+
+      popup.on('close', () => {
+        app?.unmount()
+        app = null
+      })
+
       stepMarkers.value.push(
-        markRaw(new mapboxgl.Marker({ element: markerEl })
+        markRaw(new mapboxgl.Marker({ anchor: 'bottom', element: markerEl })
           .setLngLat([lng, lat])
+          .setPopup(popup)
           .addTo(map))
       )
     })

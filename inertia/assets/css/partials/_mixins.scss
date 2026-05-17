@@ -17,5 +17,8 @@
   } @if($type == 'text-big') {
     font-size: functions.rem(16);
     font-weight: 700;
+  } @if($type == 'title-medium') {
+    font-size: functions.rem(20);
+    font-weight: 700;
   }
 }
