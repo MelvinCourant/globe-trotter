@@ -24,6 +24,20 @@
     &--open {
       border-radius: var(--border-radius-s) var(--border-radius-s) 0 0 !important;
     }
+
+    .icon-button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      height: fit-content;
+      @include mixins.resetButton(none, transparent);
+      padding: functions.rem(0) functions.rem(9);
+
+      & + .search__input {
+        padding: functions.rem(9) functions.rem(12) functions.rem(9) functions.rem(35);
+      }
+    }
   }
 
   &__input {

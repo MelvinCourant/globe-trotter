@@ -45,7 +45,7 @@ onMounted(() => document.addEventListener("click", onClickOutside));
 onUnmounted(() => document.removeEventListener("click", onClickOutside));
 
 function selectOption(option) {
-  emit("updateValue", option.value);
+  emit("updateValue", option);
   isOpen.value = false;
   inputRef.value.value = option.text;
 }
@@ -74,6 +74,7 @@ function search(value) {
           },
         ]"
       >
+        <slot />
         <input
           v-bind="attributes"
           ref="inputRef"

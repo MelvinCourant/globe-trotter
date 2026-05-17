@@ -5,7 +5,7 @@ import Map from '../components/Map.vue'
 import Button from "~/components/inputs/Button.vue";
 import type {Data} from "@generated/data";
 import FormContainer from "~/components/FormContainer.vue";
-import {ref, onMounted} from "vue";
+import {ref, onMounted, reactive} from "vue";
 import {Form} from "@adonisjs/inertia/vue";
 import InputString from "~/components/inputs/InputString.vue";
 import GalleryInput from "~/components/inputs/GalleryInput.vue";
@@ -20,19 +20,17 @@ const displayStepCreation = ref<boolean>(false)
 const travelOptions = ref([]);
 const locationOptions = ref([]);
 const sessionToken = ref<string | null>(null);
+const userCoordinates = ref<{ latitude: number; longitude: number } | null>(null);
 
 onMounted(async () => {
-  if (!page.props.user) return;
-
-  const response = await fetch('/travels');
-  const travels = await response.json();
-  travelOptions.value = travels.map((travel: { id: string; title: string }) => ({
-    value: travel.id,
-    text: travel.title,
-    display: true,
-  }));
-
-  sessionToken.value = crypto.randomUUID();
+  const geoOptions = { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 };
+  navigator.geolocation?.getCurrentPosition(
+    (pos) => {
+      userCoordinates.value = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+    },
+    (err) => console.warn(`ERREUR (${err.code}): ${err.message}`),
+    geoOptions
+  );
 });
 const travelAttributes = {
   'type': 'text',
@@ -53,12 +51,13 @@ const datesAttributes = {
   'multi-calendars': true,
   'text-input': true
 };
-const locationAttributes = {
+const locationAttributes = reactive({
   'type': 'search',
   'name': 'location',
   'id': 'location',
   'placeholder': 'Manaus, Amazonas, Brésil',
-};
+  'value': '',
+});
 const descriptionAttributes = {
   'name': 'description',
   'id': 'description',
@@ -73,9 +72,23 @@ const linkAttributes = {
 };
 const travel = ref({})
 
-function displayStepForm() {
+async function displayStepForm() {
   if (!displayStepCreation.value) {
     displayStepCreation.value = true;
+
+    const response = await fetch('/travels');
+    const travels = await response.json();
+    travelOptions.value = travels.map((travel: { id: string; title: string }) => ({
+      value: travel.id,
+      text: travel.title,
+      display: true,
+    }));
+
+    sessionToken.value = crypto.randomUUID();
+
+    if(userCoordinates.value) {
+      await findActualLocation()
+    }
   }
 }
 
@@ -84,6 +97,8 @@ function updateTravel(travelValue: object) {
 }
 
 async function suggestLocation(searchText: string) {
+  locationAttributes.value = searchText;
+
   const response = await fetch(`https://api.mapbox.com/search/searchbox/v1/suggest?q=${searchText}&access_token=${env.VITE_MAPBOX_ACCESSTOKEN}&session_token=${sessionToken.value}&language=fr&limit=10&types=country%2Cregion%2Cpostcode%2Clocality%2Cplace%2Cstreet%2Cdistrict%2Cneighborhood`)
   const json = await response.json();
 
@@ -98,13 +113,26 @@ async function suggestLocation(searchText: string) {
     })
   }
 }
+
+async function findActualLocation() {
+  const response = await fetch(`https://api.mapbox.com/search/searchbox/v1/reverse?longitude=${userCoordinates.value.longitude}&latitude=${userCoordinates.value.latitude}&access_token=${env.VITE_MAPBOX_ACCESSTOKEN}&limit=1&types=country%2Cregion%2Cpostcode%2Clocality%2Cplace%2Cstreet%2Cdistrict%2Cneighborhood`)
+  const json = await response.json();
+
+  if(json.features.length > 0) {
+    locationAttributes.value = json.features[0].properties.place_formatted;
+  }
+}
+
+function retrieveLocation(location: {value: string, text: string}) {
+  locationAttributes.value = location.text;
+}
 </script>
 
 <template>
   <main class="home">
     <Head title="Ma carte" />
     <h1 class="hidden-title">Ma carte</h1>
-    <Map/>
+    <Map :userCoordinates="userCoordinates"/>
     <Button v-if="page.props.user" className="create-step" :iconOnly="true" :style="'primary'" @click="displayStepForm">
       <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 19 19" fill="none">
         <path d="M9.33334 1.33334L9.33334 17.3333" stroke="var(--white)" stroke-width="2.66667" stroke-linecap="round"/>
@@ -141,10 +169,23 @@ async function suggestLocation(searchText: string) {
           :attributes="datesAttributes"
         />
         <Search
+          label="Localisation*"
           :attributes="locationAttributes"
           :options="locationOptions"
           @search="suggestLocation"
-        />
+          @updateValue="retrieveLocation"
+        >
+          <button className="icon-button" @click="findActualLocation" type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <circle cx="8.88889" cy="8.88872" r="6.22222" stroke="var(--color)" stroke-width="1.77778"/>
+              <circle cx="8.88891" cy="8.8891" r="1.77778" fill="var(--color)" stroke="var(--color)" stroke-width="1.77778"/>
+              <path d="M8.8889 2.66669V0.888916" stroke="var(--color)" stroke-width="1.77778" stroke-linecap="round"/>
+              <path d="M15.1111 8.88892L16.8889 8.88892" stroke="var(--color)" stroke-width="1.77778" stroke-linecap="round"/>
+              <path d="M8.8889 16.8891L8.8889 15.1113" stroke="var(--color)" stroke-width="1.77778" stroke-linecap="round"/>
+              <path d="M0.888895 8.88892H2.66667" stroke="var(--color)" stroke-width="1.77778" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </Search>
         <Textarea label="Description" :attributes="descriptionAttributes"/>
         <InputString
           :attributes="linkAttributes"
