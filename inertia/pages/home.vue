@@ -17,8 +17,8 @@ import Search from "~/components/inputs/Search.vue";
 const env = import.meta.env
 const page = usePage<Data.SharedProps>()
 const displayStepCreation = ref<boolean>(false)
-const travelOptions = ref([]);
-const locationOptions = ref([]);
+const travelOptions = ref<{ value: string; text: string; display: boolean }[]>([]);
+const locationOptions = ref<{ text: string; value: string }[]>([]);
 const sessionToken = ref<string | null>(null);
 const userCoordinates = ref<{ latitude: number; longitude: number } | null>(null);
 const highlightLocation = ref<{ latitude: number; longitude: number } | null>(null);
@@ -57,13 +57,13 @@ const locationAttributes = reactive({
   'type': 'search',
   'name': 'location',
   'id': 'location',
-  'placeholder': 'Manaus, Amazonas, Brésil',
+  'placeholder': 'Mexico, Mexique',
   'value': '',
 });
 const descriptionAttributes = {
   'name': 'description',
   'id': 'description',
-  'placeholder': 'Visite du Musée du Louvres, de la Tour Eiffel et de Notre-Dame de Paris',
+  'placeholder': 'Visite de la ville de Mexico accompagné d\'un guide local',
   'maxlength': 255
 };
 const linkAttributes = {
@@ -73,6 +73,11 @@ const linkAttributes = {
   'placeholder': 'https://www.mesphotos.fr',
 };
 const travel = ref({})
+const location = reactive({
+  latitude: 0,
+  longitude: 0,
+  place: ''
+})
 
 async function displayStepForm() {
   if (!displayStepCreation.value) {
@@ -110,8 +115,12 @@ async function suggestLocation(searchText: string) {
 
     if(json.suggestions.length > 0){
       json.suggestions.forEach((suggestion: { mapbox_id: string; name: string, place_formatted: string }) => {
+        const suggestionText = suggestion.place_formatted
+          ? `${suggestion.name}, ${suggestion.place_formatted}`
+          : suggestion.name;
+
         locationOptions.value.push({
-          text: `${suggestion.name}, ${suggestion.place_formatted}`,
+          text: suggestionText,
           value: suggestion.mapbox_id,
         })
       })
@@ -120,27 +129,41 @@ async function suggestLocation(searchText: string) {
 }
 
 async function findActualLocation() {
-  const response = await fetch(`https://api.mapbox.com/search/searchbox/v1/reverse?longitude=${userCoordinates.value.longitude}&latitude=${userCoordinates.value.latitude}&access_token=${env.VITE_MAPBOX_ACCESSTOKEN}&language=fr&limit=1&types=country%2Cregion%2Cpostcode%2Clocality%2Cplace%2Cstreet%2Cdistrict%2Cneighborhood`)
+  if (!userCoordinates.value) return;
+
+  const coords = userCoordinates.value;
+  const response = await fetch(`https://api.mapbox.com/search/searchbox/v1/reverse?longitude=${coords.longitude}&latitude=${coords.latitude}&access_token=${env.VITE_MAPBOX_ACCESSTOKEN}&language=fr&limit=1&types=country%2Cregion%2Cpostcode%2Clocality%2Cplace%2Cstreet%2Cdistrict%2Cneighborhood`)
   const json = await response.json();
 
   if(json.features.length > 0) {
     locationAttributes.value = json.features[0].properties.place_formatted;
-    highlightLocation.value = userCoordinates.value;
+    highlightLocation.value = coords;
+    location.latitude = coords.latitude;
+    location.longitude = coords.longitude;
+    location.place = locationAttributes.value;
   }
 }
 
-async function retrieveLocation(location: {value: string, text: string}) {
-  locationAttributes.value = location.text;
+async function retrieveLocation(locationSelected: {value: string, text: string}) {
+  locationAttributes.value = locationSelected.text;
 
-  const response = await fetch(`https://api.mapbox.com/search/searchbox/v1/retrieve/${location.value}?session_token=${sessionToken.value}&access_token=${env.VITE_MAPBOX_ACCESSTOKEN}&language=fr`)
+  const response = await fetch(`https://api.mapbox.com/search/searchbox/v1/retrieve/${locationSelected.value}?session_token=${sessionToken.value}&access_token=${env.VITE_MAPBOX_ACCESSTOKEN}&language=fr`)
   const json = await response.json();
 
   if(json.features.length > 0) {
-    locationAttributes.value = `${json.features[0].properties.name}, ${json.features[0].properties.place_formatted}`;
+    if(json.features[0].properties.place_formatted) {
+      locationAttributes.value = `${json.features[0].properties.name}, ${json.features[0].properties.place_formatted}`;
+    } else {
+      locationAttributes.value = json.features[0].properties.name
+    }
+
     highlightLocation.value = {
       latitude: json.features[0].geometry.coordinates[1],
       longitude: json.features[0].geometry.coordinates[0],
     }
+    location.latitude = json.features[0].geometry.coordinates[1];
+    location.longitude = json.features[0].geometry.coordinates[0];
+    location.place = locationAttributes.value;
   }
 }
 </script>
@@ -211,8 +234,12 @@ async function retrieveLocation(location: {value: string, text: string}) {
           :data-invalid="!!errors.link"
         />
         <div class="form-container__actions">
-          <Button :style="'primary'" type="submit">Ajouter l'étape</Button>
-          <Button>Annuler</Button>
+          <Button
+            :disabled="processing"
+            :style="'primary'"
+            type="submit"
+          >Ajouter l'étape</Button>
+          <Button :disabled="processing">Annuler</Button>
         </div>
       </Form>
     </FormContainer>

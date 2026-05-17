@@ -4,7 +4,7 @@ import {ref, onMounted, onUnmounted} from "vue";
 
 const props = defineProps({
   attributes: {
-    type: Array,
+    type: Object,
     required: true,
   },
   dataInvalid: {

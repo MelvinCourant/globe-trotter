@@ -3,7 +3,7 @@ import '../../assets/css/components/inputs/_textarea.scss'
 
 defineProps({
   attributes: {
-    type: Array,
+    type: Object,
     required: true,
   },
   dataInvalid: {

@@ -5,7 +5,7 @@ import Chip from "~/components/Chip.vue";
 
 const props = defineProps({
   attributes: {
-    type: Array,
+    type: Object,
     required: true,
   },
   chips: {

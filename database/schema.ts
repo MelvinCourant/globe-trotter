@@ -8,12 +8,8 @@ import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
 export class StepSchema extends BaseModel {
-  static $columns = ['city', 'country', 'createdAt', 'description', 'endDate', 'id', 'latitude', 'link', 'longitude', 'medias', 'startDate', 'title', 'travelId', 'updatedAt'] as const
+  static $columns = ['createdAt', 'description', 'endDate', 'id', 'latitude', 'link', 'longitude', 'medias', 'place', 'startDate', 'title', 'travelId', 'updatedAt'] as const
   $columns = StepSchema.$columns
-  @column()
-  declare city: string
-  @column()
-  declare country: string
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime | null
   @column()
@@ -30,6 +26,8 @@ export class StepSchema extends BaseModel {
   declare longitude: string
   @column()
   declare medias: string | null
+  @column()
+  declare place: string
   @column.date()
   declare startDate: DateTime
   @column()
