@@ -12,10 +12,14 @@ import GalleryInput from "~/components/inputs/GalleryInput.vue";
 import Combobox from "~/components/inputs/Combobox.vue";
 import DatePicker from "~/components/inputs/DatePicker.vue";
 import Textarea from "~/components/inputs/Textarea.vue";
+import Search from "~/components/inputs/Search.vue";
 
+const env = import.meta.env
 const page = usePage<Data.SharedProps>()
 const displayStepCreation = ref<boolean>(false)
 const travelOptions = ref([]);
+const locationOptions = ref([]);
+const sessionToken = ref<string | null>(null);
 
 onMounted(async () => {
   if (!page.props.user) return;
@@ -27,6 +31,8 @@ onMounted(async () => {
     text: travel.title,
     display: true,
   }));
+
+  sessionToken.value = crypto.randomUUID();
 });
 const travelAttributes = {
   'type': 'text',
@@ -46,6 +52,12 @@ const datesAttributes = {
   'range': true,
   'multi-calendars': true,
   'text-input': true
+};
+const locationAttributes = {
+  'type': 'search',
+  'name': 'location',
+  'id': 'location',
+  'placeholder': 'Manaus, Amazonas, Brésil',
 };
 const descriptionAttributes = {
   'name': 'description',
@@ -69,6 +81,22 @@ function displayStepForm() {
 
 function updateTravel(travelValue: object) {
   travel.value = travelValue
+}
+
+async function suggestLocation(searchText: string) {
+  const response = await fetch(`https://api.mapbox.com/search/searchbox/v1/suggest?q=${searchText}&access_token=${env.VITE_MAPBOX_ACCESSTOKEN}&session_token=${sessionToken.value}&language=fr&limit=10&types=country%2Cregion%2Cpostcode%2Clocality%2Cplace%2Cstreet%2Cdistrict%2Cneighborhood`)
+  const json = await response.json();
+
+  locationOptions.value = []
+
+  if(json.suggestions.length > 0){
+    json.suggestions.forEach((suggestion: { mapbox_id: string; name: string, place_formatted: string }) => {
+      locationOptions.value.push({
+        text: `${suggestion.name}, ${suggestion.place_formatted}`,
+        value: suggestion.mapbox_id,
+      })
+    })
+  }
 }
 </script>
 
@@ -111,6 +139,11 @@ function updateTravel(travelValue: object) {
         <DatePicker
           label="Date de début et de fin*"
           :attributes="datesAttributes"
+        />
+        <Search
+          :attributes="locationAttributes"
+          :options="locationOptions"
+          @search="suggestLocation"
         />
         <Textarea label="Description" :attributes="descriptionAttributes"/>
         <InputString

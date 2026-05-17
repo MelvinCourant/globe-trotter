@@ -1,0 +1,87 @@
+@use "../../partials/functions";
+@use "../../partials/mixins";
+
+.search {
+  &__container {
+    position: relative;
+  }
+
+  &__label {
+    display: flex;
+    width: fit-content;
+    @include mixins.font-type('text-medium');
+    margin-bottom: functions.rem(6);
+  }
+
+  &__entries {
+    position: relative;
+    display: flex;
+    width: 100%;
+    box-shadow: var(--shadow);
+    border-radius: var(--border-radius-s);
+    overflow: hidden;
+
+    &--open {
+      border-radius: var(--border-radius-s) var(--border-radius-s) 0 0 !important;
+    }
+  }
+
+  &__input {
+    @include mixins.font-type('text-medium');
+    background: var(--background);
+    padding: functions.rem(9) functions.rem(12);
+    border: none;
+    flex: 1;
+
+    &::placeholder {
+      color: var(--color-secondary);
+    }
+
+    &[data-invalid="true"] {
+      border: 1px solid var(--danger);
+    }
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  &__error {
+    @include mixins.font-type('text-medium');
+    color: var(--danger);
+    margin-top: functions.rem(4);
+  }
+
+  &__list {
+    display: none;
+    position: absolute;
+    z-index: 2;
+    left: 0;
+    bottom: 0;
+    transform: translateY(100%);
+    width: 100%;
+    max-height: calc(5 * functions.rem(36));
+    box-shadow: var(--shadow);
+    border-radius: 0 0 var(--border-radius-s) var(--border-radius-s);
+    overflow-y: auto;
+
+    &--open {
+      display: block;
+    }
+  }
+
+  &__option {
+    display: flex;
+    align-items: center;
+    background: var(--background);
+    cursor: pointer;
+    padding: functions.rem(9) functions.rem(12);
+    @include mixins.font-type('text-medium');
+    height: functions.rem(36);
+
+    &:hover,
+    &:focus {
+      background: var(--primary);
+    }
+  }
+}

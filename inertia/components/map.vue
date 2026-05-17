@@ -5,6 +5,7 @@ import '../assets/css/components/_map.scss'
 import '../assets/css/components/_user-position.scss'
 import { onMounted, ref, useTemplateRef, watch } from "vue";
 
+const env = import.meta.env
 const mapContainer = useTemplateRef<HTMLDivElement>("mapContainer")
 const mapInstance = ref<mapboxgl.Map | null>(null)
 const markerInstance = ref<mapboxgl.Marker | null>(null)
@@ -31,7 +32,7 @@ watch([userCoordinates, mapInstance], ([coords, map]) => {
 })
 
 onMounted(() => {
-  mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESSTOKEN
+  mapboxgl.accessToken = env.VITE_MAPBOX_ACCESSTOKEN
 
   if(window.matchMedia) {
     if(window.matchMedia('(prefers-color-scheme: dark)').matches) {
