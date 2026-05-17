@@ -19,11 +19,13 @@ const displayStepCreation = ref<boolean>(false)
 const travelOptions = ref<{ value: string; text: string; display: boolean }[]>([]);
 const locationOptions = ref<{ text: string; value: string }[]>([]);
 const sessionToken = ref<string | null>(null);
+const travels = ref([])
 const userCoordinates = ref<{ latitude: number; longitude: number } | null>(null);
 const highlightLocation = ref<{ latitude: number; longitude: number } | null>(null);
 
 onMounted(async () => {
   const geoOptions = { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 };
+
   navigator.geolocation?.getCurrentPosition(
     (pos) => {
       userCoordinates.value = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
@@ -31,6 +33,17 @@ onMounted(async () => {
     (err) => console.warn(`ERREUR (${err.code}): ${err.message}`),
     geoOptions
   );
+
+  if(page.props.user) {
+    const response = await fetch('/travels');
+    travels.value = await response.json();
+
+    travelOptions.value = travels.value.map((travel: { id: string; title: string }) => ({
+      value: travel.id,
+      text: travel.title,
+      display: true,
+    }));
+  }
 });
 
 const travelAttributes = {
@@ -88,14 +101,6 @@ const form = useForm({
 async function displayStepForm() {
   if (!displayStepCreation.value) {
     displayStepCreation.value = true;
-
-    const response = await fetch('/travels');
-    const travels = await response.json();
-    travelOptions.value = travels.map((travel: { id: string; title: string }) => ({
-      value: travel.id,
-      text: travel.title,
-      display: true,
-    }));
 
     sessionToken.value = crypto.randomUUID();
 
@@ -167,6 +172,24 @@ async function findActualLocation() {
   }
 }
 
+async function createStep() {
+  form.post('/steps', {
+    forceFormData: true,
+    onSuccess: async () => {
+      travels.value = await fetch('/travels').then(r => r.json())
+      travelOptions.value = travels.value.map((travel: { id: string; title: string }) => ({
+        value: travel.id,
+        text: travel.title,
+        display: true,
+      }));
+      form.reset()
+      locationAttributes.value = ''
+      displayStepCreation.value = false
+      highlightLocation.value = null
+    }
+  })
+}
+
 async function retrieveLocation(locationSelected: {value: string, text: string}) {
   locationAttributes.value = locationSelected.text;
 
@@ -195,7 +218,7 @@ async function retrieveLocation(locationSelected: {value: string, text: string})
   <main class="home">
     <Head title="Ma carte" />
     <h1 class="hidden-title">Ma carte</h1>
-    <Map :highlightLocation="highlightLocation" :userCoordinates="userCoordinates"/>
+    <Map :travels="travels" :highlightLocation="highlightLocation" :userCoordinates="userCoordinates"/>
     <Button v-if="page.props.user" className="create-step" :iconOnly="true" :style="'primary'" @click="displayStepForm">
       <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 19 19" fill="none">
         <path d="M9.33334 1.33334L9.33334 17.3333" stroke="var(--white)" stroke-width="2.66667" stroke-linecap="round"/>
@@ -208,7 +231,7 @@ async function retrieveLocation(locationSelected: {value: string, text: string})
       size="large"
       title="Ajouter une étape"
     >
-      <form @submit.prevent="form.post('/steps', { forceFormData: true }); displayStepCreation = false;">
+      <form @submit.prevent="createStep">
         <GalleryInput @updateMedias="updateMedias"/>
         <Combobox
           label="Voyage*"

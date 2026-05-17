@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { createTravelValidator } from '#validators/travel'
 import Travel from '#models/travel'
+import Step from "#models/step";
 
 export default class TravelsController {
   async create({ request, response, auth }: HttpContext) {
@@ -14,6 +15,7 @@ export default class TravelsController {
     const travels = await Travel.query()
       .where('user_id', auth.user!.id)
       .select('id', 'title')
+      .preload('steps')
       .orderBy('title', 'asc')
 
     return response.status(200).send(travels)

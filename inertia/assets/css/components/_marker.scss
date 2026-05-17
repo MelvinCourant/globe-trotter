@@ -1,0 +1,16 @@
+@use "../partials/mixins";
+
+.marker {
+  display: inline-flex;
+  position: relative;
+
+  span {
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    @include mixins.font-type('text-big');
+    text-align: center;
+    color: var(--white);
+  }
+}

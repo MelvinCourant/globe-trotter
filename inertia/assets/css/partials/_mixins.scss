@@ -14,5 +14,8 @@
     font-size: functions.rem(14);
     font-weight: 400;
     line-height: 1;
+  } @if($type == 'text-big') {
+    font-size: functions.rem(16);
+    font-weight: 700;
   }
 }
