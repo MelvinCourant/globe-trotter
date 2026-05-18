@@ -99,7 +99,7 @@ const datesFormated = computed(() => {
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
           <path d="M9.91167 7.44102L11.5587 5.79396C12.6958 4.65691 12.6958 2.81337 11.5587 1.67632C10.4217 0.53926 8.57814 0.539261 7.44108 1.67632L5.79402 3.32338M3.32344 5.79396L1.67638 7.44102C0.539321 8.57808 0.539321 10.4216 1.67638 11.5587C2.81343 12.6957 4.65697 12.6957 5.79403 11.5587L7.44108 9.91161" stroke="var(--primary)" stroke-width="1.64706" stroke-linecap="round"/>
         </svg>
-        <a :href="step.link" target="_blank">https://drive.google.com/drive/folders/1cPPC1_dCgengnEB-Ok9whSb1mmU3KXIs?usp=sharing</a>
+        <a :href="step.link" target="_blank">{{ step.link }}</a>
       </div>
     </div>
   </div>
