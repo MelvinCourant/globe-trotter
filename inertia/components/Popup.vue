@@ -36,7 +36,7 @@ const datesFormated = computed(() => {
   const startDate = new Date(start)
   const endDate = new Date(end)
 
-  const daysDiff = Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24))
+  const daysDiff = Math.round((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
   const suffix = daysDiff > 1 ? ` (${daysDiff} jours)` : ''
 
   const sameMonth = startDate.getMonth() === endDate.getMonth() && startDate.getFullYear() === endDate.getFullYear()
