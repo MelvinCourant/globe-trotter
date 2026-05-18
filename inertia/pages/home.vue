@@ -23,29 +23,6 @@ const travels = ref([])
 const userCoordinates = ref<{ latitude: number; longitude: number } | null>(null);
 const highlightLocation = ref<{ latitude: number; longitude: number } | null>(null);
 
-onMounted(async () => {
-  const geoOptions = { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 };
-
-  navigator.geolocation?.getCurrentPosition(
-    (pos) => {
-      userCoordinates.value = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
-    },
-    (err) => console.warn(`ERREUR (${err.code}): ${err.message}`),
-    geoOptions
-  );
-
-  if(page.props.user) {
-    const response = await fetch('/travels');
-    travels.value = await response.json();
-
-    travelOptions.value = travels.value.map((travel: { id: string; title: string }) => ({
-      value: travel.id,
-      text: travel.title,
-      display: true,
-    }));
-  }
-});
-
 const travelAttributes = {
   'type': 'text',
   'name': 'travel',
@@ -97,6 +74,29 @@ const form = useForm({
   link: '',
   medias: [] as File[],
 })
+
+onMounted(async () => {
+  const geoOptions = { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 };
+
+  navigator.geolocation?.getCurrentPosition(
+    (pos) => {
+      userCoordinates.value = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+    },
+    (err) => console.warn(`ERREUR (${err.code}): ${err.message}`),
+    geoOptions
+  );
+
+  if(page.props.user) {
+    const response = await fetch('/travels');
+    travels.value = await response.json();
+
+    travelOptions.value = travels.value.map((travel: { id: string; title: string }) => ({
+      value: travel.id,
+      text: travel.title,
+      display: true,
+    }));
+  }
+});
 
 async function displayStepForm() {
   if (!displayStepCreation.value) {
@@ -166,8 +166,8 @@ async function findActualLocation() {
   if(json.features && json.features.length > 0) {
     locationAttributes.value = json.features[0].properties.place_formatted;
     highlightLocation.value = coords;
-    form.latitude = coords.latitude;
-    form.longitude = coords.longitude;
+    form.latitude = parseFloat(coords.latitude.toFixed(7));
+    form.longitude = parseFloat(coords.longitude.toFixed(7));
     form.place = locationAttributes.value;
   }
 }
@@ -207,10 +207,16 @@ async function retrieveLocation(locationSelected: {value: string, text: string})
       latitude: json.features[0].geometry.coordinates[1],
       longitude: json.features[0].geometry.coordinates[0],
     }
-    form.latitude = json.features[0].geometry.coordinates[1];
-    form.longitude = json.features[0].geometry.coordinates[0];
+    form.latitude = parseFloat(json.features[0].geometry.coordinates[1].toFixed(7));
+    form.longitude = parseFloat(json.features[0].geometry.coordinates[0].toFixed(7));
     form.place = locationAttributes.value;
   }
+}
+
+function cancelStepCreation() {
+  form.reset()
+  displayStepCreation.value = false
+  highlightLocation.value = null
 }
 </script>
 
@@ -219,7 +225,7 @@ async function retrieveLocation(locationSelected: {value: string, text: string})
     <Head title="Ma carte" />
     <h1 class="hidden-title">Ma carte</h1>
     <Map :travels="travels" :highlightLocation="highlightLocation" :userCoordinates="userCoordinates"/>
-    <Button v-if="page.props.user" className="create-step" :iconOnly="true" :style="'primary'" @click="displayStepForm">
+    <Button v-if="page.props.user" v-show="!displayStepCreation" className="create-step" :iconOnly="true" :style="'primary'" @click="displayStepForm">
       <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 19 19" fill="none">
         <path d="M9.33334 1.33334L9.33334 17.3333" stroke="var(--white)" stroke-width="2.66667" stroke-linecap="round"/>
         <path d="M17.3333 9.33334L1.33334 9.33334" stroke="var(--white)" stroke-width="2.66667" stroke-linecap="round"/>
@@ -290,7 +296,7 @@ async function retrieveLocation(locationSelected: {value: string, text: string})
             :style="'primary'"
             type="submit"
           >Ajouter l'étape</Button>
-          <Button :disabled="form.processing" type="button">Annuler</Button>
+          <Button :disabled="form.processing" type="button" @click="cancelStepCreation">Annuler</Button>
         </div>
       </form>
     </FormContainer>

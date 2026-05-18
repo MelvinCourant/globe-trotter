@@ -168,7 +168,7 @@ watch([() => props.travels, mapInstance], ([travels, map]) => {
     const clusterEl = document.createElement('div')
     createApp(Cluster, { text: title }).mount(clusterEl)
     clusterEl.style.cursor = 'pointer'
-    clusterEl.addEventListener('click', () => map.fitBounds(bounds, { padding: 160, maxZoom: 10, speed: 2.5 }))
+    clusterEl.addEventListener('click', () => map.fitBounds(bounds, { padding: 140, maxZoom: 10, speed: 2.5 }))
 
     travelClusterMarkers.value.push(
       markRaw(new mapboxgl.Marker({ element: clusterEl, anchor: 'center' })
