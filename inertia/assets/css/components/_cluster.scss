@@ -1,0 +1,22 @@
+@use "../partials/mixins";
+
+.cluster {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 35px;
+  background: var(--primary);
+  @include mixins.font-type('text-big');
+  text-align: center;
+  text-wrap: nowrap;
+  border-radius: var(--border-radius-xxl);
+
+  &--rounded {
+    width: 35px;
+  }
+
+  &--default {
+    width: fit-content;
+    padding: 0 12px;
+  }
+}

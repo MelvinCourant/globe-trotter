@@ -6,6 +6,7 @@ import '../assets/css/components/_marker.scss'
 import '../assets/css/components/_user-position.scss'
 import { createApp, markRaw, onMounted, ref, useTemplateRef, watch } from "vue";
 import Popup from "~/components/Popup.vue";
+import Cluster from "~/components/Cluster.vue";
 
 type Step = {
   id: string
@@ -25,6 +26,12 @@ type Travel = {
   steps: Step[]
 }
 
+type Feature = {
+  type: string
+  geometry: { type: string; coordinates: [number, number] }
+  properties: { stepIndex: number; dates: string[]; medias: string[]; place: string; travel: Travel; title: string }
+}
+
 const props = defineProps<{
   highlightLocation: { latitude: number; longitude: number } | null,
   travels: Travel[],
@@ -32,11 +39,14 @@ const props = defineProps<{
 }>()
 
 const env = import.meta.env
+const CLUSTER_ZOOM_THRESHOLD = 4
 const mapContainer = useTemplateRef<HTMLDivElement>("mapContainer")
 const mapInstance = ref<mapboxgl.Map | null>(null)
 const userMarkerInstance = ref<mapboxgl.Marker | null>(null)
 const markerInstance = ref<mapboxgl.Marker | null>(null)
 const stepMarkers = ref<mapboxgl.Marker[]>([])
+const travelClusterMarkers = ref<mapboxgl.Marker[]>([])
+const zoomHandler = ref<(() => void) | null>(null)
 const theme = ref('light')
 
 watch([() => props.userCoordinates, mapInstance], ([coords, map]) => {
@@ -69,8 +79,8 @@ watch([() => props.highlightLocation, mapInstance], ([coords, map]) => {
   if (!markerInstance.value) {
     if(
       (props.userCoordinates &&
-      coords.latitude !== props.userCoordinates.latitude &&
-      coords.longitude !== props.userCoordinates.longitude) ||
+        coords.latitude !== props.userCoordinates.latitude &&
+        coords.longitude !== props.userCoordinates.longitude) ||
       !props.userCoordinates
     ) {
       const markerEl = document.createElement('div')
@@ -101,24 +111,32 @@ watch([() => props.highlightLocation, mapInstance], ([coords, map]) => {
 watch([() => props.travels, mapInstance], ([travels, map]) => {
   if (!map) return
 
-  let geojson = {
+  stepMarkers.value.forEach(m => m.remove())
+  stepMarkers.value = []
+  travelClusterMarkers.value.forEach(m => m.remove())
+  travelClusterMarkers.value = []
+
+  if (zoomHandler.value) {
+    map.off('zoom', zoomHandler.value)
+    zoomHandler.value = null
+  }
+
+  const geojson: { type: string; features: Feature[] } = {
     type: 'FeatureCollection',
     features: []
   }
 
   for (const travel of travels) {
-    for (const step of travel.steps) {
+    for (const [index, step] of travel.steps.entries()) {
       const lat = Number(step.latitude)
       const lng = Number(step.longitude)
-      if (!lat || !lng) return
+      if (!lat || !lng) continue
 
       geojson.features.push({
         type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: [lng, lat],
-        },
+        geometry: { type: 'Point', coordinates: [lng, lat] },
         properties: {
+          stepIndex: index,
           dates: [step.startDate, step.endDate],
           medias: step.medias,
           place: step.place,
@@ -129,10 +147,36 @@ watch([() => props.travels, mapInstance], ([travels, map]) => {
     }
   }
 
-  for (const [index, feature] of geojson.features.entries()) {
+  const travelGroups = new Map<string, { title: string; features: Feature[] }>()
+  for (const feature of geojson.features) {
+    const { id, title } = feature.properties.travel
+    if (!travelGroups.has(id)) travelGroups.set(id, { title, features: [] })
+    travelGroups.get(id)!.features.push(feature)
+  }
+
+  for (const [, { title, features }] of travelGroups) {
+    const centerLng = features.reduce((s, f) => s + f.geometry.coordinates[0], 0) / features.length
+    const centerLat = features.reduce((s, f) => s + f.geometry.coordinates[1], 0) / features.length
+
+    const bounds = new mapboxgl.LngLatBounds()
+    features.forEach(f => bounds.extend(f.geometry.coordinates))
+
+    const clusterEl = document.createElement('div')
+    createApp(Cluster, { text: title }).mount(clusterEl)
+    clusterEl.style.cursor = 'pointer'
+    clusterEl.addEventListener('click', () => map.fitBounds(bounds, { padding: 100, maxZoom: 10, speed: 2.5 }))
+
+    travelClusterMarkers.value.push(
+      markRaw(new mapboxgl.Marker({ element: clusterEl, anchor: 'center' })
+        .setLngLat([centerLng, centerLat])
+        .addTo(map))
+    )
+  }
+
+  for (const feature of geojson.features) {
     const markerEl = document.createElement('div')
     markerEl.className = 'marker'
-    markerEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="40" viewBox="0 0 36 40" fill="none"><path d="M17.6074 0C27.3318 0 35.2156 7.88308 35.2158 17.6074C35.2158 30.225 22.3401 37.8178 18.6094 39.7529C17.9733 40.0828 17.2425 40.0828 16.6064 39.7529C12.8761 37.818 0 30.2253 0 17.6074C0.000175233 7.88319 7.88319 0.000175244 17.6074 0Z" fill="var(--primary)"/></svg><span>${index + 1}</span>`
+    markerEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="40" viewBox="0 0 36 40" fill="none"><path d="M17.6074 0C27.3318 0 35.2156 7.88308 35.2158 17.6074C35.2158 30.225 22.3401 37.8178 18.6094 39.7529C17.9733 40.0828 17.2425 40.0828 16.6064 39.7529C12.8761 37.818 0 30.2253 0 17.6074C0.000175233 7.88319 7.88319 0.000175244 17.6074 0Z" fill="var(--primary)"/></svg><span>${feature.properties.stepIndex + 1}</span>`
 
     let app: ReturnType<typeof createApp> | null = null
     const popup = new mapboxgl.Popup({ anchor: 'bottom', closeButton: false, offset: 48, maxWidth: 'none' })
@@ -157,11 +201,32 @@ watch([() => props.travels, mapInstance], ([travels, map]) => {
       app = null
     })
 
-    new mapboxgl.Marker({ anchor: 'bottom', element: markerEl })
-      .setLngLat(feature.geometry.coordinates)
-      .setPopup(popup)
-      .addTo(map);
+    stepMarkers.value.push(
+      markRaw(new mapboxgl.Marker({ anchor: 'bottom', element: markerEl })
+        .setLngLat(feature.geometry.coordinates)
+        .setPopup(popup)
+        .addTo(map))
+    )
   }
+
+  const applyVisibility = (zoom: number) => {
+    const showClusters = zoom < CLUSTER_ZOOM_THRESHOLD
+    if (showClusters) {
+      stepMarkers.value.forEach(m => {
+        if (m.getPopup()?.isOpen()) m.togglePopup()
+      })
+    }
+    travelClusterMarkers.value.forEach(m => {
+      m.getElement().style.display = showClusters ? '' : 'none'
+    })
+    stepMarkers.value.forEach(m => {
+      m.getElement().style.display = showClusters ? 'none' : ''
+    })
+  }
+
+  applyVisibility(map.getZoom())
+  zoomHandler.value = () => applyVisibility(map.getZoom())
+  map.on('zoom', zoomHandler.value)
 }, { deep: true })
 
 onMounted(() => {
@@ -183,5 +248,5 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="map" ref="mapContainer"></div>
+<div class="map" ref="mapContainer"></div>
 </template>
