@@ -10,7 +10,11 @@ export default class extends BaseSeeder {
       {
         title: 'Amazonie',
         userId: user.id
-      }
+      },
+      {
+        title: 'France',
+        userId: user.id
+      },
     ])
   }
 }
