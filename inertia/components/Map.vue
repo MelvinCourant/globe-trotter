@@ -29,7 +29,11 @@ type Travel = {
 type Feature = {
   type: string
   geometry: { type: string; coordinates: [number, number] }
-  properties: { stepIndex: number; dates: string[]; medias: string[]; place: string; travel: Travel; title: string }
+  properties: {
+    step: { id: string; title: string; startDate: string; endDate: string; medias: string[]; place: string }
+    stepIndex: number
+    travel: Travel
+  }
 }
 
 const props = defineProps<{
@@ -140,12 +144,16 @@ watch([() => props.travels, mapInstance], ([travels, map]) => {
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [lng, lat] },
         properties: {
+          step: {
+            endDate: step.endDate,
+            id: step.id,
+            medias: step.medias,
+            place: step.place,
+            startDate: step.startDate,
+            title: step.title,
+          },
           stepIndex: index,
-          dates: [step.startDate, step.endDate],
-          medias: step.medias,
-          place: step.place,
           travel,
-          title: step.title,
         }
       })
     }
@@ -188,11 +196,8 @@ watch([() => props.travels, mapInstance], ([travels, map]) => {
     popup.on('open', () => {
       const container = document.createElement('div')
       app = createApp(Popup, {
-        dates: feature.properties.dates,
-        medias: feature.properties.medias,
-        place: feature.properties.place,
+        step: feature.properties.step,
         travel: feature.properties.travel,
-        title: feature.properties.title,
       })
       app.mount(container)
       popup.setDOMContent(container)

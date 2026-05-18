@@ -6,7 +6,8 @@
     transform: translateX(-50%);
   }
 
-  .step-form {
+  .step-form,
+  .step {
     position: fixed;
     z-index: 9998;
     top: 50%;

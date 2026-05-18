@@ -9,7 +9,7 @@ defineProps({
   },
   size: {
     type: String,
-    default: 'small'
+    default: 'medium'
   }
 })
 

@@ -1,0 +1,88 @@
+@use '../partials/functions';
+@use '../partials/mixins';
+
+.step {
+  display: flex;
+  flex-direction: column;
+  width: 440px;
+  height: fit-content;
+  box-shadow: var(--shadow);
+  border-radius: var(--border-radius-xl);
+  overflow: hidden;
+
+  &__content {
+    display: flex;
+    padding: 18px 18px 36px 18px;
+    flex-direction: column;
+    background: var(--background);
+  }
+
+  &__title {
+    @include mixins.font-type('title-medium');
+    line-height: 1;
+
+    &-update {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+  }
+
+  &__update {
+    @include mixins.resetButton(none, transparent);
+    min-width: 22px;
+    max-width: 22px;
+    height: 22px;
+  }
+
+  &__details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 8px;
+  }
+
+  &__detail {
+    display: flex;
+    gap: 4px;
+    @include mixins.font-type('text-medium');
+    line-height: 1.14;
+    color: var(--color-secondary);
+
+    svg {
+      min-width: 14px;
+      height: 14px;
+    }
+  }
+
+  &__description {
+    margin-top: 16px;
+    @include mixins.font-type('text-medium-secondary');
+    color: var(--color-secondary);
+  }
+
+  &__link {
+    display: flex;
+    gap: 4px;
+    margin-top: 16px;
+
+    svg {
+      min-width: 14px;
+    }
+
+    a {
+      @include mixins.font-type('text-medium');
+      font-weight: 500;
+      color: var(--primary);
+      text-decoration: underline;
+      text-overflow: ellipsis;
+      text-wrap: nowrap;
+      flex: 1;
+      overflow: hidden;
+
+      &:hover {
+        text-decoration: none;
+      }
+    }
+  }
+}

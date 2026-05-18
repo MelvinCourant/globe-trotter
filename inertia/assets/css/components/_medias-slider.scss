@@ -5,10 +5,18 @@
 
   &--small {
     height: 180px;
+
+    .medias-slider__media {
+      aspect-ratio: 350/180;
+    }
   }
 
   &--medium {
     height: 226px;
+
+    .medias-slider__media {
+      aspect-ratio: 440/226;
+    }
   }
 
   &__track {
@@ -22,7 +30,6 @@
   &__media {
     flex-shrink: 0;
     height: 100%;
-    aspect-ratio: 350/180;
 
     img {
       width: 100%;

@@ -5,21 +5,25 @@ import Map from '../components/Map.vue'
 import Button from "~/components/inputs/Button.vue";
 import type {Data} from "@generated/data";
 import FormContainer from "~/components/FormContainer.vue";
-import {ref, onMounted, reactive} from "vue";
+import {ref, onMounted, reactive, watch} from "vue";
 import InputString from "~/components/inputs/InputString.vue";
 import GalleryInput from "~/components/inputs/GalleryInput.vue";
 import Combobox from "~/components/inputs/Combobox.vue";
 import DatePicker from "~/components/inputs/DatePicker.vue";
 import Textarea from "~/components/inputs/Textarea.vue";
 import Search from "~/components/inputs/Search.vue";
+import Step from "~/components/Step.vue";
 
 const env = import.meta.env
 const page = usePage<Data.SharedProps>()
 const displayStepCreation = ref<boolean>(false)
+const displayStepDetails = ref<boolean>(false)
 const travelOptions = ref<{ value: string; text: string; display: boolean }[]>([]);
 const locationOptions = ref<{ text: string; value: string }[]>([]);
 const sessionToken = ref<string | null>(null);
 const travels = ref([])
+const selectedTravel = ref<Object | null>(null)
+const selectedStep = ref<Object | null>(null)
 const userCoordinates = ref<{ latitude: number; longitude: number } | null>(null);
 const highlightLocation = ref<{ latitude: number; longitude: number } | null>(null);
 
@@ -96,7 +100,21 @@ onMounted(async () => {
       display: true,
     }));
   }
+
+  const params = new URLSearchParams(window.location.search)
+
+  if(params && params.get('step')) {
+    displayStep(params.get('step'))
+  }
 });
+
+watch(() => page.url, (newUrl) => {
+  const params = new URLSearchParams(newUrl.split('?')[1] ?? '')
+
+  if(params && params.get('step')) {
+    displayStep(params.get('step'))
+  }
+})
 
 async function displayStepForm() {
   if (!displayStepCreation.value) {
@@ -218,6 +236,16 @@ function cancelStepCreation() {
   displayStepCreation.value = false
   highlightLocation.value = null
 }
+
+function displayStep(stepId: string) {
+  const travel = travels.value.find((t) => t.steps?.some((s) => String(s.id) === String(stepId)))
+
+  if (travel) {
+    selectedTravel.value = { id: travel.id, title: travel.title }
+    selectedStep.value = travel.steps.find((s) => String(s.id) === String(stepId))
+    displayStepDetails.value = true
+  }
+}
 </script>
 
 <template>
@@ -300,5 +328,10 @@ function cancelStepCreation() {
         </div>
       </form>
     </FormContainer>
+    <Step
+      v-if="displayStepDetails"
+      :travel="selectedTravel"
+      :step="selectedStep"
+    />
   </main>
 </template>
