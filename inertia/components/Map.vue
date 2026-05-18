@@ -40,12 +40,14 @@ const props = defineProps<{
 
 const env = import.meta.env
 const CLUSTER_ZOOM_THRESHOLD = 4
+const PROXIMITY_PIXEL_THRESHOLD = 40
 const mapContainer = useTemplateRef<HTMLDivElement>("mapContainer")
 const mapInstance = ref<mapboxgl.Map | null>(null)
 const userMarkerInstance = ref<mapboxgl.Marker | null>(null)
 const markerInstance = ref<mapboxgl.Marker | null>(null)
 const stepMarkers = ref<mapboxgl.Marker[]>([])
 const travelClusterMarkers = ref<mapboxgl.Marker[]>([])
+const proximityClusterMarkers = ref<mapboxgl.Marker[]>([])
 const zoomHandler = ref<(() => void) | null>(null)
 const theme = ref('light')
 
@@ -115,6 +117,8 @@ watch([() => props.travels, mapInstance], ([travels, map]) => {
   stepMarkers.value = []
   travelClusterMarkers.value.forEach(m => m.remove())
   travelClusterMarkers.value = []
+  proximityClusterMarkers.value.forEach(m => m.remove())
+  proximityClusterMarkers.value = []
 
   if (zoomHandler.value) {
     map.off('zoom', zoomHandler.value)
@@ -164,7 +168,7 @@ watch([() => props.travels, mapInstance], ([travels, map]) => {
     const clusterEl = document.createElement('div')
     createApp(Cluster, { text: title }).mount(clusterEl)
     clusterEl.style.cursor = 'pointer'
-    clusterEl.addEventListener('click', () => map.fitBounds(bounds, { padding: 100, maxZoom: 10, speed: 2.5 }))
+    clusterEl.addEventListener('click', () => map.fitBounds(bounds, { padding: 160, maxZoom: 10, speed: 2.5 }))
 
     travelClusterMarkers.value.push(
       markRaw(new mapboxgl.Marker({ element: clusterEl, anchor: 'center' })
@@ -209,12 +213,63 @@ watch([() => props.travels, mapInstance], ([travels, map]) => {
     )
   }
 
+  const updateProximityClusters = () => {
+    proximityClusterMarkers.value.forEach(m => m.remove())
+    proximityClusterMarkers.value = []
+
+    const n = geojson.features.length
+    const assigned = new Array(n).fill(false)
+
+    for (let i = 0; i < n; i++) {
+      if (assigned[i]) continue
+      const group = [i]
+      assigned[i] = true
+      const pi = map.project(geojson.features[i].geometry.coordinates as [number, number])
+
+      for (let j = i + 1; j < n; j++) {
+        if (assigned[j]) continue
+        const pj = map.project(geojson.features[j].geometry.coordinates as [number, number])
+        const dx = pi.x - pj.x
+        const dy = pi.y - pj.y
+        if (Math.sqrt(dx * dx + dy * dy) < PROXIMITY_PIXEL_THRESHOLD) {
+          group.push(j)
+          assigned[j] = true
+        }
+      }
+
+      if (group.length > 1) {
+        group.forEach(idx => {
+          stepMarkers.value[idx].getElement().style.display = 'none'
+        })
+
+        const centerLng = group.reduce((s, idx) => s + geojson.features[idx].geometry.coordinates[0], 0) / group.length
+        const centerLat = group.reduce((s, idx) => s + geojson.features[idx].geometry.coordinates[1], 0) / group.length
+
+        const bounds = new mapboxgl.LngLatBounds()
+        group.forEach(idx => bounds.extend(geojson.features[idx].geometry.coordinates))
+
+        const clusterEl = document.createElement('div')
+        createApp(Cluster, { text: String(group.length), type: 'rounded' }).mount(clusterEl)
+        clusterEl.style.cursor = 'pointer'
+        clusterEl.addEventListener('click', () => map.fitBounds(bounds, { padding: 100, maxZoom: 10, speed: 2.5 }))
+
+        proximityClusterMarkers.value.push(
+          markRaw(new mapboxgl.Marker({ element: clusterEl, anchor: 'center' })
+            .setLngLat([centerLng, centerLat])
+            .addTo(map))
+        )
+      }
+    }
+  }
+
   const applyVisibility = (zoom: number) => {
     const showClusters = zoom < CLUSTER_ZOOM_THRESHOLD
     if (showClusters) {
       stepMarkers.value.forEach(m => {
         if (m.getPopup()?.isOpen()) m.togglePopup()
       })
+      proximityClusterMarkers.value.forEach(m => m.remove())
+      proximityClusterMarkers.value = []
     }
     travelClusterMarkers.value.forEach(m => {
       m.getElement().style.display = showClusters ? '' : 'none'
@@ -222,6 +277,9 @@ watch([() => props.travels, mapInstance], ([travels, map]) => {
     stepMarkers.value.forEach(m => {
       m.getElement().style.display = showClusters ? 'none' : ''
     })
+    if (!showClusters) {
+      updateProximityClusters()
+    }
   }
 
   applyVisibility(map.getZoom())
