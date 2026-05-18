@@ -1,0 +1,59 @@
+@use '../partials/mixins';
+
+.medias-slider {
+  position: relative;
+
+  &--small {
+    height: 180px;
+  }
+
+  &--medium {
+    height: 226px;
+  }
+
+  &__track {
+    display: flex;
+    overflow-x: scroll;
+    scrollbar-width: none;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__media {
+    flex-shrink: 0;
+    height: 100%;
+    aspect-ratio: 350/180;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+  }
+
+  &__dots {
+    position: absolute;
+    left: 50%;
+    bottom: 8px;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+  }
+
+  &__dot {
+    @include mixins.resetButton(none, var(--primary));
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    opacity: 0.4;
+
+    &--active {
+      opacity: 1;
+    }
+
+    &:focus {
+      outline: none !important;
+    }
+  }
+}

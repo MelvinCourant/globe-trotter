@@ -2,8 +2,7 @@
 import '../assets/css/components/_popup.scss'
 import Chip from "~/components/Chip.vue";
 import {computed} from "vue";
-
-const emit = defineEmits(['close'])
+import MediasSlider from "~/components/MediasSlider.vue";
 
 const props = defineProps({
   dates: {
@@ -68,17 +67,7 @@ const datesFormated = computed(() => {
 
 <template>
   <div class="popup">
-    <div class="popup__medias" v-if="medias.length > 0">
-      <div
-        v-for="(media, index) in medias"
-        :key="index"
-        class="popup__media"
-      >
-        <img
-          :src="`/uploads/${media}`"
-        />
-      </div>
-    </div>
+    <MediasSlider :medias="medias" size="small"/>
     <div class="popup__content">
       <Chip :text="travel.title"/>
       <h2 class="popup__title">

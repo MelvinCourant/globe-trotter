@@ -290,7 +290,7 @@ async function retrieveLocation(locationSelected: {value: string, text: string})
             :style="'primary'"
             type="submit"
           >Ajouter l'étape</Button>
-          <Button :disabled="form.processing">Annuler</Button>
+          <Button :disabled="form.processing" type="button">Annuler</Button>
         </div>
       </form>
     </FormContainer>
