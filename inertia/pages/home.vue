@@ -26,6 +26,7 @@ const selectedTravel = ref<Object | null>(null)
 const selectedStep = ref<Object | null>(null)
 const userCoordinates = ref<{ latitude: number; longitude: number } | null>(null);
 const highlightLocation = ref<{ latitude: number; longitude: number } | null>(null);
+const highlightStep = ref<string | null>(null);
 
 const travelAttributes = {
   'type': 'text',
@@ -244,6 +245,7 @@ function displayStep(stepId: string) {
     selectedTravel.value = { id: travel.id, title: travel.title }
     selectedStep.value = travel.steps.find((s) => String(s.id) === String(stepId))
     displayStepDetails.value = true
+    highlightStep.value = stepId
   }
 }
 </script>
@@ -252,7 +254,13 @@ function displayStep(stepId: string) {
   <main class="home">
     <Head title="Ma carte" />
     <h1 class="hidden-title">Ma carte</h1>
-    <Map :travels="travels" :highlightLocation="highlightLocation" :userCoordinates="userCoordinates"/>
+    <Map
+      :disablePopups="displayStepDetails"
+      :travels="travels"
+      :highlightLocation="highlightLocation"
+      :highlightStep="highlightStep"
+      :userCoordinates="userCoordinates"
+    />
     <Button v-if="page.props.user" v-show="!displayStepCreation" className="create-step" :iconOnly="true" :style="'primary'" @click="displayStepForm">
       <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 19 19" fill="none">
         <path d="M9.33334 1.33334L9.33334 17.3333" stroke="var(--white)" stroke-width="2.66667" stroke-linecap="round"/>

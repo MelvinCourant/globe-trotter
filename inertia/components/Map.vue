@@ -4,6 +4,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import '../assets/css/components/_map.scss'
 import '../assets/css/components/_marker.scss'
 import '../assets/css/components/_user-position.scss'
+import { router } from '@inertiajs/vue3';
 import { createApp, markRaw, onMounted, ref, useTemplateRef, watch } from "vue";
 import Popup from "~/components/Popup.vue";
 import Cluster from "~/components/Cluster.vue";
@@ -37,7 +38,9 @@ type Feature = {
 }
 
 const props = defineProps<{
+  disablePopups: boolean,
   highlightLocation: { latitude: number; longitude: number } | null,
+  highlightStep: string | null,
   travels: Travel[],
   userCoordinates: { latitude: number; longitude: number } | null
 }>()
@@ -112,6 +115,30 @@ watch([() => props.highlightLocation, mapInstance], ([coords, map]) => {
   }
 
   map.flyTo({center: [coords.longitude, coords.latitude], speed: 2.5, zoom: 11})
+})
+
+watch(() => props.disablePopups, (disabled) => {
+  if (!disabled) return
+  stepMarkers.value.forEach(m => {
+    if (m.getPopup()?.isOpen()) m.togglePopup()
+  })
+})
+
+watch([() => props.highlightStep, mapInstance], ([stepId, map]) => {
+  if (!map || !stepId) return
+
+  for (const travel of props.travels) {
+    const step = travel.steps.find(s => s.id === stepId)
+
+    if (!step) continue
+
+    const lat = Number(step.latitude)
+    const lng = Number(step.longitude)
+
+    if (lat && lng) map.flyTo({ center: [lng, lat], speed: 2.5, zoom: 11 })
+
+    break
+  }
 })
 
 watch([() => props.travels, mapInstance], ([travels, map]) => {
@@ -194,6 +221,16 @@ watch([() => props.travels, mapInstance], ([travels, map]) => {
     const popup = new mapboxgl.Popup({ anchor: 'bottom', closeButton: false, offset: 48, maxWidth: 'none' })
 
     popup.on('open', () => {
+      if (props.disablePopups) {
+        popup.remove()
+
+        if (feature.properties.step.id !== props.highlightStep) {
+          router.get(window.location.pathname, { step: feature.properties.step.id }, { preserveState: true, preserveScroll: true })
+        }
+
+        return
+      }
+
       const container = document.createElement('div')
       app = createApp(Popup, {
         step: feature.properties.step,
