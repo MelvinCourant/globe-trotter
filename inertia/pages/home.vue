@@ -23,7 +23,11 @@ const locationOptions = ref<{ text: string; value: string }[]>([]);
 const sessionToken = ref<string | null>(null);
 const travels = ref([])
 const selectedTravel = ref<Object | null>(null)
+const previousStep = ref<string | null>(null)
+const nextStep = ref<string | null>(null)
 const selectedStep = ref<Object | null>(null)
+const stepIndex = ref<Number | null>(1)
+const totalSteps = ref<Number | null>(1)
 const userCoordinates = ref<{ latitude: number; longitude: number } | null>(null);
 const highlightLocation = ref<{ latitude: number; longitude: number } | null>(null);
 const highlightStep = ref<string | null>(null);
@@ -242,8 +246,15 @@ function displayStep(stepId: string) {
   const travel = travels.value.find((t) => t.steps?.some((s) => String(s.id) === String(stepId)))
 
   if (travel) {
+    const index = travel.steps.findIndex((s) => String(s.id) === String(stepId))
+
     selectedTravel.value = { id: travel.id, title: travel.title }
-    selectedStep.value = travel.steps.find((s) => String(s.id) === String(stepId))
+    selectedStep.value = travel.steps[index]
+    previousStep.value = index > 0 ? travel.steps[index - 1].id : null
+    nextStep.value = index < travel.steps.length - 1 ? travel.steps[index + 1].id : null
+    stepIndex.value = index + 1
+    totalSteps.value = travel.steps.length
+
     displayStepDetails.value = true
     highlightStep.value = stepId
   }
@@ -338,8 +349,12 @@ function displayStep(stepId: string) {
     </FormContainer>
     <Step
       v-if="displayStepDetails"
-      :travel="selectedTravel"
+      :nextStep="nextStep"
+      :previousStep="previousStep"
       :step="selectedStep"
+      :stepIndex="stepIndex"
+      :totalSteps="totalSteps"
+      :travel="selectedTravel"
     />
   </main>
 </template>

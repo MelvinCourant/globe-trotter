@@ -3,10 +3,27 @@ import '../assets/css/components/_step.scss'
 import MediasSlider from "~/components/MediasSlider.vue";
 import Chip from "~/components/Chip.vue";
 import {computed} from "vue";
+import {Link} from "@inertiajs/vue3";
 
 const props = defineProps({
+  nextStep: {
+    type: String,
+    default: ""
+  },
+  previousStep: {
+    type: String,
+    default: ""
+  },
   step: {
     type: Object,
+    required: true
+  },
+  stepIndex: {
+    type: Number,
+    required: true
+  },
+  totalSteps: {
+    type: Number,
     required: true
   },
   travel: {
@@ -100,6 +117,41 @@ const datesFormated = computed(() => {
           <path d="M9.91167 7.44102L11.5587 5.79396C12.6958 4.65691 12.6958 2.81337 11.5587 1.67632C10.4217 0.53926 8.57814 0.539261 7.44108 1.67632L5.79402 3.32338M3.32344 5.79396L1.67638 7.44102C0.539321 8.57808 0.539321 10.4216 1.67638 11.5587C2.81343 12.6957 4.65697 12.6957 5.79403 11.5587L7.44108 9.91161" stroke="var(--primary)" stroke-width="1.64706" stroke-linecap="round"/>
         </svg>
         <a :href="step.link" target="_blank">{{ step.link }}</a>
+      </div>
+    </div>
+    <div class="step__pager" v-if="totalSteps > 1">
+      <Link
+        v-if="previousStep"
+        class="step__page"
+        :href="`?step=${previousStep}`"
+        preserve-state
+        title="Voir l'étape précédente"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="12" viewBox="0 0 19 12" fill="none">
+          <path d="M1.76782 5.88391L0.883939 5.00003L5.53131e-05 5.88391L0.883939 6.76779L1.76782 5.88391ZM16.7678 7.13391C17.4582 7.13391 18.0178 6.57427 18.0178 5.88391C18.0178 5.19356 17.4582 4.63391 16.7678 4.63391V5.88391V7.13391ZM6.76782 0.883911L5.88394 2.76566e-05L0.883939 5.00003L1.76782 5.88391L2.65171 6.76779L7.65171 1.76779L6.76782 0.883911ZM1.76782 5.88391L0.883939 6.76779L5.88394 11.7678L6.76782 10.8839L7.65171 10L2.65171 5.00003L1.76782 5.88391ZM1.76782 5.88391V7.13391H16.7678V5.88391V4.63391H1.76782V5.88391Z" fill="var(--color)"/>
+        </svg>
+      </Link>
+      <div v-else class="step__page step__page--disabled">
+        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="12" viewBox="0 0 19 12" fill="none">
+          <path d="M1.76782 5.88391L0.883939 5.00003L5.53131e-05 5.88391L0.883939 6.76779L1.76782 5.88391ZM16.7678 7.13391C17.4582 7.13391 18.0178 6.57427 18.0178 5.88391C18.0178 5.19356 17.4582 4.63391 16.7678 4.63391V5.88391V7.13391ZM6.76782 0.883911L5.88394 2.76566e-05L0.883939 5.00003L1.76782 5.88391L2.65171 6.76779L7.65171 1.76779L6.76782 0.883911ZM1.76782 5.88391L0.883939 6.76779L5.88394 11.7678L6.76782 10.8839L7.65171 10L2.65171 5.00003L1.76782 5.88391ZM1.76782 5.88391V7.13391H16.7678V5.88391V4.63391H1.76782V5.88391Z" fill="var(--color)"/>
+        </svg>
+      </div>
+      <span class="step__page-index">{{ stepIndex }}/{{ totalSteps }}</span>
+      <Link
+        v-if="nextStep"
+        class="step__page"
+        :href="`?step=${nextStep}`"
+        preserve-state
+        title="Voir l'étape suivante"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="12" viewBox="0 0 19 12" fill="none">
+          <path d="M16.25 5.88391L17.1339 6.76779L18.0178 5.88391L17.1339 5.00003L16.25 5.88391ZM1.25 4.63391C0.559644 4.63391 0 5.19356 0 5.88391C0 6.57427 0.559644 7.13391 1.25 7.13391V5.88391V4.63391ZM11.25 10.8839L12.1339 11.7678L17.1339 6.76779L16.25 5.88391L15.3661 5.00003L10.3661 10L11.25 10.8839ZM16.25 5.88391L17.1339 5.00003L12.1339 2.76566e-05L11.25 0.883911L10.3661 1.76779L15.3661 6.76779L16.25 5.88391ZM16.25 5.88391V4.63391L1.25 4.63391V5.88391V7.13391L16.25 7.13391V5.88391Z" fill="var(--color)"/>
+        </svg>
+      </Link>
+      <div v-else class="step__page step__page--disabled">
+        <svg xmlns="http://www.w3.org/2000/svg" width="19" height="12" viewBox="0 0 19 12" fill="none">
+          <path d="M16.25 5.88391L17.1339 6.76779L18.0178 5.88391L17.1339 5.00003L16.25 5.88391ZM1.25 4.63391C0.559644 4.63391 0 5.19356 0 5.88391C0 6.57427 0.559644 7.13391 1.25 7.13391V5.88391V4.63391ZM11.25 10.8839L12.1339 11.7678L17.1339 6.76779L16.25 5.88391L15.3661 5.00003L10.3661 10L11.25 10.8839ZM16.25 5.88391L17.1339 5.00003L12.1339 2.76566e-05L11.25 0.883911L10.3661 1.76779L15.3661 6.76779L16.25 5.88391ZM16.25 5.88391V4.63391L1.25 4.63391V5.88391V7.13391L16.25 7.13391V5.88391Z" fill="var(--color)"/>
+        </svg>
       </div>
     </div>
   </div>

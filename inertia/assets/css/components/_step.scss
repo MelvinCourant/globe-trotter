@@ -9,12 +9,12 @@
   box-shadow: var(--shadow);
   border-radius: var(--border-radius-xl);
   overflow: hidden;
+  background: var(--background);
 
   &__content {
     display: flex;
     padding: 18px 18px 36px 18px;
     flex-direction: column;
-    background: var(--background);
   }
 
   &__title {
@@ -77,12 +77,50 @@
       text-decoration: underline;
       text-overflow: ellipsis;
       text-wrap: nowrap;
-      flex: 1;
       overflow: hidden;
 
       &:hover {
         text-decoration: none;
       }
+    }
+  }
+
+  &__pager {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 18px 18px 18px;
+  }
+
+  &__page {
+    display: flex;
+    width: 20px;
+    height: 20px;
+    justify-content: center;
+    align-items: center;
+
+    &:focus {
+      outline: none !important;
+
+      svg {
+        path {
+          fill: var(--primary);
+        }
+      }
+    }
+
+    &--disabled {
+      opacity: 0.5;
+
+      svg {
+        path {
+          fill: var(--color) !important;
+        }
+      }
+    }
+
+    &-index {
+      @include mixins.font-type('text-big');
     }
   }
 }
