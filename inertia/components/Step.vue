@@ -32,7 +32,7 @@ const props = defineProps({
     required: true
   }
 })
-defineEmits(['close'])
+defineEmits(['close', 'expandMedia'])
 
 const formatDate = (dateStr: string, options: Intl.DateTimeFormatOptions) =>
   new Date(dateStr).toLocaleDateString('fr-FR', options)
@@ -79,6 +79,7 @@ const datesFormated = computed(() => {
       className="step__close"
       size="small"
       :iconOnly="true"
+      title="Fermer l'étape"
       @click="$emit('close')"
     >
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -86,7 +87,11 @@ const datesFormated = computed(() => {
         <path d="M2.81337 2.81334C3.23168 2.3951 3.91056 2.39528 4.32899 2.81334L17.1864 15.6708C17.6047 16.0892 17.6047 16.768 17.1864 17.1864C16.768 17.6047 16.0892 17.6047 15.6708 17.1864L2.81337 4.32896C2.39531 3.91053 2.39513 3.23165 2.81337 2.81334Z" fill="var(--color)"/>
       </svg>
     </Button>
-    <MediasSlider :medias="step.medias"/>
+    <MediasSlider
+      :lightbox="true"
+      :medias="step.medias"
+      @expandMedia="$emit('expandMedia', $event)"
+    />
     <div class="step__content">
       <Chip :text="travel.title"/>
       <div class="step__title-update">

@@ -1,0 +1,96 @@
+@use '../partials/mixins';
+
+.lightbox {
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.40);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &__close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+  }
+
+  &__container {
+    position: relative;
+  }
+
+  &__media {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: fit-content;
+    height: 60svh;
+
+    img {
+      width: auto;
+      height: 100%;
+      object-fit: contain;
+    }
+  }
+
+  &__arrow {
+    position: absolute;
+    top: 50%;
+    @include mixins.resetButton(none, transparent);
+
+    &--previous {
+      left: 0;
+      transform: translate(calc(-100% - 40px), -50%);
+    }
+
+    &--next {
+      right: 0;
+      transform: translate(calc(100% + 40px), -50%);
+    }
+
+    &:hover:not(:disabled),
+    &:focus:not(:disabled) {
+      svg {
+        path {
+          stroke: var(--primary);
+        }
+      }
+    }
+
+    &:focus {
+      outline: none;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
+
+  &__dots {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translate(-50%, 40px);
+    display: flex;
+    gap: 8px;
+  }
+
+  &__dot {
+    @include mixins.resetButton(none, var(--primary));
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
+    opacity: 0.4;
+
+    &--active {
+      opacity: 1;
+    }
+
+    &:focus {
+      outline: none !important;
+    }
+  }
+}

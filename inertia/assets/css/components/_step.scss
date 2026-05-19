@@ -27,6 +27,7 @@
   &__title {
     @include mixins.font-type('title-medium');
     line-height: 1;
+    flex: 1;
 
     &-update {
       display: flex;

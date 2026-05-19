@@ -13,6 +13,7 @@ import DatePicker from "~/components/inputs/DatePicker.vue";
 import Textarea from "~/components/inputs/Textarea.vue";
 import Search from "~/components/inputs/Search.vue";
 import Step from "~/components/Step.vue";
+import Lightbox from "~/components/Lightbox.vue";
 
 const env = import.meta.env
 const page = usePage<Data.SharedProps>()
@@ -31,6 +32,8 @@ const totalSteps = ref<Number | null>(1)
 const userCoordinates = ref<{ latitude: number; longitude: number } | null>(null);
 const highlightLocation = ref<{ latitude: number; longitude: number } | null>(null);
 const highlightStep = ref<string | null>(null);
+const displayLightbox = ref<boolean>(false)
+const activeMediaIndex = ref<number>(0)
 
 const travelAttributes = {
   'type': 'text',
@@ -130,6 +133,10 @@ watch(() => page.url, handleStepParam)
 
 async function displayStepForm() {
   if (!displayStepCreation.value) {
+    if(displayStepDetails.value) {
+      closeStep()
+    }
+
     displayStepCreation.value = true;
 
     sessionToken.value = crypto.randomUUID();
@@ -269,6 +276,16 @@ function displayStep(stepId: string) {
 function closeStep() {
   router.get(window.location.pathname, {}, { preserveState: true, preserveScroll: true })
 }
+
+function openLightbox(mediaIndex: number) {
+  activeMediaIndex.value = mediaIndex;
+  displayLightbox.value = true
+}
+
+function closeLightbox() {
+  displayLightbox.value = false
+  activeMediaIndex.value = 1;
+}
 </script>
 
 <template>
@@ -366,6 +383,13 @@ function closeStep() {
       :totalSteps="totalSteps"
       :travel="selectedTravel"
       @close="closeStep"
+      @expandMedia="openLightbox"
+    />
+    <Lightbox
+      v-if="displayLightbox && selectedStep"
+      :activeIndex="activeMediaIndex"
+      :medias="selectedStep.medias"
+      @close="closeLightbox"
     />
   </main>
 </template>
