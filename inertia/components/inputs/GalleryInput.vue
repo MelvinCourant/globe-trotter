@@ -4,16 +4,21 @@ import {nextTick, ref, useTemplateRef} from "vue";
 import Button from "~/components/inputs/Button.vue";
 
 const props = defineProps({
+  error: {
+    type: String,
+    default: '',
+  },
   medias: {
     type: Array,
     default: () => [],
   }
 })
 
-const emit = defineEmits<{ updateMedias: [files: File[]] }>()
+const emit = defineEmits<{ updateMedias: [payload: { existing: string[], files: File[] }] }>()
 
+const existingMedias = ref<string[]>([...(props.medias as string[])])
 const files = ref<File[]>([])
-const previews = ref<string[]>(props.medias as string[])
+const previews = ref<string[]>([...(props.medias as string[])])
 const mediasSlider = useTemplateRef<HTMLDivElement>("mediasSlider")
 
 let isGrabbing = false
@@ -40,14 +45,19 @@ function onGrabEnd() {
   mediasSlider.value.style.cursor = 'grab'
 }
 
-async function scrollToLastMedia() {
+async function scrollToLastMedia(noAnimation: boolean = false) {
   await nextTick();
 
   if (mediasSlider.value) {
     const items = mediasSlider.value.querySelectorAll<HTMLElement>('.gallery-input-media:not(.gallery-input-media--placeholder)')
     const lastItem = items[items.length - 1]
+
     if (lastItem) {
-      mediasSlider.value.scrollTo({ left: lastItem.offsetLeft - 20, behavior: 'smooth' })
+      if(noAnimation) {
+        mediasSlider.value.scrollTo({ left: lastItem.offsetLeft - 20 })
+      } else {
+        mediasSlider.value.scrollTo({ left: lastItem.offsetLeft - 20, behavior: 'smooth' })
+      }
     }
   }
 }
@@ -59,14 +69,20 @@ async function addFiles(event: { target: any; }) {
     previews.value.push(URL.createObjectURL(file))
   })
   await scrollToLastMedia();
-  emit('updateMedias', files.value);
+  emit('updateMedias', { existing: existingMedias.value.map(m => m.replace('/uploads/', '')), files: files.value });
 }
 
 function deleteFile(index: number) {
-  URL.revokeObjectURL(previews.value[index])
-  files.value.splice(index, 1)
-  previews.value.splice(index, 1)
-  emit('updateMedias', files.value);
+  if (index < existingMedias.value.length) {
+    existingMedias.value.splice(index, 1)
+    previews.value.splice(index, 1)
+  } else {
+    const fileIndex = index - existingMedias.value.length
+    URL.revokeObjectURL(previews.value[index])
+    files.value.splice(fileIndex, 1)
+    previews.value.splice(index, 1)
+  }
+  emit('updateMedias', { existing: existingMedias.value.map(m => m.replace('/uploads/', '')), files: files.value });
 }
 </script>
 
@@ -82,7 +98,13 @@ function deleteFile(index: number) {
     >
       <div v-for="(media, index) in previews" class="gallery-input-media">
         <img :src="media" :alt="`Média ${index}`" draggable="false">
-        <Button className="gallery-input-media__delete" size="small" :iconOnly="true" @click="deleteFile(index)">
+        <Button
+          className="gallery-input-media__delete"
+          size="small"
+          :iconOnly="true"
+          type="button"
+          @click="deleteFile(index)"
+        >
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path d="M8.33325 12.5L8.33325 10" stroke="#EB5656" stroke-width="1.66667" stroke-linecap="round"/>
             <path d="M11.6667 12.5L11.6667 10" stroke="#EB5656" stroke-width="1.66667" stroke-linecap="round"/>
@@ -107,6 +129,12 @@ function deleteFile(index: number) {
           @change="addFiles($event)"
         >
       </div>
+    </div>
+    <div
+      v-if="error"
+      class="gallery-input__error"
+    >
+      {{ error }}
     </div>
   </div>
 </template>

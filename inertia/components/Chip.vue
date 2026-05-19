@@ -22,7 +22,12 @@ defineEmits(["deleteChip"]);
 <template>
   <div class="chip">
     {{ text }}
-    <button class="chip__delete" v-if="canBeDeleted" @click="$emit('deleteChip')">
+    <button
+      v-if="canBeDeleted"
+      class="chip__delete"
+      type="button"
+      @click="$emit('deleteChip')"
+    >
       <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none">
         <path d="M8.66663 0.666656L0.666626 8.66666" stroke="var(--primary)" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
         <path d="M0.666626 0.666656L8.66663 8.66666" stroke="var(--primary)" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>

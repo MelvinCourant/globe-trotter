@@ -5,7 +5,7 @@ import { ref, watch } from 'vue';
 import { fr } from "date-fns/locale"
 import '@vuepic/vue-datepicker/dist/main.css'
 
-defineProps({
+const props = defineProps({
   attributes: {
     type: Object,
     required: true
@@ -18,6 +18,10 @@ defineProps({
     type: String,
     default: '',
   },
+  initialDates: {
+    type: Array as () => [Date, Date] | null,
+    default: null,
+  },
   label: {
     type: String,
     default: '',
@@ -26,9 +30,10 @@ defineProps({
 
 const emit = defineEmits<{ updateDates: [dates: [Date, Date] | null] }>()
 
-const dates = ref<[Date, Date] | null>(null);
+const dates = ref<[Date, Date] | null>(null)
 
-watch(dates, (value) => emit('updateDates', value));
+watch(() => props.initialDates, (value) => { dates.value = value }, { immediate: true })
+watch(dates, (value) => emit('updateDates', value))
 </script>
 
 <template>

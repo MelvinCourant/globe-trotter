@@ -1,3 +1,6 @@
+@use "../../partials/functions";
+@use "../../partials/mixins";
+
 .gallery-input {
   &__medias {
     display: flex;
@@ -51,5 +54,11 @@
       object-fit: cover;
       object-position: center;
     }
+  }
+
+  &__error {
+    @include mixins.font-type('text-medium');
+    color: var(--danger);
+    margin-top: functions.rem(4);
   }
 }

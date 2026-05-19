@@ -17,8 +17,9 @@ import Lightbox from "~/components/Lightbox.vue";
 
 const env = import.meta.env
 const page = usePage<Data.SharedProps>()
-const displayStepCreation = ref<boolean>(false)
-const displayStepDetails = ref<boolean>(false)
+const stepFormDisplayed = ref<boolean>(false)
+const stepDetailsDisplayed = ref<boolean>(false)
+const hideStepDetails = ref<boolean>(false)
 const travelOptions = ref<{ value: string; text: string; display: boolean }[]>([]);
 const locationOptions = ref<{ text: string; value: string }[]>([]);
 const sessionToken = ref<string | null>(null);
@@ -32,6 +33,9 @@ const totalSteps = ref<Number | null>(1)
 const userCoordinates = ref<{ latitude: number; longitude: number } | null>(null);
 const highlightLocation = ref<{ latitude: number; longitude: number } | null>(null);
 const highlightStep = ref<string | null>(null);
+const travelInitialChips = ref<{ value: string; text: string }[]>([])
+const datesInitialValue = ref<[Date, Date] | null>(null)
+const mediasInitialValue = ref<string[]>([])
 const displayLightbox = ref<boolean>(false)
 const activeMediaIndex = ref<number>(0)
 
@@ -84,11 +88,16 @@ const form = useForm({
   place: '',
   description: '',
   link: '',
-  medias: [] as File[],
+  new_medias: [] as File[],
+  old_medias: [] as string[],
 })
+const formTitle = ref<string>('Ajouter une étape')
+const formType = ref<string>('create-step')
+const submitText = ref<string>('Ajouter')
 
 onMounted(async () => {
   const geoOptions = { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 };
+  sessionToken.value = crypto.randomUUID();
 
   navigator.geolocation?.getCurrentPosition(
     (pos) => {
@@ -124,27 +133,63 @@ function handleStepParam(url: string) {
     nextStep.value = null
     stepIndex.value = 1
     totalSteps.value = 1
-    displayStepDetails.value = false
+    stepDetailsDisplayed.value = false
     highlightStep.value = null
   }
 }
 
 watch(() => page.url, handleStepParam)
 
-async function displayStepForm() {
-  if (!displayStepCreation.value) {
-    if(displayStepDetails.value) {
-      closeStep()
+async function displayStepForm(type: string) {
+  if (!stepFormDisplayed.value) {
+    if(type === 'create-step') {
+      formTitle.value = 'Ajouter une étape'
+      submitText.value = 'Ajouter'
+
+      if(stepDetailsDisplayed.value) {
+        closeStep()
+      }
+    } else {
+      formTitle.value = 'Modifier l\'étape'
+      submitText.value = 'Modifier'
+      hideStepDetails.value = true
     }
 
-    displayStepCreation.value = true;
+    formType.value = type
 
-    sessionToken.value = crypto.randomUUID();
+    if(type === 'create-step') {
+      locationAttributes.value = ''
+      travelInitialChips.value = []
+      datesInitialValue.value = null
+      mediasInitialValue.value = []
 
-    if(userCoordinates.value) {
-      await findActualLocation()
-      highlightLocation.value = userCoordinates.value;
+      if(userCoordinates.value) {
+        await findActualLocation()
+        highlightLocation.value = userCoordinates.value;
+      }
+    } else {
+      form.travel_id = selectedTravel.value.id;
+      form.travel_title = selectedTravel.value.title;
+      form.title = selectedStep.value.title;
+      form.start_date = selectedStep.value.startDate;
+      form.end_date = selectedStep.value.endDate;
+      form.latitude = selectedStep.value.latitude;
+      form.longitude = selectedStep.value.longitude;
+      form.place = selectedStep.value.place;
+      form.description = selectedStep.value.description;
+      form.link = selectedStep.value.link;
+      form.old_medias = selectedStep.value.medias;
+
+      travelInitialChips.value = [{ value: form.travel_id, text: form.travel_title }]
+      datesInitialValue.value = [new Date(form.start_date), new Date(form.end_date)]
+      locationAttributes.value = form.place
+      mediasInitialValue.value = []
+      selectedStep.value.medias.forEach((media: string) => {
+        mediasInitialValue.value.push(`/uploads/${media}`);
+      })
     }
+
+    stepFormDisplayed.value = true;
   }
 }
 
@@ -165,8 +210,9 @@ function updateDates(dates: [Date, Date] | null) {
   form.end_date = dates?.[1] ? toDateString(dates[1]) : null
 }
 
-function updateMedias(files: File[]) {
-  form.medias = files
+function updateMedias(payload: { existing: string[], files: File[] }) {
+  form.old_medias = payload.existing
+  form.new_medias = payload.files
 }
 
 async function suggestLocation(searchText: string) {
@@ -209,22 +255,35 @@ async function findActualLocation() {
   }
 }
 
-async function createStep() {
-  form.post('/steps', {
-    forceFormData: true,
-    onSuccess: async () => {
-      travels.value = await fetch('/travels').then(r => r.json())
-      travelOptions.value = travels.value.map((travel: { id: string; title: string }) => ({
-        value: travel.id,
-        text: travel.title,
-        display: true,
-      }));
-      form.reset()
-      locationAttributes.value = ''
-      displayStepCreation.value = false
-      highlightLocation.value = null
-    }
-  })
+async function submitForm() {
+  if(formType.value === 'create-step') {
+    form.post('/steps', {
+      forceFormData: true,
+      onSuccess: async () => {
+        travels.value = await fetch('/travels').then(r => r.json())
+        travelOptions.value = travels.value.map((travel: { id: string; title: string }) => ({
+          value: travel.id,
+          text: travel.title,
+          display: true,
+        }));
+        form.reset()
+        stepFormDisplayed.value = false
+        highlightLocation.value = null
+      }
+    })
+  } else {
+    form.patch(`/steps/${selectedStep.value.id}`, {
+      forceFormData: true,
+      onSuccess: async () => {
+        const stepId = selectedStep.value.id
+        travels.value = await fetch('/travels').then(r => r.json())
+        form.reset()
+        stepFormDisplayed.value = false
+        hideStepDetails.value = false
+        displayStep(stepId)
+      }
+    })
+  }
 }
 
 async function retrieveLocation(locationSelected: {value: string, text: string}) {
@@ -250,10 +309,15 @@ async function retrieveLocation(locationSelected: {value: string, text: string})
   }
 }
 
-function cancelStepCreation() {
+function cancelSubmission() {
   form.reset()
-  displayStepCreation.value = false
-  highlightLocation.value = null
+  stepFormDisplayed.value = false
+
+  if(formType.value === 'create-step') {
+    highlightLocation.value = null
+  } else {
+    hideStepDetails.value = false
+  }
 }
 
 function displayStep(stepId: string) {
@@ -268,7 +332,7 @@ function displayStep(stepId: string) {
     nextStep.value = index < travel.steps.length - 1 ? travel.steps[index + 1].id : null
     stepIndex.value = index + 1
     totalSteps.value = travel.steps.length
-    displayStepDetails.value = true
+    stepDetailsDisplayed.value = true
     highlightStep.value = stepId
   }
 }
@@ -293,30 +357,41 @@ function closeLightbox() {
     <Head title="Ma carte" />
     <h1 class="hidden-title">Ma carte</h1>
     <Map
-      :disablePopups="displayStepDetails"
+      :disablePopups="stepDetailsDisplayed"
       :travels="travels"
       :highlightLocation="highlightLocation"
       :highlightStep="highlightStep"
       :userCoordinates="userCoordinates"
     />
-    <Button v-if="page.props.user" v-show="!displayStepCreation" className="create-step" :iconOnly="true" :style="'primary'" @click="displayStepForm">
+    <Button
+      v-if="page.props.user"
+      v-show="!stepFormDisplayed"
+      className="create-step"
+      :iconOnly="true"
+      :style="'primary'"
+      @click="displayStepForm('step-creation')"
+    >
       <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 19 19" fill="none">
         <path d="M9.33334 1.33334L9.33334 17.3333" stroke="var(--white)" stroke-width="2.66667" stroke-linecap="round"/>
         <path d="M17.3333 9.33334L1.33334 9.33334" stroke="var(--white)" stroke-width="2.66667" stroke-linecap="round"/>
       </svg>
     </Button>
     <FormContainer
-      v-if="displayStepCreation && page.props.user"
+      v-if="stepFormDisplayed && page.props.user"
       className="step-form"
       size="large"
-      title="Ajouter une étape"
+      :title="formTitle"
     >
-      <form @submit.prevent="createStep">
-        <GalleryInput @updateMedias="updateMedias"/>
+      <form @submit.prevent="submitForm">
+        <GalleryInput
+          :medias="mediasInitialValue"
+          @updateMedias="updateMedias"
+        />
         <Combobox
           label="Voyage*"
           :options="travelOptions"
           :attributes="travelAttributes"
+          :chips="travelInitialChips"
           :chipsMax="1"
           :customEntry="true"
           :data-invalid="!!form.errors.travel_id"
@@ -333,6 +408,7 @@ function closeLightbox() {
         <DatePicker
           label="Date de début et de fin*"
           :attributes="datesAttributes"
+          :initialDates="datesInitialValue"
           :error="form.errors.start_date || form.errors.end_date"
           @updateDates="updateDates"
         />
@@ -356,7 +432,13 @@ function closeLightbox() {
             </svg>
           </button>
         </Search>
-        <Textarea v-model="form.description" label="Description" :attributes="descriptionAttributes"/>
+        <Textarea
+          v-model="form.description"
+          label="Description"
+          :attributes="descriptionAttributes"
+          :error="form.errors.description"
+          :data-invalid="!!form.errors.description"
+        />
         <InputString
           v-model="form.link"
           :attributes="linkAttributes"
@@ -369,13 +451,14 @@ function closeLightbox() {
             :disabled="form.processing"
             :style="'primary'"
             type="submit"
-          >Ajouter l'étape</Button>
-          <Button :disabled="form.processing" type="button" @click="cancelStepCreation">Annuler</Button>
+          >{{ submitText }}</Button>
+          <Button :disabled="form.processing" type="button" @click="cancelSubmission">Annuler</Button>
         </div>
       </form>
     </FormContainer>
     <Step
-      v-if="displayStepDetails"
+      v-if="stepDetailsDisplayed"
+      v-show="!hideStepDetails"
       :nextStep="nextStep"
       :previousStep="previousStep"
       :step="selectedStep"
@@ -384,6 +467,7 @@ function closeLightbox() {
       :travel="selectedTravel"
       @close="closeStep"
       @expandMedia="openLightbox"
+      @updateStep="displayStepForm('update-step')"
     />
     <Lightbox
       v-if="displayLightbox && selectedStep"

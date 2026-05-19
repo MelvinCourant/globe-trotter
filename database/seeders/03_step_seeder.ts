@@ -28,7 +28,8 @@ export default class extends BaseSeeder {
     await Step.createMany([
       {
         title: 'Découverte de Manaus et visite de l’Institut National de la Recherche Amazonienne',
-        description: 'Tour de Manaus avec Sylvia : centre-ville, Université et Théâtre de l\'Amazonie le matin. Visite de l\'Institut National de la Recherche Amazonienne l\'après-midi.',
+        description: 'Avec Sylvia notre guide pour la journée, nous avons fait le tour de Manaus ce matin. Nous sommes allés au centre-ville à l’Université ainsi que le Théâtre de l’Amazonie.\n'+
+          'L’après-midi fut consacré à la visite de l’Institut National de la Recherche Amazonienne.',
         longitude: '-59.982918',
         latitude: '-3.133046',
         place: 'Manaus, Amazonas, Brésil',

@@ -14,6 +14,7 @@ export interface ApiDefinition {
   }
   steps: {
     create: typeof routes['steps.create']
+    update: typeof routes['steps.update']
   }
   travels: {
     create: typeof routes['travels.create']

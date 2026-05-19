@@ -29,4 +29,10 @@
       border: 1px solid var(--danger);
     }
   }
+
+  &__error {
+    @include mixins.font-type('text-medium');
+    color: var(--danger);
+    margin-top: functions.rem(4);
+  }
 }

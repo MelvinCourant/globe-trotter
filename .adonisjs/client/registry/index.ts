@@ -48,6 +48,12 @@ const routes = {
     tokens: [{"old":"/steps","type":0,"val":"steps","end":""}],
     types: placeholder as Registry['steps.create']['types'],
   },
+  'steps.update': {
+    methods: ["PATCH"],
+    pattern: '/steps/:id',
+    tokens: [{"old":"/steps/:id","type":0,"val":"steps","end":""},{"old":"/steps/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['steps.update']['types'],
+  },
   'travels.create': {
     methods: ["POST"],
     pattern: '/travels',

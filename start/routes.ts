@@ -27,6 +27,7 @@ router
   .group(() => {
     router.post('logout', [controllers.Session, 'destroy'])
     router.post('steps', [controllers.Steps, 'create'])
+    router.patch('steps/:id', [controllers.Steps, 'update'])
     router.post('travels', [controllers.Travels, 'create'])
     router.get('travels', [controllers.Travels, 'index'])
   })

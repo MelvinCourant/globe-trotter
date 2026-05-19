@@ -14,6 +14,10 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  error: {
+    type: String,
+    default: '',
+  },
   label: {
     type: String,
     required: true,
@@ -38,5 +42,11 @@ const emit = defineEmits(['update:modelValue'])
       :data-invalid="dataInvalid"
       @input="emit('update:modelValue', $event.target.value)"
     />
+    <div
+      v-if="error"
+      class="textarea__error"
+    >
+      {{ error }}
+    </div>
   </div>
 </template>

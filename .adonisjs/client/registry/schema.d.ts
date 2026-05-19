@@ -91,6 +91,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/steps_controller').default['create']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'steps.update': {
+    methods: ["PATCH"]
+    pattern: '/steps/:id'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/step').updateStepValidator)>>
+      paramsTuple: [ParamValue]
+      params: { id: ParamValue }
+      query: ExtractQuery<InferInput<(typeof import('#validators/step').updateStepValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/steps_controller').default['update']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/steps_controller').default['update']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'travels.create': {
     methods: ["POST"]
     pattern: '/travels'
