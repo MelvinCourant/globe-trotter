@@ -4,6 +4,7 @@ import MediasSlider from "~/components/MediasSlider.vue";
 import Chip from "~/components/Chip.vue";
 import {computed} from "vue";
 import {Link} from "@inertiajs/vue3";
+import Button from "~/components/inputs/Button.vue";
 
 const props = defineProps({
   nextStep: {
@@ -31,6 +32,7 @@ const props = defineProps({
     required: true
   }
 })
+defineEmits(['close'])
 
 const formatDate = (dateStr: string, options: Intl.DateTimeFormatOptions) =>
   new Date(dateStr).toLocaleDateString('fr-FR', options)
@@ -73,6 +75,17 @@ const datesFormated = computed(() => {
 
 <template>
   <div class="step">
+    <Button
+      className="step__close"
+      size="small"
+      :iconOnly="true"
+      @click="$emit('close')"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M15.6708 2.81334C16.0891 2.3951 16.768 2.39528 17.1864 2.81334C17.6047 3.23174 17.6047 3.91056 17.1864 4.32896L4.32899 17.1864C3.91059 17.6047 3.23177 17.6047 2.81337 17.1864C2.39531 16.768 2.39513 16.0891 2.81337 15.6708L15.6708 2.81334Z" fill="var(--color)"/>
+        <path d="M2.81337 2.81334C3.23168 2.3951 3.91056 2.39528 4.32899 2.81334L17.1864 15.6708C17.6047 16.0892 17.6047 16.768 17.1864 17.1864C16.768 17.6047 16.0892 17.6047 15.6708 17.1864L2.81337 4.32896C2.39531 3.91053 2.39513 3.23165 2.81337 2.81334Z" fill="var(--color)"/>
+      </svg>
+    </Button>
     <MediasSlider :medias="step.medias"/>
     <div class="step__content">
       <Chip :text="travel.title"/>

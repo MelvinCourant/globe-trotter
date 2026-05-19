@@ -58,7 +58,12 @@ const datesFormated = computed(() => {
 <template>
   <div class="popup">
     <MediasSlider :medias="step.medias" size="small"/>
-    <Link :href="`?step=${step.id}`" preserve-state class="popup__content">
+    <Link
+      :href="`?step=${step.id}`"
+      title="Afficher le détail de cette étape"
+      preserve-state
+      class="popup__content"
+    >
       <Chip :text="travel.title"/>
       <h2 class="popup__title">
         {{ step.title }}

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import '../assets/css/pages/_home.scss'
-import { Head, usePage, useForm } from '@inertiajs/vue3'
+import { Head, usePage, useForm, router } from '@inertiajs/vue3'
 import Map from '../components/Map.vue'
 import Button from "~/components/inputs/Button.vue";
 import type {Data} from "@generated/data";
@@ -106,20 +106,27 @@ onMounted(async () => {
     }));
   }
 
-  const params = new URLSearchParams(window.location.search)
-
-  if(params && params.get('step')) {
-    displayStep(params.get('step'))
-  }
+  handleStepParam(page.url)
 });
 
-watch(() => page.url, (newUrl) => {
-  const params = new URLSearchParams(newUrl.split('?')[1] ?? '')
+function handleStepParam(url: string) {
+  const stepId = new URLSearchParams(url.split('?')[1] ?? '').get('step')
 
-  if(params && params.get('step')) {
-    displayStep(params.get('step'))
+  if (stepId) {
+    displayStep(stepId)
+  } else {
+    selectedStep.value = null
+    selectedTravel.value = null
+    previousStep.value = null
+    nextStep.value = null
+    stepIndex.value = 1
+    totalSteps.value = 1
+    displayStepDetails.value = false
+    highlightStep.value = null
   }
-})
+}
+
+watch(() => page.url, handleStepParam)
 
 async function displayStepForm() {
   if (!displayStepCreation.value) {
@@ -254,10 +261,13 @@ function displayStep(stepId: string) {
     nextStep.value = index < travel.steps.length - 1 ? travel.steps[index + 1].id : null
     stepIndex.value = index + 1
     totalSteps.value = travel.steps.length
-
     displayStepDetails.value = true
     highlightStep.value = stepId
   }
+}
+
+function closeStep() {
+  router.get(window.location.pathname, {}, { preserveState: true, preserveScroll: true })
 }
 </script>
 
@@ -355,6 +365,7 @@ function displayStep(stepId: string) {
       :stepIndex="stepIndex"
       :totalSteps="totalSteps"
       :travel="selectedTravel"
+      @close="closeStep"
     />
   </main>
 </template>
