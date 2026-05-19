@@ -28,6 +28,7 @@ router
     router.post('logout', [controllers.Session, 'destroy'])
     router.post('steps', [controllers.Steps, 'create'])
     router.patch('steps/:id', [controllers.Steps, 'update'])
+    router.delete('steps/:id', [controllers.Steps, 'destroy'])
     router.post('travels', [controllers.Travels, 'create'])
     router.get('travels', [controllers.Travels, 'index'])
   })

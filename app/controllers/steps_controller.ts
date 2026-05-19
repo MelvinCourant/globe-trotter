@@ -81,4 +81,24 @@ export default class StepsController {
 
     return response.redirect().back()
   }
+
+  async destroy({ params, response, auth }: HttpContext) {
+    const { id } = params
+    const step = await Step.findOrFail(id)
+    const travel = await Travel.findOrFail(step.travelId)
+
+    if(travel.userId !== auth.user!.id) {
+      return response.forbidden()
+    }
+
+    await step.delete()
+
+    const remainingSteps = await Step.query().where('travel_id', travel.id)
+
+    if(remainingSteps.length === 0) {
+      await travel.delete()
+    }
+
+    return response.redirect().back()
+  }
 }

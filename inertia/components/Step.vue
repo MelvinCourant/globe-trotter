@@ -5,6 +5,7 @@ import Chip from "~/components/Chip.vue";
 import {computed} from "vue";
 import {Link} from "@inertiajs/vue3";
 import Button from "~/components/inputs/Button.vue";
+import More from "~/components/More.vue";
 
 const props = defineProps({
   nextStep: {
@@ -32,8 +33,20 @@ const props = defineProps({
     required: true
   }
 })
-defineEmits(['close', 'expandMedia', 'updateStep'])
+const emits = defineEmits(['close', 'expandMedia', 'updateStep', 'deleteStep']);
 
+const actions = [
+  {
+    name: 'update',
+    title: 'Modifier',
+    style: 'default',
+  },
+  {
+    name: 'delete',
+    title: 'Supprimer',
+    style: 'danger',
+  }
+]
 const formatDate = (dateStr: string, options: Intl.DateTimeFormatOptions) =>
   new Date(dateStr).toLocaleDateString('fr-FR', options)
 
@@ -71,6 +84,14 @@ const datesFormated = computed(() => {
   const endFormatted = formatDate(end, { day: 'numeric', month: 'long', year: 'numeric' })
   return `${startFormatted} - ${endFormatted}${suffix}`
 })
+
+function handleAction(actionName: string) {
+  if(actionName === 'update') {
+    emits('updateStep')
+  } else {
+    emits('deleteStep')
+  }
+}
 </script>
 
 <template>
@@ -98,16 +119,10 @@ const datesFormated = computed(() => {
         <h2 class="step__title">
           {{ step.title }}
         </h2>
-        <button
-          class="step__update"
-          title="Modifier l'étape"
-          @click="$emit('updateStep')"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
-            <path d="M13.9211 4.97168C14.3104 5.0132 14.6208 5.19171 14.8674 5.37988C15.1281 5.57873 15.4073 5.86121 15.6946 6.14844L15.8518 6.30566C16.139 6.59283 16.4206 6.87225 16.6194 7.13281C16.8344 7.41459 17.0374 7.77914 17.0374 8.25C17.0374 8.72086 16.8344 9.08541 16.6194 9.36719C16.4206 9.62776 16.139 9.90717 15.8518 10.1943L9.25708 16.7891C9.11312 16.933 8.92643 17.1307 8.68481 17.2676C8.44311 17.4044 8.17732 17.4633 7.97974 17.5127L5.54712 18.1211C5.41154 18.155 5.20768 18.2082 5.02954 18.2256C4.83997 18.2441 4.42599 18.2498 4.08813 17.9121C3.75009 17.5741 3.75612 17.1592 3.77466 16.9697C3.79212 16.7917 3.84528 16.5886 3.87915 16.4531L4.48755 14.0205C4.53695 13.8229 4.5958 13.5572 4.73267 13.3154L4.84497 13.1445C4.96505 12.9832 5.10317 12.8512 5.21118 12.7432L5.21704 12.7363L11.8049 6.14844C12.0921 5.86126 12.3715 5.57873 12.6321 5.37988C12.9139 5.16489 13.2794 4.96289 13.7502 4.96289L13.9211 4.97168Z" stroke="var(--color)" stroke-width="1.83333"/>
-            <path d="M11.4583 6.87502L14.2083 5.04169L16.9583 7.79169L15.1249 10.5417L11.4583 6.87502Z" fill="var(--color)"/>
-          </svg>
-        </button>
+        <More
+          :actions="actions"
+          @click="handleAction"
+        />
       </div>
       <div class="step__details">
         <div class="step__detail">

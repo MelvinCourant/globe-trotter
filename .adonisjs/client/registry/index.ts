@@ -54,6 +54,12 @@ const routes = {
     tokens: [{"old":"/steps/:id","type":0,"val":"steps","end":""},{"old":"/steps/:id","type":1,"val":"id","end":""}],
     types: placeholder as Registry['steps.update']['types'],
   },
+  'steps.destroy': {
+    methods: ["DELETE"],
+    pattern: '/steps/:id',
+    tokens: [{"old":"/steps/:id","type":0,"val":"steps","end":""},{"old":"/steps/:id","type":1,"val":"id","end":""}],
+    types: placeholder as Registry['steps.destroy']['types'],
+  },
   'travels.create': {
     methods: ["POST"],
     pattern: '/travels',

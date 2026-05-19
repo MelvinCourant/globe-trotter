@@ -350,6 +350,27 @@ function closeLightbox() {
   displayLightbox.value = false
   activeMediaIndex.value = 1;
 }
+
+async function deleteStep() {
+  const message = "Êtes-vous sûr de supprimer cette étape ? \nDans le cas où cette étape est la seule du voyage, il sera supprimé également."
+
+  if(window.confirm(message)) {
+    router.delete(`/steps/${selectedStep.value.id}`, {
+      onSuccess: async () => {
+        closeStep()
+        travels.value = await fetch('/travels').then(r => r.json())
+
+        if(travels.value.length !== travelOptions.value.length) {
+          travelOptions.value = travels.value.map((travel: { id: string; title: string }) => ({
+            value: travel.id,
+            text: travel.title,
+            display: true,
+          }));
+        }
+      }
+    })
+  }
+}
 </script>
 
 <template>
@@ -369,7 +390,7 @@ function closeLightbox() {
       className="create-step"
       :iconOnly="true"
       :style="'primary'"
-      @click="displayStepForm('step-creation')"
+      @click="displayStepForm('create-step')"
     >
       <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 19 19" fill="none">
         <path d="M9.33334 1.33334L9.33334 17.3333" stroke="var(--white)" stroke-width="2.66667" stroke-linecap="round"/>
@@ -468,6 +489,7 @@ function closeLightbox() {
       @close="closeStep"
       @expandMedia="openLightbox"
       @updateStep="displayStepForm('update-step')"
+      @deleteStep="deleteStep"
     />
     <Lightbox
       v-if="displayLightbox && selectedStep"

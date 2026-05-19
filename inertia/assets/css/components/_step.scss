@@ -36,13 +36,6 @@
     }
   }
 
-  &__update {
-    @include mixins.resetButton(none, transparent);
-    min-width: 22px;
-    max-width: 22px;
-    height: 22px;
-  }
-
   &__details {
     display: flex;
     flex-direction: column;
