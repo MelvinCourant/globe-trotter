@@ -2,7 +2,7 @@
 import '../assets/css/components/_step.scss'
 import MediasSlider from "~/components/MediasSlider.vue";
 import Chip from "~/components/Chip.vue";
-import {computed} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {Link} from "@inertiajs/vue3";
 import Button from "~/components/inputs/Button.vue";
 import More from "~/components/More.vue";
@@ -35,6 +35,11 @@ const props = defineProps({
 })
 const emits = defineEmits(['close', 'expandMedia', 'updateStep', 'deleteStep']);
 
+const stepRef = ref<HTMLElement | null>(null)
+const translateY = ref(0)
+const isDragging = ref(false)
+let dragStartY = 0
+let dragStartTranslate = 0
 const actions = [
   {
     name: 'update',
@@ -49,6 +54,8 @@ const actions = [
 ]
 const formatDate = (dateStr: string, options: Intl.DateTimeFormatOptions) =>
   new Date(dateStr).toLocaleDateString('fr-FR', options)
+const isMobile = ref(false)
+const noAnimations = ref(false)
 
 const datesFormated = computed(() => {
   const start = props.step.startDate as string
@@ -85,6 +92,20 @@ const datesFormated = computed(() => {
   return `${startFormatted} - ${endFormatted}${suffix}`
 })
 
+onMounted(() => {
+  if(window.innerWidth < 768) {
+    isMobile.value = true
+  }
+})
+
+window.addEventListener("resize", () => {
+  if(window.innerWidth < 768 && !isMobile.value) {
+    isMobile.value = true
+  } else if(window.innerWidth >= 768 && isMobile.value) {
+    isMobile.value = false
+  }
+})
+
 function handleAction(actionName: string) {
   if(actionName === 'update') {
     emits('updateStep')
@@ -92,10 +113,48 @@ function handleAction(actionName: string) {
     emits('deleteStep')
   }
 }
+
+function onDragStart(e: TouchEvent) {
+  noAnimations.value = true
+  isDragging.value = true
+  dragStartY = e.touches[0].clientY
+  dragStartTranslate = translateY.value
+}
+
+function onDragMove(e: TouchEvent) {
+  if (!isDragging.value) return
+  const delta = e.touches[0].clientY - dragStartY
+  translateY.value = Math.max(0, dragStartTranslate + delta)
+}
+
+function onDragEnd() {
+  if (!isDragging.value) return
+  isDragging.value = false
+
+  const stepHeight = stepRef.value?.offsetHeight ?? 0
+
+  if (translateY.value > stepHeight * 0.3) {
+    translateY.value = stepHeight
+    setTimeout(() => emits('close'), 300)
+  } else {
+    translateY.value = 0
+  }
+}
 </script>
 
 <template>
-  <div class="step">
+  <div
+    :class="['step', {'step--no-animations': noAnimations}]"
+    ref="stepRef"
+    :style="isMobile ? { transform: `translateY(${translateY}px)`, transition: isDragging ? 'none' : 'transform 0.3s ease' } : {}"
+  >
+    <div
+      class="step__drag-handle"
+      v-if="isMobile"
+      @touchstart="onDragStart"
+      @touchmove.prevent="onDragMove"
+      @touchend="onDragEnd"
+    ></div>
     <Button
       className="step__close"
       size="small"

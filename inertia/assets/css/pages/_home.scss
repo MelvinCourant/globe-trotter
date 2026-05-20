@@ -6,14 +6,21 @@
     transform: translateX(-50%);
   }
 
-  .step-form,
-  .step {
+  .step-form {
     position: fixed;
     z-index: 9998;
     top: 50%;
     left: 20px;
     transform: translate(0, -50%);
     animation: slideToRight 0.2s forwards;
+
+    @media screen and (max-width: 767px) {
+      top: 1px;
+      left: 1px;
+      bottom: -1px;
+      transform: none;
+      animation: none;
+    }
 
     @keyframes slideToRight {
       0% {

@@ -58,6 +58,30 @@ const proximityClusterMarkers = ref<mapboxgl.Marker[]>([])
 const zoomHandler = ref<(() => void) | null>(null)
 const theme = ref('light')
 
+onMounted(() => {
+  mapboxgl.accessToken = env.VITE_MAPBOX_ACCESSTOKEN
+
+  if(window.matchMedia) {
+    if(window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      theme.value = 'dark'
+    }
+  }
+
+  let zoom = 2
+
+  if(window.innerWidth < 768) {
+    zoom = 1
+  }
+
+  mapInstance.value = markRaw(new mapboxgl.Map({
+    attributionControl: false,
+    container: mapContainer.value!,
+    language: 'fr-FR',
+    style: `mapbox://styles/mapbox/${theme.value}-v11`,
+    zoom: zoom
+  }))
+})
+
 watch([() => props.userCoordinates, mapInstance], ([coords, map]) => {
   if (!map || !coords || (coords.latitude === 0 && coords.longitude === 0)) return
 
@@ -328,23 +352,6 @@ watch([() => props.travels, mapInstance], ([travels, map]) => {
   zoomHandler.value = () => applyVisibility(map.getZoom())
   map.on('zoom', zoomHandler.value)
 }, { deep: true })
-
-onMounted(() => {
-  mapboxgl.accessToken = env.VITE_MAPBOX_ACCESSTOKEN
-
-  if(window.matchMedia) {
-    if(window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      theme.value = 'dark'
-    }
-  }
-
-  mapInstance.value = markRaw(new mapboxgl.Map({
-    container: mapContainer.value!,
-    language: 'fr-FR',
-    style: `mapbox://styles/mapbox/${theme.value}-v11`,
-    zoom: 2
-  }))
-})
 </script>
 
 <template>

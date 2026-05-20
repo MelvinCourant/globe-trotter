@@ -2,6 +2,11 @@
 @use '../partials/mixins';
 
 .step {
+  position: fixed;
+  z-index: 9998;
+  top: 50%;
+  left: 20px;
+  transform: translate(0, -50%);
   display: flex;
   flex-direction: column;
   width: 440px;
@@ -10,12 +15,67 @@
   border-radius: var(--border-radius-xl);
   overflow: hidden;
   background: var(--background);
+  animation: slideToRight 0.2s forwards;
+
+  @media screen and (max-width: 767px) {
+    top: initial;
+    left: 1px;
+    bottom: -1px;
+    transform: none;
+    width: calc(100% - 2px);
+    box-shadow: var(--shadow);
+    border-radius: var(--border-radius-xl) var(--border-radius-xl) 0 0;
+    animation: slideToBottom 0.2s forwards;
+
+    @keyframes slideToBottom {
+      0% {
+        transform: translateY(100%);
+      }
+      100% {
+        transform: translateY(0);
+      }
+    }
+  }
+
+  @keyframes slideToRight {
+    0% {
+      transform: translate(calc(-100% - 20px), -50%);
+    }
+    100% {
+      transform: translate(0, -50%);
+    }
+  }
+
+  &--no-animations {
+    animation: none !important;
+  }
+
+  &__drag-handle {
+    position: relative;
+    height: 36px;
+
+    &:before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--color-secondary);
+      width: 32px;
+      height: 4px;
+      border-radius: 100px;
+    }
+  }
 
   &__close {
     position: absolute;
     z-index: 3;
     top: 10px;
     right: 10px;
+
+    @media screen and (max-width: 767px) {
+      top: calc(10px + 36px);
+    }
   }
 
   &__content {
@@ -91,6 +151,10 @@
     justify-content: space-between;
     align-items: center;
     padding: 0 18px 18px 18px;
+
+    @media screen and (max-width: 767px) {
+      padding: 0 18px 46px 18px;
+    }
   }
 
   &__page {

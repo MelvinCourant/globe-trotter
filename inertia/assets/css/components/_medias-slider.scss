@@ -5,6 +5,7 @@
 
   &--small {
     height: 180px;
+    aspect-ratio: 350/180;
 
     .medias-slider__media {
       aspect-ratio: 350/180;
@@ -13,6 +14,12 @@
 
   &--medium {
     height: 226px;
+    aspect-ratio: 440/226;
+
+    @media screen and (max-width: 767px) {
+      width: 100%;
+      height: auto;
+    }
 
     .medias-slider__media {
       aspect-ratio: 440/226;
@@ -30,6 +37,7 @@
   &__media {
     position: relative;
     flex-shrink: 0;
+    width: 100%;
     height: 100%;
 
     img {

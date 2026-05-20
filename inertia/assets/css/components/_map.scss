@@ -10,4 +10,10 @@
   .mapboxgl-popup-tip {
     display: none;
   }
+
+  .mapboxgl-control-container {
+    > div:has(.mapboxgl-ctrl-logo) {
+      display: none;
+    }
+  }
 }
