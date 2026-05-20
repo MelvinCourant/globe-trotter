@@ -5,6 +5,11 @@
   left: 20px;
   right: 20px;
 
+  nav {
+    display: flex;
+    justify-content: space-between;
+  }
+
   .account {
     @media screen and (max-width: 767px) {
       position: fixed;

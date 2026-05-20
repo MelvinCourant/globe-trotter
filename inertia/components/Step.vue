@@ -16,6 +16,10 @@ const props = defineProps({
     type: String,
     default: ""
   },
+  shared: {
+    type: Boolean,
+    default: false
+  },
   step: {
     type: Object,
     required: true
@@ -179,6 +183,7 @@ function onDragEnd() {
           {{ step.title }}
         </h2>
         <More
+          v-if="!shared"
           :actions="actions"
           @click="handleAction"
         />

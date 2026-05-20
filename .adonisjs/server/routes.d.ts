@@ -5,6 +5,7 @@ type ParamValue = string | number | bigint | boolean
 export type ScannedRoutes = {
   ALL: {
     'home': { paramsTuple?: []; params?: {} }
+    'shared-travels': { paramsTuple: [ParamValue]; params: {'shareLinkId': ParamValue} }
     'new_account.create': { paramsTuple?: []; params?: {} }
     'new_account.store': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
@@ -15,18 +16,26 @@ export type ScannedRoutes = {
     'steps.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'travels.create': { paramsTuple?: []; params?: {} }
     'travels.index': { paramsTuple?: []; params?: {} }
+    'session.create_share_link': { paramsTuple?: []; params?: {} }
+    'travels.index_shared': { paramsTuple: [ParamValue]; params: {'shareLinkId': ParamValue} }
   }
   GET: {
     'home': { paramsTuple?: []; params?: {} }
+    'shared-travels': { paramsTuple: [ParamValue]; params: {'shareLinkId': ParamValue} }
     'new_account.create': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
     'travels.index': { paramsTuple?: []; params?: {} }
+    'session.create_share_link': { paramsTuple?: []; params?: {} }
+    'travels.index_shared': { paramsTuple: [ParamValue]; params: {'shareLinkId': ParamValue} }
   }
   HEAD: {
     'home': { paramsTuple?: []; params?: {} }
+    'shared-travels': { paramsTuple: [ParamValue]; params: {'shareLinkId': ParamValue} }
     'new_account.create': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
     'travels.index': { paramsTuple?: []; params?: {} }
+    'session.create_share_link': { paramsTuple?: []; params?: {} }
+    'travels.index_shared': { paramsTuple: [ParamValue]; params: {'shareLinkId': ParamValue} }
   }
   POST: {
     'new_account.store': { paramsTuple?: []; params?: {} }

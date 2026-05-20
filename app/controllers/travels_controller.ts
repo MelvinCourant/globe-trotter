@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { createTravelValidator } from '#validators/travel'
 import Travel from '#models/travel'
+import User from "#models/user";
 
 export default class TravelsController {
   async create({ request, response, auth }: HttpContext) {
@@ -13,6 +14,26 @@ export default class TravelsController {
   async index({ response, auth }: HttpContext) {
     const travels = await Travel.query()
       .where('user_id', auth.user!.id)
+      .select('id', 'title')
+      .preload('steps', (query) => query.orderBy('end_date', 'asc'))
+      .orderBy('title', 'asc')
+
+    return response.status(200).send(travels)
+  }
+
+  async indexShared({ params, response }: HttpContext) {
+    const { shareLinkId } = params
+    const userSharing = await User.query()
+      .where('share_link', shareLinkId)
+      .select('id')
+      .first()
+
+    if (!userSharing) {
+      return response.status(404).send({ message: 'Share link not found' })
+    }
+
+    const travels = await Travel.query()
+      .where('user_id', userSharing.id)
       .select('id', 'title')
       .preload('steps', (query) => query.orderBy('end_date', 'asc'))
       .orderBy('title', 'asc')

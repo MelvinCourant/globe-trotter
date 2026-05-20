@@ -5,7 +5,7 @@ import Map from '../components/Map.vue'
 import Button from "~/components/inputs/Button.vue";
 import type {Data} from "@generated/data";
 import FormContainer from "~/components/FormContainer.vue";
-import {ref, onMounted, onUnmounted, reactive, watch, nextTick} from "vue";
+import {ref, computed, onMounted, onUnmounted, reactive, watch, nextTick} from "vue";
 import InputString from "~/components/inputs/InputString.vue";
 import GalleryInput from "~/components/inputs/GalleryInput.vue";
 import Combobox from "~/components/inputs/Combobox.vue";
@@ -39,6 +39,11 @@ const mediasInitialValue = ref<string[]>([])
 const displayLightbox = ref<boolean>(false)
 const activeMediaIndex = ref<number>(0)
 const mapPadding = ref<{ top: number; right: number; bottom: number; left: number }>({ top: 0, right: 0, bottom: 0, left: 0 })
+const isShared = computed(() => page.url.startsWith('/shared/'))
+const shareLinkId = computed(() => {
+  if (!isShared.value) return null
+  return page.url.split('?')[0].replace('/shared/', '')
+})
 
 const travelAttributes = {
   'type': 'text',
@@ -107,7 +112,10 @@ onMounted(async () => {
     geoOptions
   );
 
-  if(page.props.user) {
+  if (isShared.value && shareLinkId.value) {
+    const response = await fetch(`/travels-shared/${shareLinkId.value}`);
+    travels.value = await response.json();
+  } else if(page.props.user) {
     const response = await fetch('/travels');
     travels.value = await response.json();
 
@@ -290,7 +298,7 @@ async function submitForm() {
     form.post('/steps', {
       forceFormData: true,
       onSuccess: async () => {
-        travels.value = await fetch('/travels').then(r => r.json())
+        travels.value = await fetch('/travels').then(response => response.json())
         travelOptions.value = travels.value.map((travel: { id: string; title: string }) => ({
           value: travel.id,
           text: travel.title,
@@ -307,7 +315,7 @@ async function submitForm() {
       forceFormData: true,
       onSuccess: async () => {
         const stepId = selectedStep.value.id
-        travels.value = await fetch('/travels').then(r => r.json())
+        travels.value = await fetch('/travels').then(response => response.json())
         form.reset()
         stepFormDisplayed.value = false
         hideStepDetails.value = false
@@ -398,7 +406,7 @@ async function deleteStep() {
     router.delete(`/steps/${selectedStep.value.id}`, {
       onSuccess: async () => {
         closeStep()
-        travels.value = await fetch('/travels').then(r => r.json())
+        travels.value = await fetch('/travels').then(response => response.json())
 
         if(travels.value.length !== travelOptions.value.length) {
           travelOptions.value = travels.value.map((travel: { id: string; title: string }) => ({
@@ -426,7 +434,7 @@ async function deleteStep() {
       :userCoordinates="userCoordinates"
     />
     <Button
-      v-if="page.props.user"
+      v-if="page.props.user && !isShared"
       v-show="!stepFormDisplayed"
       className="create-step"
       :iconOnly="true"
@@ -523,6 +531,7 @@ async function deleteStep() {
       v-show="!hideStepDetails"
       :nextStep="nextStep"
       :previousStep="previousStep"
+      :shared="isShared"
       :step="selectedStep"
       :stepIndex="stepIndex"
       :totalSteps="totalSteps"

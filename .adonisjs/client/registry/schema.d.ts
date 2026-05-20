@@ -19,6 +19,18 @@ export interface Registry {
       errorResponse: unknown
     }
   }
+  'shared-travels': {
+    methods: ["GET","HEAD"]
+    pattern: '/shared/:shareLinkId'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { shareLinkId: ParamValue }
+      query: {}
+      response: unknown
+      errorResponse: unknown
+    }
+  }
   'new_account.create': {
     methods: ["GET","HEAD"]
     pattern: '/signup'
@@ -137,6 +149,30 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/travels_controller').default['index']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/travels_controller').default['index']>>>
+    }
+  }
+  'session.create_share_link': {
+    methods: ["GET","HEAD"]
+    pattern: '/create-share-link'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/session_controller').default['createShareLink']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/session_controller').default['createShareLink']>>>
+    }
+  }
+  'travels.index_shared': {
+    methods: ["GET","HEAD"]
+    pattern: '/travels-shared/:shareLinkId'
+    types: {
+      body: {}
+      paramsTuple: [ParamValue]
+      params: { shareLinkId: ParamValue }
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/travels_controller').default['indexShared']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/travels_controller').default['indexShared']>>>
     }
   }
 }

@@ -12,6 +12,7 @@ import { controllers } from '#generated/controllers'
 import router from '@adonisjs/core/services/router'
 
 router.on('/').renderInertia('home', {}).as('home')
+router.on('/shared/:shareLinkId').renderInertia('home', {}).as('shared-travels')
 
 router
   .group(() => {
@@ -31,5 +32,8 @@ router
     router.delete('steps/:id', [controllers.Steps, 'destroy'])
     router.post('travels', [controllers.Travels, 'create'])
     router.get('travels', [controllers.Travels, 'index'])
+    router.get('create-share-link', [controllers.Session, 'createShareLink'])
   })
   .use(middleware.auth())
+
+router.get('travels-shared/:shareLinkId', [controllers.Travels, 'indexShared'])

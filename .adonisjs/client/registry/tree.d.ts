@@ -3,6 +3,7 @@ import type { routes } from './index.ts'
 
 export interface ApiDefinition {
   home: typeof routes['home']
+  sharedTravels: typeof routes['shared-travels']
   newAccount: {
     create: typeof routes['new_account.create']
     store: typeof routes['new_account.store']
@@ -11,6 +12,7 @@ export interface ApiDefinition {
     create: typeof routes['session.create']
     store: typeof routes['session.store']
     destroy: typeof routes['session.destroy']
+    createShareLink: typeof routes['session.create_share_link']
   }
   steps: {
     create: typeof routes['steps.create']
@@ -20,5 +22,6 @@ export interface ApiDefinition {
   travels: {
     create: typeof routes['travels.create']
     index: typeof routes['travels.index']
+    indexShared: typeof routes['travels.index_shared']
   }
 }

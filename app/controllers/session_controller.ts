@@ -1,5 +1,6 @@
 import User from '#models/user'
 import type { HttpContext } from '@adonisjs/core/http'
+import {randomUUID} from "node:crypto";
 
 export default class SessionController {
   async create({ inertia }: HttpContext) {
@@ -17,5 +18,16 @@ export default class SessionController {
   async destroy({ auth, response }: HttpContext) {
     await auth.use('web').logout()
     response.redirect().toRoute('session.create')
+  }
+
+  async createShareLink({ auth, response }: HttpContext) {
+    const user = await User.findOrFail(auth.user.id)
+
+    user.shareLink = randomUUID()
+    await user.save()
+
+    response.status(200).send({
+      shareLink: user.shareLink,
+    })
   }
 }

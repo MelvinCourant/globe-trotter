@@ -12,6 +12,12 @@ const routes = {
     tokens: [{"old":"/","type":0,"val":"/","end":""}],
     types: placeholder as Registry['home']['types'],
   },
+  'shared-travels': {
+    methods: ["GET","HEAD"],
+    pattern: '/shared/:shareLinkId',
+    tokens: [{"old":"/shared/:shareLinkId","type":0,"val":"shared","end":""},{"old":"/shared/:shareLinkId","type":1,"val":"shareLinkId","end":""}],
+    types: placeholder as Registry['shared-travels']['types'],
+  },
   'new_account.create': {
     methods: ["GET","HEAD"],
     pattern: '/signup',
@@ -71,6 +77,18 @@ const routes = {
     pattern: '/travels',
     tokens: [{"old":"/travels","type":0,"val":"travels","end":""}],
     types: placeholder as Registry['travels.index']['types'],
+  },
+  'session.create_share_link': {
+    methods: ["GET","HEAD"],
+    pattern: '/create-share-link',
+    tokens: [{"old":"/create-share-link","type":0,"val":"create-share-link","end":""}],
+    types: placeholder as Registry['session.create_share_link']['types'],
+  },
+  'travels.index_shared': {
+    methods: ["GET","HEAD"],
+    pattern: '/travels-shared/:shareLinkId',
+    tokens: [{"old":"/travels-shared/:shareLinkId","type":0,"val":"travels-shared","end":""},{"old":"/travels-shared/:shareLinkId","type":1,"val":"shareLinkId","end":""}],
+    types: placeholder as Registry['travels.index_shared']['types'],
   },
 } as const satisfies Record<string, AdonisEndpoint>
 
