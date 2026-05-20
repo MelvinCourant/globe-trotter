@@ -1,6 +1,6 @@
 <script setup>
 import '../assets/css/components/_form-container.scss';
-import {onMounted} from "vue";
+import {onMounted, ref} from "vue";
 
 defineProps({
   className: {
@@ -16,11 +16,16 @@ defineProps({
     default: '',
   }
 })
+const isMobile = ref(false)
 
 onMounted(() => {
+  if(window.innerWidth < 768) {
+    isMobile.value = true
+  }
+
   const form = document.querySelector('.form-container form')
 
-  if(form) {
+  if(form && !isMobile.value) {
     const inputs = form.querySelectorAll('input:not([type="file"])')
     const firstInput = inputs[0]
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import '../../assets/css/components/inputs/_date-picker.scss'
 import { VueDatePicker } from "@vuepic/vue-datepicker"
-import { ref, watch } from 'vue';
+import {onMounted, ref, watch } from 'vue';
 import { fr } from "date-fns/locale"
 import '@vuepic/vue-datepicker/dist/main.css'
 
@@ -29,8 +29,22 @@ const props = defineProps({
 })
 
 const emit = defineEmits<{ updateDates: [dates: [Date, Date] | null] }>()
-
 const dates = ref<[Date, Date] | null>(null)
+const isMobile = ref(false)
+
+onMounted(() => {
+  if(window.innerWidth < 768) {
+    isMobile.value = true
+  }
+})
+
+window.addEventListener("resize", () => {
+  if(window.innerWidth < 768 && !isMobile.value) {
+    isMobile.value = true
+  } else if(window.innerWidth >= 768 && isMobile.value) {
+    isMobile.value = false
+  }
+})
 
 watch(() => props.initialDates, (value) => { dates.value = value }, { immediate: true })
 watch(dates, (value) => emit('updateDates', value))
@@ -44,6 +58,7 @@ watch(dates, (value) => emit('updateDates', value))
     <VueDatePicker
       v-model="dates"
       v-bind="attributes"
+      :multi-calendars="!isMobile"
       :formats="{ input: 'dd/MM/yyyy'}"
       :locale="fr"
       :time-config="{ enableTimePicker: false }"

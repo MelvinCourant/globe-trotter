@@ -55,7 +55,6 @@ const titleAttributes = {
 const datesAttributes = {
   'placeholder': 'Sélectionner les dates',
   'range': true,
-  'multi-calendars': true,
   'text-input': true
 };
 const locationAttributes = reactive({

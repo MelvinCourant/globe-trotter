@@ -11,6 +11,17 @@
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     cursor: grab;
+
+    @media screen and (max-width: 767px) {
+      height: fit-content;
+    }
+
+    &--empty {
+      .gallery-input-media--placeholder {
+        width: 100%;
+        aspect-ratio: 339/156;
+      }
+    }
   }
 
   &-media {
@@ -20,6 +31,11 @@
     aspect-ratio: 390/200;
     border-radius: var(--border-radius-s);
     overflow: hidden;
+
+    @media screen and (max-width: 767px) {
+      width: 90%;
+      height: auto;
+    }
 
     &--placeholder {
       display: flex;

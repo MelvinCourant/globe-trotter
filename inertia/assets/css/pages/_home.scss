@@ -15,9 +15,9 @@
     animation: slideToRight 0.2s forwards;
 
     @media screen and (max-width: 767px) {
-      top: 1px;
-      left: 1px;
-      bottom: -1px;
+      top: 0;
+      left: 0;
+      bottom: 0;
       transform: none;
       animation: none;
     }

@@ -89,7 +89,10 @@ function deleteFile(index: number) {
 <template>
   <div class="gallery-input">
     <div
-      class="gallery-input__medias"
+      :class="[
+        'gallery-input__medias',
+        {'gallery-input__medias--empty': files.length === 0}
+      ]"
       ref="mediasSlider"
       @mousedown="onGrabStart"
       @mousemove="onGrabMove"
