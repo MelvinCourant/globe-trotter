@@ -5,7 +5,7 @@ import Map from '../components/Map.vue'
 import Button from "~/components/inputs/Button.vue";
 import type {Data} from "@generated/data";
 import FormContainer from "~/components/FormContainer.vue";
-import {ref, onMounted, reactive, watch} from "vue";
+import {ref, onMounted, onUnmounted, reactive, watch, nextTick} from "vue";
 import InputString from "~/components/inputs/InputString.vue";
 import GalleryInput from "~/components/inputs/GalleryInput.vue";
 import Combobox from "~/components/inputs/Combobox.vue";
@@ -38,6 +38,7 @@ const datesInitialValue = ref<[Date, Date] | null>(null)
 const mediasInitialValue = ref<string[]>([])
 const displayLightbox = ref<boolean>(false)
 const activeMediaIndex = ref<number>(0)
+const mapPadding = ref<{ top: number; right: number; bottom: number; left: number }>({ top: 0, right: 0, bottom: 0, left: 0 })
 
 const travelAttributes = {
   'type': 'text',
@@ -118,7 +119,35 @@ onMounted(async () => {
   }
 
   handleStepParam(page.url)
+  window.addEventListener('resize', updateMapPadding)
 });
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateMapPadding)
+})
+
+async function updateMapPadding() {
+  await nextTick()
+
+  let panelEl: HTMLElement | null = null
+
+  if (stepFormDisplayed.value) {
+    panelEl = document.querySelector('.step-form') as HTMLElement | null
+  } else if (stepDetailsDisplayed.value && !hideStepDetails.value) {
+    panelEl = document.querySelector('.step') as HTMLElement | null
+  }
+
+  if (!panelEl) {
+    mapPadding.value = { top: 0, right: 0, bottom: 0, left: 0 }
+    return
+  }
+
+  if (window.innerWidth >= 768) {
+    mapPadding.value = { top: 0, right: 0, bottom: 0, left: panelEl.clientWidth + 20 }
+  } else {
+    mapPadding.value = { top: 0, right: 0, bottom: panelEl.clientHeight, left: 0 }
+  }
+}
 
 function handleStepParam(url: string) {
   const stepId = new URLSearchParams(url.split('?')[1] ?? '').get('step')
@@ -134,6 +163,7 @@ function handleStepParam(url: string) {
     totalSteps.value = 1
     stepDetailsDisplayed.value = false
     highlightStep.value = null
+    updateMapPadding()
   }
 }
 
@@ -189,6 +219,7 @@ async function displayStepForm(type: string) {
     }
 
     stepFormDisplayed.value = true;
+    await updateMapPadding()
   }
 }
 
@@ -268,6 +299,7 @@ async function submitForm() {
         form.reset()
         stepFormDisplayed.value = false
         highlightLocation.value = null
+        updateMapPadding()
       }
     })
   } else {
@@ -317,9 +349,11 @@ function cancelSubmission() {
   } else {
     hideStepDetails.value = false
   }
+
+  updateMapPadding()
 }
 
-function displayStep(stepId: string) {
+async function displayStep(stepId: string) {
   const travel = travels.value.find((t) => t.steps?.some((s) => String(s.id) === String(stepId)))
 
   if (travel) {
@@ -332,6 +366,9 @@ function displayStep(stepId: string) {
     stepIndex.value = index + 1
     totalSteps.value = travel.steps.length
     stepDetailsDisplayed.value = true
+
+    await updateMapPadding()
+
     highlightStep.value = stepId
   }
 }
@@ -381,6 +418,7 @@ async function deleteStep() {
       :travels="travels"
       :highlightLocation="highlightLocation"
       :highlightStep="highlightStep"
+      :mapPadding="mapPadding"
       :userCoordinates="userCoordinates"
     />
     <Button

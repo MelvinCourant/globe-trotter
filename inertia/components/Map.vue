@@ -41,6 +41,7 @@ const props = defineProps<{
   disablePopups: boolean,
   highlightLocation: { latitude: number; longitude: number } | null,
   highlightStep: string | null,
+  mapPadding: { top: number; right: number; bottom: number; left: number } | null,
   travels: Travel[],
   userCoordinates: { latitude: number; longitude: number } | null
 }>()
@@ -146,6 +147,12 @@ watch(() => props.disablePopups, (disabled) => {
   stepMarkers.value.forEach(m => {
     if (m.getPopup()?.isOpen()) m.togglePopup()
   })
+})
+
+watch([() => props.mapPadding, mapInstance], ([padding, map]) => {
+  if (!map) return
+
+  map.setPadding(padding ?? { top: 0, right: 0, bottom: 0, left: 0 })
 })
 
 watch([() => props.highlightStep, mapInstance], ([stepId, map]) => {
@@ -355,5 +362,5 @@ watch([() => props.travels, mapInstance], ([travels, map]) => {
 </script>
 
 <template>
-<div class="map" ref="mapContainer"></div>
+  <div class="map" ref="mapContainer"></div>
 </template>
