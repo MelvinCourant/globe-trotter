@@ -6,7 +6,8 @@
   align-items: center;
   gap: functions.rem(4);
   width: fit-content;
-  height: functions.rem(23);
+  min-height: functions.rem(23);
+  max-height: functions.rem(23);
   @include mixins.font-type('text-small');
   color: var(--primary);
   padding: 0 functions.rem(9);

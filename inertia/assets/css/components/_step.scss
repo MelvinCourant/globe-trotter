@@ -46,6 +46,14 @@
     }
   }
 
+  &:has(.step__pager) {
+    .step {
+      &__content {
+        padding: 18px 18px 0 18px;
+      }
+    }
+  }
+
   &--no-animations {
     animation: none !important;
   }
@@ -82,6 +90,11 @@
     display: flex;
     padding: 18px 18px 36px 18px;
     flex-direction: column;
+
+    @media screen and (max-width: 767px) {
+      max-height: 200px;
+      overflow-y: scroll;
+    }
   }
 
   &__title {
@@ -150,10 +163,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 18px 18px 18px;
+    padding: 36px 18px 18px 18px;
 
     @media screen and (max-width: 767px) {
-      padding: 0 18px 46px 18px;
+      padding: 36px 18px 46px 18px;
     }
   }
 
