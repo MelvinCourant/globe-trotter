@@ -137,12 +137,6 @@ function search(value) {
           v-if="(chipsMax > 0 && chips.length < chipsMax) || chipsMax === 0"
         />
       </div>
-      <div
-        v-if="error"
-        class="combobox__error"
-      >
-        {{ error }}
-      </div>
       <ul
         ref="listRef"
         role="listbox"
@@ -174,6 +168,12 @@ function search(value) {
           {{ option.text }}
         </li>
       </ul>
+    </div>
+    <div
+      v-if="error"
+      class="combobox__error"
+    >
+      {{ error }}
     </div>
   </div>
 </template>

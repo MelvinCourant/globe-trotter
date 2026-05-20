@@ -178,25 +178,23 @@ async function displayStepForm(type: string) {
       if(stepDetailsDisplayed.value) {
         closeStep()
       }
-    } else {
-      formTitle.value = 'Modifier l\'étape'
-      submitText.value = 'Modifier'
-      hideStepDetails.value = true
-    }
 
-    formType.value = type
-
-    if(type === 'create-step') {
       locationAttributes.value = ''
       travelInitialChips.value = []
       datesInitialValue.value = null
       mediasInitialValue.value = []
 
       if(userCoordinates.value) {
+        stepFormDisplayed.value = true;
+        await updateMapPadding()
         await findActualLocation()
         highlightLocation.value = userCoordinates.value;
       }
     } else {
+      formTitle.value = 'Modifier l\'étape'
+      submitText.value = 'Modifier'
+      hideStepDetails.value = true
+
       form.travel_id = selectedTravel.value.id;
       form.travel_title = selectedTravel.value.title;
       form.title = selectedStep.value.title;
@@ -216,10 +214,12 @@ async function displayStepForm(type: string) {
       selectedStep.value.medias.forEach((media: string) => {
         mediasInitialValue.value.push(`/uploads/${media}`);
       })
+
+      stepFormDisplayed.value = true;
+      await updateMapPadding()
     }
 
-    stepFormDisplayed.value = true;
-    await updateMapPadding()
+    formType.value = type
   }
 }
 
@@ -354,6 +354,10 @@ function cancelSubmission() {
 }
 
 async function displayStep(stepId: string) {
+  if(stepFormDisplayed.value) {
+    cancelSubmission()
+  }
+
   const travel = travels.value.find((t) => t.steps?.some((s) => String(s.id) === String(stepId)))
 
   if (travel) {
