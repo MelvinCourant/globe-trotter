@@ -10,13 +10,6 @@
     justify-content: space-between;
   }
 
-  .account {
-    @media screen and (max-width: 767px) {
-      position: fixed;
-      bottom: 20px;
-    }
-  }
-
   &__authentification {
     position: fixed;
     right: 20px;
