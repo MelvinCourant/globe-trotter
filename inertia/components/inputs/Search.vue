@@ -90,12 +90,6 @@ function search(value) {
           @focus="isOpen = options.length > 0"
         />
       </div>
-      <div
-        v-if="error"
-        class="search__error"
-      >
-        {{ error }}
-      </div>
       <ul
         ref="listRef"
         role="listbox"
@@ -119,6 +113,12 @@ function search(value) {
           {{ option.text }}
         </li>
       </ul>
+    </div>
+    <div
+      v-if="error"
+      class="search__error"
+    >
+      {{ error }}
     </div>
   </div>
 </template>
