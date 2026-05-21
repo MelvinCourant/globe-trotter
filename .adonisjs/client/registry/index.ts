@@ -42,6 +42,30 @@ const routes = {
     tokens: [{"old":"/login","type":0,"val":"login","end":""}],
     types: placeholder as Registry['session.store']['types'],
   },
+  'forgotten_password.create': {
+    methods: ["GET","HEAD"],
+    pattern: '/forgotten-password',
+    tokens: [{"old":"/forgotten-password","type":0,"val":"forgotten-password","end":""}],
+    types: placeholder as Registry['forgotten_password.create']['types'],
+  },
+  'forgotten_password.store': {
+    methods: ["POST"],
+    pattern: '/forgotten-password',
+    tokens: [{"old":"/forgotten-password","type":0,"val":"forgotten-password","end":""}],
+    types: placeholder as Registry['forgotten_password.store']['types'],
+  },
+  'password_reset.edit': {
+    methods: ["GET","HEAD"],
+    pattern: '/reset-password/:token',
+    tokens: [{"old":"/reset-password/:token","type":0,"val":"reset-password","end":""},{"old":"/reset-password/:token","type":1,"val":"token","end":""}],
+    types: placeholder as Registry['password_reset.edit']['types'],
+  },
+  'password_reset.update': {
+    methods: ["POST"],
+    pattern: '/reset-password/:token',
+    tokens: [{"old":"/reset-password/:token","type":0,"val":"reset-password","end":""},{"old":"/reset-password/:token","type":1,"val":"token","end":""}],
+    types: placeholder as Registry['password_reset.update']['types'],
+  },
   'session.destroy': {
     methods: ["POST"],
     pattern: '/logout',

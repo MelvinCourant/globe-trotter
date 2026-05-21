@@ -46,7 +46,7 @@ const passwordAttributes = {
           label="Mot de passe*"
           :error="errors.password"
         >
-          <a href="#">Mot de passe oublié ?</a>
+          <Link route="forgotten_password.create">Mot de passe oublié ?</Link>
         </InputString>
         <div class="form-container__bottom">
           <Button

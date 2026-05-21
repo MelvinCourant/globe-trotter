@@ -21,6 +21,11 @@ router
 
     router.get('login', [controllers.Session, 'create'])
     router.post('login', [controllers.Session, 'store'])
+
+    router.get('forgotten-password', [controllers.PasswordReset, 'create']).as('forgotten_password.create')
+    router.post('forgotten-password', [controllers.PasswordReset, 'store']).as('forgotten_password.store')
+    router.get('reset-password/:token', [controllers.PasswordReset, 'edit']).as('password_reset.edit')
+    router.post('reset-password/:token', [controllers.PasswordReset, 'update']).as('password_reset.update')
   })
   .use(middleware.guest())
 

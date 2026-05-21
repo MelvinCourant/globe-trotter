@@ -10,6 +10,10 @@ export type ScannedRoutes = {
     'new_account.store': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
     'session.store': { paramsTuple?: []; params?: {} }
+    'forgotten_password.create': { paramsTuple?: []; params?: {} }
+    'forgotten_password.store': { paramsTuple?: []; params?: {} }
+    'password_reset.edit': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
+    'password_reset.update': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'session.destroy': { paramsTuple?: []; params?: {} }
     'steps.create': { paramsTuple?: []; params?: {} }
     'steps.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
@@ -24,6 +28,8 @@ export type ScannedRoutes = {
     'shared-travels': { paramsTuple: [ParamValue]; params: {'shareLinkId': ParamValue} }
     'new_account.create': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
+    'forgotten_password.create': { paramsTuple?: []; params?: {} }
+    'password_reset.edit': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'travels.index': { paramsTuple?: []; params?: {} }
     'session.create_share_link': { paramsTuple?: []; params?: {} }
     'travels.index_shared': { paramsTuple: [ParamValue]; params: {'shareLinkId': ParamValue} }
@@ -33,6 +39,8 @@ export type ScannedRoutes = {
     'shared-travels': { paramsTuple: [ParamValue]; params: {'shareLinkId': ParamValue} }
     'new_account.create': { paramsTuple?: []; params?: {} }
     'session.create': { paramsTuple?: []; params?: {} }
+    'forgotten_password.create': { paramsTuple?: []; params?: {} }
+    'password_reset.edit': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'travels.index': { paramsTuple?: []; params?: {} }
     'session.create_share_link': { paramsTuple?: []; params?: {} }
     'travels.index_shared': { paramsTuple: [ParamValue]; params: {'shareLinkId': ParamValue} }
@@ -40,6 +48,8 @@ export type ScannedRoutes = {
   POST: {
     'new_account.store': { paramsTuple?: []; params?: {} }
     'session.store': { paramsTuple?: []; params?: {} }
+    'forgotten_password.store': { paramsTuple?: []; params?: {} }
+    'password_reset.update': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'session.destroy': { paramsTuple?: []; params?: {} }
     'steps.create': { paramsTuple?: []; params?: {} }
     'travels.create': { paramsTuple?: []; params?: {} }

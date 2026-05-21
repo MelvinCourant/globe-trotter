@@ -8,4 +8,5 @@ export const controllers = {
   Session: () => import('#controllers/session_controller'),
   Steps: () => import('#controllers/steps_controller'),
   Travels: () => import('#controllers/travels_controller'),
+  PasswordReset: () => import('#controllers/password_reset_controller'),
 }
