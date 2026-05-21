@@ -21,7 +21,7 @@ export default class SessionController {
   }
 
   async createShareLink({ auth, response }: HttpContext) {
-    const user = await User.findOrFail(auth.user.id)
+    const user = await User.findOrFail(auth.user!.id)
 
     user.shareLink = randomUUID()
     await user.save()

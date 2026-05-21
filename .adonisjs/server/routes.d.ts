@@ -4,6 +4,7 @@ type ParamValue = string | number | bigint | boolean
 
 export type ScannedRoutes = {
   ALL: {
+    'drive.fs.serve': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
     'home': { paramsTuple?: []; params?: {} }
     'shared-travels': { paramsTuple: [ParamValue]; params: {'shareLinkId': ParamValue} }
     'new_account.create': { paramsTuple?: []; params?: {} }
@@ -24,6 +25,7 @@ export type ScannedRoutes = {
     'travels.index_shared': { paramsTuple: [ParamValue]; params: {'shareLinkId': ParamValue} }
   }
   GET: {
+    'drive.fs.serve': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
     'home': { paramsTuple?: []; params?: {} }
     'shared-travels': { paramsTuple: [ParamValue]; params: {'shareLinkId': ParamValue} }
     'new_account.create': { paramsTuple?: []; params?: {} }
@@ -35,6 +37,7 @@ export type ScannedRoutes = {
     'travels.index_shared': { paramsTuple: [ParamValue]; params: {'shareLinkId': ParamValue} }
   }
   HEAD: {
+    'drive.fs.serve': { paramsTuple: [...ParamValue[]]; params: {'*': ParamValue[]} }
     'home': { paramsTuple?: []; params?: {} }
     'shared-travels': { paramsTuple: [ParamValue]; params: {'shareLinkId': ParamValue} }
     'new_account.create': { paramsTuple?: []; params?: {} }

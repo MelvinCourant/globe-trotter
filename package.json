@@ -65,6 +65,7 @@
     "@adonisjs/auth": "^10.1.0",
     "@adonisjs/core": "^7.3.1",
     "@adonisjs/cors": "^3.0.0",
+    "@adonisjs/drive": "^4.0.0",
     "@adonisjs/inertia": "^4.2.0",
     "@adonisjs/lucid": "^22.4.2",
     "@adonisjs/mail": "^10.2.0",
@@ -76,7 +77,6 @@
     "@tuyau/core": "^1.2.2",
     "@vinejs/vine": "^4.3.1",
     "@vuepic/vue-datepicker": "^12.1.0",
-    "better-sqlite3": "^12.9.0",
     "date-fns": "^4.1.0",
     "edge.js": "^6.5.0",
     "install": "^0.13.0",
@@ -94,5 +94,11 @@
       "./app/middleware/*.ts"
     ]
   },
-  "prettier": "./.prettierrc"
+  "prettier": "./.prettierrc",
+  "onlyBuiltDependencies": [
+    "@parcel/watcher",
+    "@swc/core",
+    "esbuild",
+    "vue-demi"
+  ]
 }

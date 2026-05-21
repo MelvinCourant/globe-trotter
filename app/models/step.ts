@@ -1,8 +1,7 @@
 import { StepSchema } from '#database/schema'
 import { afterFetch, afterFind, beforeCreate } from "@adonisjs/lucid/orm";
 import { randomUUID } from "node:crypto";
-import app from "@adonisjs/core/services/app";
-import fs from 'node:fs/promises'
+import drive from '@adonisjs/drive/services/main'
 
 export default class Step extends StepSchema {
   @beforeCreate()
@@ -14,8 +13,14 @@ export default class Step extends StepSchema {
   static async loadMedias(step: Step) {
     if (step.medias) {
       try {
-        const files = await fs.readdir(app.makePath(`uploads/${step.medias}`))
-        step.$extras.mediaFiles = files.map(file => `${step.medias}/${file}`)
+        const { objects } = await drive.use().listAll(step.medias)
+        const files: string[] = []
+
+        for (const obj of objects) {
+          if (obj.isFile) files.push(obj.key)
+        }
+
+        step.$extras.mediaFiles = files
       } catch {
         step.$extras.mediaFiles = []
       }

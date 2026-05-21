@@ -2,6 +2,7 @@ import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import Step from "#models/step";
 import Travel from "#models/travel";
 import app from "@adonisjs/core/services/app";
+import drive from '@adonisjs/drive/services/main'
 import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -13,15 +14,14 @@ export default class extends BaseSeeder {
 
     const folderId = randomUUID()
     const imagesDir = app.makePath('database/seeders/images/step')
-    const uploadsDir = app.makePath(`uploads/${folderId}`)
-    await fs.mkdir(uploadsDir, { recursive: true })
 
     const images = await fs.readdir(imagesDir)
     await Promise.all(
-      images.map((file) => {
+      images.map(async (file) => {
         const ext = path.extname(file)
         const newName = `${randomUUID()}${ext}`
-        return fs.copyFile(path.join(imagesDir, file), path.join(uploadsDir, newName))
+        const content = await fs.readFile(path.join(imagesDir, file))
+        return drive.use().put(`${folderId}/${newName}`, content)
       })
     )
 
