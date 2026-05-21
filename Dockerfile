@@ -21,7 +21,7 @@ COPY --from=build /app/pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile --prod --ignore-scripts && \
     pnpm rebuild @parcel/watcher vue-demi
 
-COPY docker-entrypoint.js ./
+COPY --from=build /app/docker-entrypoint.js ./
 
 EXPOSE 3333
 CMD ["node", "docker-entrypoint.js"]
