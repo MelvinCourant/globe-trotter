@@ -2,7 +2,7 @@ import vine from '@vinejs/vine'
 
 export const createStepValidator = vine.create({
   title: vine.string().maxLength(100),
-  description: vine.string().maxLength(300).optional(),
+  description: vine.string().maxLength(500).optional(),
   longitude: vine.number().decimal([1, 7]),
   latitude: vine.number().decimal([1, 7]),
   place: vine.string().maxLength(100),
@@ -16,7 +16,7 @@ export const createStepValidator = vine.create({
 
 export const updateStepValidator = vine.create({
   title: vine.string().maxLength(100),
-  description: vine.string().maxLength(300).optional(),
+  description: vine.string().maxLength(500).optional(),
   longitude: vine.number().decimal([1, 7]),
   latitude: vine.number().decimal([1, 7]),
   place: vine.string().maxLength(100),
