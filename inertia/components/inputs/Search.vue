@@ -55,7 +55,7 @@ function search(value) {
   debounceTimer = setTimeout(() => {
     emit("search", value);
     isOpen.value = props.options.length > 0;
-  }, 300);
+  }, 200);
 }
 </script>
 

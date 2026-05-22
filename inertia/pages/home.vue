@@ -45,6 +45,7 @@ const shareLinkId = computed(() => {
   return page.url.split('?')[0].replace('/shared/', '')
 })
 
+const galleryMaxLength = 15;
 const travelAttributes = {
   'type': 'text',
   'name': 'travel',
@@ -454,7 +455,9 @@ async function deleteStep() {
     >
       <form @submit.prevent="submitForm">
         <GalleryInput
+          label="15 photos maximum"
           :medias="mediasInitialValue"
+          :maxLength="galleryMaxLength"
           @updateMedias="updateMedias"
         />
         <Combobox

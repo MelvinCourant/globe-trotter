@@ -2,6 +2,13 @@
 @use "../../partials/mixins";
 
 .gallery-input {
+  &__label {
+    display: flex;
+    width: fit-content;
+    @include mixins.font-type('text-medium');
+    margin-bottom: functions.rem(6);
+  }
+
   &__medias {
     display: flex;
     gap: 12px;

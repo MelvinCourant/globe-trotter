@@ -38,6 +38,12 @@ export default class StepsController {
   async update({ params, request, response, auth }: HttpContext) {
     const { id } = params
     const payload = await request.validateUsing(updateStepValidator)
+
+    const totalMedias = (payload.old_medias?.length ?? 0) + (payload.new_medias?.length ?? 0)
+    if (totalMedias > 15) {
+      return response.unprocessableEntity({ message: 'Le nombre total de médias ne peut pas dépasser 15.' })
+    }
+
     const step = await Step.findOrFail(id)
     let travel = await Travel.find(payload.travel_id)
 

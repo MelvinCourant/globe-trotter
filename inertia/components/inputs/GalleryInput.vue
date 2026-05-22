@@ -8,9 +8,17 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  label: {
+    type: String,
+    default: '',
+  },
   medias: {
     type: Array,
     default: () => [],
+  },
+  maxLength: {
+    type: Number,
+    default: 0,
   }
 })
 
@@ -64,7 +72,9 @@ async function scrollToLastMedia(noAnimation: boolean = false) {
 
 async function addFiles(event: { target: any; }) {
   const input = event.target;
-  Array.from(input.files as FileList).forEach((file: File) => {
+  const remaining = props.maxLength > 0 ? props.maxLength - previews.value.length : Infinity
+
+  Array.from(input.files as FileList).slice(0, remaining).forEach((file: File) => {
     files.value.push(file)
     previews.value.push(URL.createObjectURL(file))
   })
@@ -88,6 +98,13 @@ function deleteFile(index: number) {
 
 <template>
   <div class="gallery-input">
+    <label
+      v-if="label"
+      for="image"
+      class="gallery-input__label"
+    >
+      {{ label }}
+    </label>
     <div
       :class="[
         'gallery-input__medias',
@@ -116,7 +133,13 @@ function deleteFile(index: number) {
           </svg>
         </Button>
       </div>
-      <div class="gallery-input-media gallery-input-media--placeholder">
+      <div
+        v-if="
+          maxLength > 0 && previews.length < maxLength ||
+          maxLength === 0
+        "
+        class="gallery-input-media gallery-input-media--placeholder"
+      >
         <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 38 38" fill="none">
           <path d="M2.82129 25.3958L6.41406 21.8031C8.94547 19.2717 10.2119 18.0057 11.583 17.89C12.2731 17.8318 12.9659 17.9654 13.585 18.2757C14.815 18.8924 15.5205 20.538 16.9307 23.8285L17.0312 24.0628C17.6447 25.4941 17.951 26.2102 18.4561 26.5228C18.8485 26.7657 19.3169 26.8555 19.7715 26.7757C20.3565 26.673 20.9067 26.122 22.0078 25.0208L22.2207 24.8089C23.5773 23.4523 24.2563 22.7737 25.0254 22.4876C25.871 22.1734 26.8019 22.1734 27.6475 22.4876C28.4166 22.7736 29.0954 23.4522 30.4521 24.8089L31.8662 26.222C33.1437 27.4995 34.876 28.218 36.6826 28.2181V4.11557C37.6238 6.37602 37.624 9.70689 37.624 15.0492V22.5746C37.624 29.6687 37.6238 33.2163 35.4199 35.4203C33.216 37.6241 29.6684 37.6234 22.5742 37.6234H15.0498C7.9558 37.6234 4.40808 37.6238 2.2041 35.4203C0.000186637 33.2163 5.27273e-10 29.6687 0 22.5746V15.0492C4.55848e-10 7.95497 0.000184244 4.40738 2.2041 2.20346C2.39872 2.00888 2.60421 1.83199 2.82129 1.67026V25.3958Z" fill="var(--primary-hover)"/>
           <path d="M15.0498 1.88086H22.5742C26.1744 1.88086 28.6855 1.88496 30.5801 2.13965C32.4206 2.3871 33.3957 2.83999 34.0898 3.53418C34.784 4.22836 35.236 5.20357 35.4834 7.04395C35.7381 8.93851 35.7422 11.4497 35.7422 15.0498V22.5742C35.7422 26.1745 35.7381 28.6855 35.4834 30.5801C35.236 32.4206 34.784 33.3957 34.0898 34.0898C33.3957 34.784 32.4206 35.236 30.5801 35.4834C28.6855 35.7381 26.1745 35.7422 22.5742 35.7422H15.0498C11.4497 35.7422 8.93851 35.7381 7.04395 35.4834C5.20357 35.236 4.22836 34.784 3.53418 34.0898C2.83999 33.3957 2.3871 32.4206 2.13965 30.5801C1.88496 28.6855 1.88086 26.1744 1.88086 22.5742V15.0498C1.88086 11.4497 1.88499 8.93849 2.13965 7.04395C2.3871 5.20345 2.83999 4.22837 3.53418 3.53418C4.22837 2.83999 5.20345 2.3871 7.04395 2.13965C8.9385 1.88499 11.4497 1.88086 15.0498 1.88086Z" stroke="var(--primary-hover)" stroke-width="3.76238"/>

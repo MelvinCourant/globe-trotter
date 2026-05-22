@@ -134,6 +134,7 @@ function search(value) {
           @input="search($event.target.value)"
           @keydown.enter.prevent="customEntry && addCustomEntry($event)"
           @focus="isOpen = options.some((o) => o.display)"
+          @blur="customEntry && addCustomEntry($event)"
           v-if="(chipsMax > 0 && chips.length < chipsMax) || chipsMax === 0"
         />
       </div>
