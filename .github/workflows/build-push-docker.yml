@@ -28,5 +28,7 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKER_IMAGE }}
+          build-args: |
+            VITE_MAPBOX_ACCESSTOKEN=${{ secrets.VITE_MAPBOX_ACCESSTOKEN }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

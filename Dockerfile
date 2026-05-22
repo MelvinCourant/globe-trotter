@@ -10,6 +10,8 @@ RUN pnpm install --frozen-lockfile --ignore-scripts && \
 FROM deps AS build
 WORKDIR /app
 COPY . .
+ARG VITE_MAPBOX_ACCESSTOKEN
+ENV VITE_MAPBOX_ACCESSTOKEN=$VITE_MAPBOX_ACCESSTOKEN
 RUN node ace build --ignore-ts-errors
 
 FROM base AS production
