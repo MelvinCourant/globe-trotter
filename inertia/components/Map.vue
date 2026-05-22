@@ -271,7 +271,7 @@ watch([() => props.travels, mapInstance], ([travels, map]) => {
     let app: ReturnType<typeof createApp> | null = null
     const popup = new mapboxgl.Popup({ anchor: 'bottom', closeButton: false, offset: 48, maxWidth: 'none' })
 
-    popup.on('open', () => {
+    popup.on('open', async () => {
       if (props.disablePopups) {
         popup.remove()
 
@@ -290,7 +290,13 @@ watch([() => props.travels, mapInstance], ([travels, map]) => {
       app.mount(container)
       popup.setDOMContent(container)
 
-      map.flyTo({ center: feature.geometry.coordinates})
+      await nextTick()
+
+      const popupHeight = popup.getElement()?.offsetHeight ?? 0
+      const basePadding = props.mapPadding ?? { top: 0, right: 0, bottom: 0, left: 0 }
+
+      map.setPadding({ ...basePadding, top: basePadding.bottom + popupHeight + 56 })
+      map.flyTo({ center: feature.geometry.coordinates })
     })
 
     popup.on('close', () => {

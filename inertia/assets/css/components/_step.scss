@@ -82,7 +82,14 @@
     right: 10px;
 
     @media screen and (max-width: 767px) {
-      top: calc(10px + 36px);
+      top: 6px;
+    }
+  }
+
+  &__container {
+    @media screen and (max-width: 767px) {
+      max-height: 60svh;
+      overflow-y: scroll;
     }
   }
 
@@ -90,11 +97,6 @@
     display: flex;
     padding: 18px 18px 36px 18px;
     flex-direction: column;
-
-    @media screen and (max-width: 767px) {
-      max-height: 200px;
-      overflow-y: scroll;
-    }
   }
 
   &__title {
