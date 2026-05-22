@@ -5,10 +5,21 @@ import {usePage} from "@inertiajs/vue3";
 import Account from "~/components/Account.vue";
 import Button from "~/components/inputs/Button.vue";
 import { toast } from 'vue-sonner'
-import { computed } from "vue";
+import { computed, onMounted, ref, watch} from "vue";
 
 const page = usePage<Data.SharedProps>()
 const isShared = computed(() => page.url.startsWith('/shared/'))
+const stepOpen = ref<boolean>(false)
+
+onMounted(() => handleStepParam(page.url))
+
+watch(() => page.url, handleStepParam)
+
+function handleStepParam(url: string) {
+  const stepId = new URLSearchParams(url.split('?')[1] ?? '').get('step')
+
+  stepOpen.value = !!stepId;
+}
 
 async function getShareLink() {
   if(!page.props.user) return
@@ -26,7 +37,10 @@ async function getShareLink() {
 </script>
 
 <template>
-  <header class="navbar">
+  <header
+    class="navbar"
+    v-show="!stepOpen"
+  >
     <nav>
       <template v-if="page.props.user">
         <Account :user="page.props.user" />
