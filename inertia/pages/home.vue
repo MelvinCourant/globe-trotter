@@ -113,6 +113,8 @@ onMounted(async () => {
     geoOptions
   );
 
+  await nextTick()
+
   if (isShared.value && shareLinkId.value) {
     const response = await fetch(`/travels-shared/${shareLinkId.value}`);
     travels.value = await response.json();

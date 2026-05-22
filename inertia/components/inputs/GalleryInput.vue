@@ -150,7 +150,7 @@ function deleteFile(index: number) {
           class="gallery-input-media__input"
           name="image"
           type="file"
-          accept="image/png, image/jpeg, image/jpg, image/webp"
+          accept=".png, .jpeg, .jpg, .webp, .HEIC"
           multiple
           @change="addFiles($event)"
         >
