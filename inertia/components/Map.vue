@@ -8,6 +8,7 @@ import { router } from '@inertiajs/vue3';
 import { createApp, markRaw, nextTick, onMounted, ref, useTemplateRef, watch } from "vue";
 import Popup from "~/components/Popup.vue";
 import Cluster from "~/components/Cluster.vue";
+import Loader from "~/components/Loader.vue";
 
 type Step = {
   id: string
@@ -60,6 +61,7 @@ const travelClusterMarkers = ref<mapboxgl.Marker[]>([])
 const proximityClusterMarkers = ref<mapboxgl.Marker[]>([])
 const zoomHandler = ref<(() => void) | null>(null)
 const theme = ref('light')
+const isLoading = ref(true)
 
 onMounted(async () => {
   mapboxgl.accessToken = env.VITE_MAPBOX_ACCESSTOKEN
@@ -101,6 +103,8 @@ onMounted(async () => {
     style: `mapbox://styles/mapbox/${theme.value}-v11`,
     zoom: zoom
   }))
+
+  isLoading.value = false
 })
 
 watch([userCoordinates, mapInstance], ([coords, map]) => {
@@ -389,4 +393,5 @@ watch([() => props.travels, mapInstance], ([travels, map]) => {
 
 <template>
   <div class="map" ref="mapContainer"></div>
+  <Loader :style="{paddingBottom: `${mapPadding.bottom}px`}" v-if="isLoading"/>
 </template>
