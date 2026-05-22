@@ -393,8 +393,11 @@ watch([() => props.travels, mapInstance], ([travels, map]) => {
 
 <template>
   <div class="map" ref="mapContainer"></div>
-  <Loader :style="[
-    {paddingBottom: `${mapPadding.bottom}px`},
-    {transform: mapPadding.bottom ? 'transform: translate(-50%, 0)' : ''}
-  ]" v-if="isLoading"/>
+  <Loader
+    v-if="isLoading"
+    :style="[
+      {paddingBottom: `${mapPadding.bottom}px`},
+      {transform: mapPadding.bottom ? 'translate(-50%, calc(-50% - 25px))' : ''}
+    ]"
+  />
 </template>
