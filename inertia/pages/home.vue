@@ -102,18 +102,7 @@ const formType = ref<string>('create-step')
 const submitText = ref<string>('Ajouter')
 
 onMounted(async () => {
-  const geoOptions = { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 };
   sessionToken.value = crypto.randomUUID();
-
-  navigator.geolocation?.getCurrentPosition(
-    (pos) => {
-      userCoordinates.value = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
-    },
-    (err) => console.warn(`ERREUR (${err.code}): ${err.message}`),
-    geoOptions
-  );
-
-  await nextTick()
 
   if (isShared.value && shareLinkId.value) {
     const response = await fetch(`/travels-shared/${shareLinkId.value}`);
@@ -434,7 +423,7 @@ async function deleteStep() {
       :highlightLocation="highlightLocation"
       :highlightStep="highlightStep"
       :mapPadding="mapPadding"
-      :userCoordinates="userCoordinates"
+      @userCoordinates="coords => userCoordinates = coords"
     />
     <Button
       v-if="page.props.user && !isShared"

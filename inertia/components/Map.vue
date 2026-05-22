@@ -5,7 +5,7 @@ import '../assets/css/components/_map.scss'
 import '../assets/css/components/_marker.scss'
 import '../assets/css/components/_user-position.scss'
 import { router } from '@inertiajs/vue3';
-import { createApp, markRaw, onMounted, ref, useTemplateRef, watch } from "vue";
+import { createApp, markRaw, nextTick, onMounted, ref, useTemplateRef, watch } from "vue";
 import Popup from "~/components/Popup.vue";
 import Cluster from "~/components/Cluster.vue";
 
@@ -43,11 +43,13 @@ const props = defineProps<{
   highlightStep: string | null,
   mapPadding: { top: number; right: number; bottom: number; left: number } | null,
   travels: Travel[],
-  userCoordinates: { latitude: number; longitude: number } | null
 }>()
+
+const emit = defineEmits<{ userCoordinates: [coords: { latitude: number; longitude: number }] }>()
 
 const env = import.meta.env
 const CLUSTER_ZOOM_THRESHOLD = 4
+const userCoordinates = ref<{ latitude: number; longitude: number } | null>(null)
 const PROXIMITY_PIXEL_THRESHOLD = 40
 const mapContainer = useTemplateRef<HTMLDivElement>("mapContainer")
 const mapInstance = ref<mapboxgl.Map | null>(null)
@@ -59,7 +61,7 @@ const proximityClusterMarkers = ref<mapboxgl.Marker[]>([])
 const zoomHandler = ref<(() => void) | null>(null)
 const theme = ref('light')
 
-onMounted(() => {
+onMounted(async () => {
   mapboxgl.accessToken = env.VITE_MAPBOX_ACCESSTOKEN
 
   if(window.matchMedia) {
@@ -69,13 +71,31 @@ onMounted(() => {
   }
 
   let zoom = 2
+  let center: [number, number] | undefined = undefined
 
   if(window.innerWidth < 768) {
     zoom = 1
   }
 
+  if (navigator.geolocation) {
+    const coords = await new Promise<{ latitude: number; longitude: number } | null>((resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
+        (err) => { console.warn(`ERREUR (${err.code}): ${err.message}`); resolve(null) },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+      )
+    })
+
+    if (coords) {
+      userCoordinates.value = coords
+      center = [coords.longitude, coords.latitude]
+      emit('userCoordinates', coords)
+    }
+  }
+
   mapInstance.value = markRaw(new mapboxgl.Map({
     attributionControl: false,
+    ...(center ? { center } : {}),
     container: mapContainer.value!,
     language: 'fr-FR',
     style: `mapbox://styles/mapbox/${theme.value}-v11`,
@@ -83,7 +103,7 @@ onMounted(() => {
   }))
 })
 
-watch([() => props.userCoordinates, mapInstance], ([coords, map]) => {
+watch([userCoordinates, mapInstance], ([coords, map]) => {
   if (!map || !coords || (coords.latitude === 0 && coords.longitude === 0)) return
 
   if (!userMarkerInstance.value) {
@@ -112,10 +132,10 @@ watch([() => props.highlightLocation, mapInstance], ([coords, map]) => {
 
   if (!markerInstance.value) {
     if(
-      (props.userCoordinates &&
-        coords.latitude !== props.userCoordinates.latitude &&
-        coords.longitude !== props.userCoordinates.longitude) ||
-      !props.userCoordinates
+      (userCoordinates.value &&
+        coords.latitude !== userCoordinates.value.latitude &&
+        coords.longitude !== userCoordinates.value.longitude) ||
+      !userCoordinates.value
     ) {
       const markerEl = document.createElement('div')
       markerEl.className = 'marker'
@@ -127,10 +147,10 @@ watch([() => props.highlightLocation, mapInstance], ([coords, map]) => {
     }
   } else {
     if(
-      (props.userCoordinates &&
-        coords.latitude !== props.userCoordinates.latitude &&
-        coords.longitude !== props.userCoordinates.longitude) ||
-      !props.userCoordinates
+      (userCoordinates.value &&
+        coords.latitude !== userCoordinates.value.latitude &&
+        coords.longitude !== userCoordinates.value.longitude) ||
+      !userCoordinates.value
     ) {
       markerInstance.value.setLngLat([coords.longitude, coords.latitude])
     } else {
