@@ -75,7 +75,7 @@ const descriptionAttributes = {
   'name': 'description',
   'id': 'description',
   'placeholder': 'Visite de la ville de Mexico accompagné d\'un guide local',
-  'maxlength': 255
+  'maxlength': 500
 };
 const linkAttributes = {
   'type': 'text',
