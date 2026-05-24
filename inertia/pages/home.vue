@@ -249,7 +249,7 @@ async function suggestLocation(searchText: string) {
   locationAttributes.value = searchText;
 
   if(searchText) {
-    const response = await fetch(`https://api.mapbox.com/search/searchbox/v1/suggest?q=${searchText}&access_token=${env.VITE_MAPBOX_ACCESSTOKEN}&session_token=${sessionToken.value}&language=fr&limit=10&types=country%2Cregion%2Cpostcode%2Clocality%2Cplace%2Cstreet%2Cdistrict%2Cneighborhood`)
+    const response = await fetch(`https://api.mapbox.com/search/searchbox/v1/suggest?q=${searchText}&access_token=${env.VITE_MAPBOX_ACCESSTOKEN}&session_token=${sessionToken.value}&language=fr&limit=10`)
     const json = await response.json();
 
     locationOptions.value = []
@@ -273,7 +273,7 @@ async function findActualLocation() {
   if (!userCoordinates.value) return;
 
   const coords = userCoordinates.value;
-  const response = await fetch(`https://api.mapbox.com/search/searchbox/v1/reverse?longitude=${coords.longitude}&latitude=${coords.latitude}&access_token=${env.VITE_MAPBOX_ACCESSTOKEN}&language=fr&limit=1&types=country%2Cregion%2Cpostcode%2Clocality%2Cplace%2Cstreet%2Cdistrict%2Cneighborhood`)
+  const response = await fetch(`https://api.mapbox.com/search/searchbox/v1/reverse?longitude=${coords.longitude}&latitude=${coords.latitude}&access_token=${env.VITE_MAPBOX_ACCESSTOKEN}&language=fr&limit=1`)
   const json = await response.json();
 
   if(json.features && json.features.length > 0) {

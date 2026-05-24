@@ -27,7 +27,6 @@ const props = defineProps({
 const emit = defineEmits(["search", "updateValue"]);
 
 const isOpen = ref(false);
-let debounceTimer = null;
 const inputRef = ref(null);
 const entriesRef = ref(null);
 const listRef = ref(null);
@@ -51,11 +50,8 @@ function selectOption(option) {
 }
 
 function search(value) {
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => {
-    emit("search", value);
-    isOpen.value = props.options.length > 0;
-  }, 200);
+  emit("search", value);
+  isOpen.value = props.options.length > 0;
 }
 </script>
 
