@@ -4,6 +4,7 @@ import drive from '@adonisjs/drive/services/main'
 import {randomUUID} from "node:crypto";
 import Step from "#models/step";
 import Travel from "#models/travel";
+import { convertHeicToJpg } from "#services/media_converter";
 
 export default class StepsController {
   async create({ request, response, auth }: HttpContext) {
@@ -23,6 +24,7 @@ export default class StepsController {
       folderId = randomUUID()
 
       for (const media of payload.new_medias) {
+        await convertHeicToJpg(media)
         const newFileName = `${randomUUID()}.${media.extname}`
 
         await media.moveToDisk(`${folderId}/${newFileName}`)
@@ -83,6 +85,7 @@ export default class StepsController {
 
     if (payload.new_medias) {
       for (const media of payload.new_medias) {
+        await convertHeicToJpg(media)
         const newFileName = `${randomUUID()}.${media.extname}`
 
         await media.moveToDisk(`${folderId}/${newFileName}`)

@@ -22,6 +22,6 @@ export const signupValidator = vine.create({
   lastname: vine.string().maxLength(50).optional().nullable(),
   image: vine.file({
     size: '8mb',
-    extnames: ['jpg', 'png', 'jpeg', 'webp']
+    extnames: ['jpg', 'png', 'jpeg', 'webp', 'heic']
   }).optional().nullable(),
 })

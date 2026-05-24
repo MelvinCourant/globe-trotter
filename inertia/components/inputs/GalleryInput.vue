@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import '../../assets/css/components/inputs/_gallery-input.scss'
-import {nextTick, ref, useTemplateRef} from "vue";
+import {nextTick, onMounted, ref, useTemplateRef} from "vue";
+import { heicTo, isHeic} from "heic-to"
 import Button from "~/components/inputs/Button.vue";
 
 const props = defineProps({
@@ -32,6 +33,12 @@ const mediasSlider = useTemplateRef<HTMLDivElement>("mediasSlider")
 let isGrabbing = false
 let grabStartX = 0
 let scrollStartLeft = 0
+
+onMounted(() => {
+  if(existingMedias.value.length > 0) {
+    scrollToLastMedia(true)
+  }
+})
 
 function onGrabStart(e: MouseEvent) {
   if (!mediasSlider.value) return
@@ -70,14 +77,24 @@ async function scrollToLastMedia(noAnimation: boolean = false) {
   }
 }
 
+async function toJpegFile(file: File): Promise<File> {
+  const blob = await heicTo({blob: file, type: 'image/jpeg', quality: 1}) as Blob
+  const jpegName = file.name.replace(/\.hei[cf]$/i, '.jpg')
+
+  return new File([blob], jpegName, { type: 'image/jpeg' })
+}
+
 async function addFiles(event: { target: any; }) {
   const input = event.target;
   const remaining = props.maxLength > 0 ? props.maxLength - previews.value.length : Infinity
 
-  Array.from(input.files as FileList).slice(0, remaining).forEach((file: File) => {
-    files.value.push(file)
-    previews.value.push(URL.createObjectURL(file))
-  })
+  for (const file of Array.from(input.files as FileList).slice(0, remaining)) {
+    const processedFile = await isHeic(file) ? await toJpegFile(file) : file
+
+    files.value.push(processedFile)
+    previews.value.push(URL.createObjectURL(processedFile))
+  }
+
   await scrollToLastMedia();
   emit('updateMedias', { existing: existingMedias.value.map(m => m.replace('/uploads/', '')), files: files.value });
 }
@@ -150,7 +167,7 @@ function deleteFile(index: number) {
           class="gallery-input-media__input"
           name="image"
           type="file"
-          accept=".png, .jpeg, .jpg, .webp"
+          accept=".png, .jpeg, .jpg, .webp, .heic"
           multiple
           @change="addFiles($event)"
         >

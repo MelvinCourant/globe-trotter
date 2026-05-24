@@ -79,6 +79,8 @@
     "@vuepic/vue-datepicker": "^12.1.0",
     "date-fns": "^4.1.0",
     "edge.js": "^6.5.0",
+    "heic-convert": "^2.1.0",
+    "heic-to": "^1.4.3",
     "install": "^0.13.0",
     "luxon": "^3.7.2",
     "mapbox-gl": "^3.23.1",
