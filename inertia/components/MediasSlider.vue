@@ -59,10 +59,17 @@ function slideTo(index: number) {
             <path d="M16.6667 3.33337H17.5001V2.50004H16.6667V3.33337ZM11.9108 6.91079C11.5854 7.23622 11.5854 7.76386 11.9108 8.0893C12.2363 8.41473 12.7639 8.41473 13.0893 8.0893L12.5001 7.50004L11.9108 6.91079ZM16.6667 8.33337H17.5001V3.33337H16.6667H15.8334V8.33337H16.6667ZM16.6667 3.33337V2.50004H11.6667V3.33337V4.16671H16.6667V3.33337ZM16.6667 3.33337L16.0775 2.74412L11.9108 6.91079L12.5001 7.50004L13.0893 8.0893L17.256 3.92263L16.6667 3.33337Z" fill="var(--color)"/>
           </svg>
         </Button>
-        <img
-          :src="`/uploads/${typeof media === 'object' ? ((media as any)[size] ?? (media as any).normal) : media}`"
-          draggable="false"
-        />
+        <picture>
+          <source
+            v-if="size === 'medium' && typeof media === 'object' && (media as any).large"
+            media="(min-width: 600px) and (max-width: 767px)"
+            :srcset="`/uploads/${(media as any).large}`"
+          >
+          <img
+            :src="`/uploads/${typeof media === 'object' ? ((media as any)[size] ?? (media as any).normal) : media}`"
+            draggable="false"
+          />
+        </picture>
       </div>
     </div>
     <div class="medias-slider__dots" v-if="medias.length > 1">
