@@ -9,6 +9,8 @@ if (process.env.MIGRATE === 'true') {
   execSync('node ace migration:run --force', { stdio: 'inherit' })
 }
 
+execSync('node ace medias:migrate', { stdio: 'inherit' })
+
 /**
  * Start the server
  */

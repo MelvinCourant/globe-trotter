@@ -4,7 +4,7 @@ import drive from '@adonisjs/drive/services/main'
 import {randomUUID} from "node:crypto";
 import Step from "#models/step";
 import Travel from "#models/travel";
-import { convertHeicToJpg } from "#services/media_converter";
+import { processImageVariants } from "#services/media_converter";
 
 export default class StepsController {
   async create({ request, response, auth }: HttpContext) {
@@ -24,10 +24,7 @@ export default class StepsController {
       folderId = randomUUID()
 
       for (const media of payload.new_medias) {
-        await convertHeicToJpg(media)
-        const newFileName = `${randomUUID()}.${media.extname}`
-
-        await media.moveToDisk(`${folderId}/${newFileName}`)
+        await processImageVariants(media, folderId)
       }
     }
 
@@ -75,9 +72,20 @@ export default class StepsController {
       const { objects } = await disk.listAll(folderId)
       const deleteOps: Promise<void>[] = []
 
+      const keepUuids = new Set(
+        payload.old_medias.map((key) => {
+          const filename = key.split('/').pop()!
+          return filename.replace(/(_small|_medium|_large)?\.webp$/i, '').replace(/\.(jpg|jpeg|png|heic)$/i, '')
+        })
+      )
+
       for (const obj of objects) {
-        if (obj.isFile && !payload.old_medias!.includes(obj.key)) {
-          deleteOps.push(disk.delete(obj.key))
+        if (obj.isFile) {
+          const filename = obj.key.split('/').pop()!
+          const baseUuid = filename.replace(/(_small|_medium|_large)?\.webp$/i, '').replace(/\.(jpg|jpeg|png|heic)$/i, '')
+          if (!keepUuids.has(baseUuid)) {
+            deleteOps.push(disk.delete(obj.key))
+          }
         }
       }
       await Promise.all(deleteOps)
@@ -85,10 +93,7 @@ export default class StepsController {
 
     if (payload.new_medias) {
       for (const media of payload.new_medias) {
-        await convertHeicToJpg(media)
-        const newFileName = `${randomUUID()}.${media.extname}`
-
-        await media.moveToDisk(`${folderId}/${newFileName}`)
+        await processImageVariants(media, folderId!)
       }
     }
 

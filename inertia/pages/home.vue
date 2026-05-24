@@ -205,14 +205,17 @@ async function displayStepForm(type: string) {
       form.place = selectedStep.value.place;
       form.description = selectedStep.value.description;
       form.link = selectedStep.value.link;
-      form.old_medias = selectedStep.value.medias;
+      form.old_medias = selectedStep.value.medias.map((m: any) =>
+        typeof m === 'object' ? m.normal : m
+      );
 
       travelInitialChips.value = [{ value: form.travel_id, text: form.travel_title }]
       datesInitialValue.value = [new Date(form.start_date), new Date(form.end_date)]
       locationAttributes.value = form.place
       mediasInitialValue.value = []
-      selectedStep.value.medias.forEach((media: string) => {
-        mediasInitialValue.value.push(`/uploads/${media}`);
+      selectedStep.value.medias.forEach((media: any) => {
+        const key = typeof media === 'object' ? media.normal : media
+        mediasInitialValue.value.push(`/uploads/${key}`);
       })
 
       stepFormDisplayed.value = true;

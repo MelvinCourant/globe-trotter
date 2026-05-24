@@ -39,7 +39,7 @@ const activeIndex = ref(props.activeIndex)
       v-show="index === activeIndex"
     >
       <img
-        :src="`/uploads/${media}`"
+        :src="`/uploads/${typeof media === 'object' ? (media as any).normal : media}`"
         draggable="false"
       />
     </div>

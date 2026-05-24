@@ -60,7 +60,7 @@ function slideTo(index: number) {
           </svg>
         </Button>
         <img
-          :src="`/uploads/${media}`"
+          :src="`/uploads/${typeof media === 'object' ? ((media as any)[size] ?? (media as any).normal) : media}`"
           draggable="false"
         />
       </div>
