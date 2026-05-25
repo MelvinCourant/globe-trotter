@@ -184,12 +184,14 @@ async function displayStepForm(type: string) {
       datesInitialValue.value = null
       mediasInitialValue.value = []
 
+      stepFormDisplayed.value = true;
+      await updateMapPadding()
+
       if(userCoordinates.value) {
-        stepFormDisplayed.value = true;
-        await updateMapPadding()
         await findActualLocation()
-        highlightLocation.value = userCoordinates.value;
       }
+
+      highlightLocation.value = userCoordinates.value;
     } else {
       formTitle.value = 'Modifier l\'étape'
       submitText.value = 'Modifier'
