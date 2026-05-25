@@ -1,11 +1,16 @@
 <script setup>
 import '../assets/css/components/_form-container.scss';
 import {onMounted, ref} from "vue";
+import Loader from "~/components/Loader.vue";
 
 defineProps({
   className: {
     type: String,
     default: ''
+  },
+  loading: {
+    type: Boolean,
+    default: false
   },
   size: {
     type: String,
@@ -43,5 +48,10 @@ onMounted(() => {
       {{ title }}
     </h2>
     <slot />
+    <Loader
+      v-if="loading"
+      className="form-container__loader"
+      :overlay="true"
+    />
   </div>
 </template>

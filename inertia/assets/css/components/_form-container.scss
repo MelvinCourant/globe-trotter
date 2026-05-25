@@ -2,6 +2,7 @@
 @use "../partials/mixins";
 
 .form-container {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -100,5 +101,12 @@
       @include mixins.font-type('text-medium');
       margin-top: 6px;
     }
+  }
+
+  &__loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 }

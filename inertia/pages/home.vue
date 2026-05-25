@@ -445,6 +445,7 @@ async function deleteStep() {
       v-if="stepFormDisplayed && page.props.user"
       className="step-form"
       size="large"
+      :loading="form.processing"
       :title="formTitle"
     >
       <form @submit.prevent="submitForm">
@@ -519,7 +520,11 @@ async function deleteStep() {
             :style="'primary'"
             type="submit"
           >{{ submitText }}</Button>
-          <Button :disabled="form.processing" type="button" @click="cancelSubmission">Annuler</Button>
+          <Button
+            :disabled="form.processing"
+            type="button"
+            @click="cancelSubmission"
+          >Annuler</Button>
         </div>
       </form>
     </FormContainer>

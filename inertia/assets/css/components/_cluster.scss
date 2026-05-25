@@ -7,6 +7,7 @@
   height: 35px;
   background: var(--primary);
   @include mixins.font-type('text-big');
+  color: var(--white);
   text-align: center;
   text-wrap: nowrap;
   border-radius: var(--border-radius-xxl);
