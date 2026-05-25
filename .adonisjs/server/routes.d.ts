@@ -23,6 +23,7 @@ export type ScannedRoutes = {
     'travels.index': { paramsTuple?: []; params?: {} }
     'session.create_share_link': { paramsTuple?: []; params?: {} }
     'session.update_theme': { paramsTuple?: []; params?: {} }
+    'session.update_profile_picture': { paramsTuple?: []; params?: {} }
     'travels.index_shared': { paramsTuple: [ParamValue]; params: {'shareLinkId': ParamValue} }
   }
   GET: {
@@ -58,6 +59,7 @@ export type ScannedRoutes = {
     'steps.create': { paramsTuple?: []; params?: {} }
     'travels.create': { paramsTuple?: []; params?: {} }
     'session.update_theme': { paramsTuple?: []; params?: {} }
+    'session.update_profile_picture': { paramsTuple?: []; params?: {} }
   }
   PATCH: {
     'steps.update': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }

@@ -120,6 +120,12 @@ const routes = {
     tokens: [{"old":"/users/update-theme","type":0,"val":"users","end":""},{"old":"/users/update-theme","type":0,"val":"update-theme","end":""}],
     types: placeholder as Registry['session.update_theme']['types'],
   },
+  'session.update_profile_picture': {
+    methods: ["POST"],
+    pattern: '/users/update-profile-picture',
+    tokens: [{"old":"/users/update-profile-picture","type":0,"val":"users","end":""},{"old":"/users/update-profile-picture","type":0,"val":"update-profile-picture","end":""}],
+    types: placeholder as Registry['session.update_profile_picture']['types'],
+  },
   'travels.index_shared': {
     methods: ["GET","HEAD"],
     pattern: '/travels-shared/:shareLinkId',

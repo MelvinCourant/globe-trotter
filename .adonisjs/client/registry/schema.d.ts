@@ -235,6 +235,18 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/session_controller').default['updateTheme']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
+  'session.update_profile_picture': {
+    methods: ["POST"]
+    pattern: '/users/update-profile-picture'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/user').updateProfilePictureValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/user').updateProfilePictureValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/session_controller').default['updateProfilePicture']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/session_controller').default['updateProfilePicture']>>> | { status: 422; response: { errors: SimpleError[] } }
+    }
+  }
   'travels.index_shared': {
     methods: ["GET","HEAD"]
     pattern: '/travels-shared/:shareLinkId'

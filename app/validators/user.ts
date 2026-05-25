@@ -29,3 +29,10 @@ export const signupValidator = vine.create({
 export const updateThemeValidator = vine.create({
   theme: vine.enum(['system', 'light', 'dark', 'auto'])
 })
+
+export const updateProfilePictureValidator = vine.create({
+  image: vine.file({
+    size: '8mb',
+    extnames: ['jpg', 'png', 'jpeg', 'webp', 'heic']
+  })
+})

@@ -1,6 +1,7 @@
-<script setup>
+<script setup lang="ts">
 import '../../assets/css/components/inputs/_profile-picture-input.scss'
 import {nextTick, ref} from "vue";
+import { heicTo, isHeic } from "heic-to"
 
 const props = defineProps({
   error: {
@@ -12,6 +13,7 @@ const props = defineProps({
     default: '',
   }
 })
+const emit = defineEmits(["update"])
 
 const image = ref(props.image);
 
@@ -19,23 +21,24 @@ async function updateFile(event) {
   await nextTick();
 
   const input = event.target;
-  const file = input.files[0];
+  let file = input.files[0];
 
   if (file) {
+    if (await isHeic(file)) {
+      const blob = await heicTo({ blob: file, type: 'image/jpeg', quality: 1 }) as Blob
+      file = new File([blob], file.name.replace(/\.hei[cf]$/i, '.jpg'), { type: 'image/jpeg' })
+
+      const dt = new DataTransfer()
+      dt.items.add(file)
+      input.files = dt.files
+    }
+
     const reader = new FileReader();
-
-    reader.addEventListener("load", function (e) {
-      const readerTarget = e.target;
-      let srcTarget = "";
-
-      if (readerTarget) {
-        srcTarget = readerTarget.result;
-      }
-
-      image.value = srcTarget;
+    reader.addEventListener("load", (e) => {
+      image.value = e.target?.result as string ?? ''
     });
-
     reader.readAsDataURL(file);
+    emit('update', file);
   }
 }
 </script>
@@ -107,7 +110,7 @@ async function updateFile(event) {
           class="profile-picture-input__input"
           name="image"
           type="file"
-          accept="image/png, image/jpeg, image/jpg, image/webp"
+          accept="image/png, image/jpeg, image/jpg, image/webp, .heic"
           @change="updateFile"
         >
       </div>

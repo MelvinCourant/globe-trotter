@@ -26,6 +26,10 @@ const themeOptions = [
 function updateTheme(theme: string) {
   router.post('/users/update-theme', { theme }, { preserveState: true, preserveScroll: true })
 }
+
+function updateProfilePicture(image: File) {
+  router.post('/users/update-profile-picture', { image }, { forceFormData: true, preserveState: true, preserveScroll: true })
+}
 </script>
 
 <template>
@@ -35,7 +39,10 @@ function updateTheme(theme: string) {
       <h2 class="settings__title">Compte</h2>
       <div class="settings__container">
         <div class="settings__left">
-          <ProfilePictureInput :image="`/uploads/${user.image}`"/>
+          <ProfilePictureInput
+            :image="`/uploads/${user.image}`"
+            @update="updateProfilePicture"
+          />
         </div>
         <div class="settings__right">
           <div class="settings__section">
