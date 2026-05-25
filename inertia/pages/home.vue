@@ -153,6 +153,11 @@ function handleStepParam(url: string) {
   const stepId = new URLSearchParams(url.split('?')[1] ?? '').get('step')
 
   if (stepId) {
+    if (!page.props.user && !isShared.value) {
+      router.get('/', {}, { replace: true })
+      return
+    }
+
     displayStep(stepId)
   } else {
     selectedStep.value = null
