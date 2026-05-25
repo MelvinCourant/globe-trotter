@@ -12,7 +12,6 @@ export default class extends BaseSchema {
       table.string('lastname', 50).nullable()
       table.string('image').nullable()
       table.uuid('share_link').nullable()
-      table.enum('theme', ['system', 'light', 'dark', 'auto']).defaultTo('auto')
 
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()
