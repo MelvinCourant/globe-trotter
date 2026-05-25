@@ -98,7 +98,13 @@ export default class StepsController {
     }
 
     const { travel_title, new_medias, old_medias, ...stepPayload } = payload
-    step.merge({ ...stepPayload, travelId: travel.id, medias: folderId })
+    step.merge({
+      ...stepPayload,
+      description: payload.description ?? null,
+      link: payload.link ?? null,
+      travelId: travel.id,
+      medias: folderId,
+    })
     await step.save()
 
     return response.redirect().back()
