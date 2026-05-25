@@ -69,7 +69,7 @@ export class TravelSchema extends BaseModel {
 }
 
 export class UserSchema extends BaseModel {
-  static $columns = ['createdAt', 'email', 'firstname', 'id', 'image', 'lastname', 'password', 'shareLink', 'updatedAt'] as const
+  static $columns = ['createdAt', 'email', 'firstname', 'id', 'image', 'lastname', 'password', 'shareLink', 'theme', 'updatedAt'] as const
   $columns = UserSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -87,6 +87,8 @@ export class UserSchema extends BaseModel {
   declare password: string
   @column()
   declare shareLink: string | null
+  @column()
+  declare theme: string | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }

@@ -1,0 +1,21 @@
+@use "../../partials/functions";
+@use "../../partials/mixins";
+
+.select {
+  &__label {
+    display: flex;
+    width: fit-content;
+    @include mixins.font-type('text-medium');
+    margin-bottom: functions.rem(6);
+  }
+
+  &__input {
+    @include mixins.font-type('text-medium');
+    background: var(--input);
+    padding: functions.rem(9) functions.rem(12);
+    border: none;
+    border-radius: var(--border-radius-s);
+    box-shadow: var(--shadow);
+    min-width: 170px;
+  }
+}

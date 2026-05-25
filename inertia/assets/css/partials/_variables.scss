@@ -10,7 +10,10 @@ $light-theme: (
   'surface': hsla(0, 79%, 94%, 1),
 
   // Shadows
-  'shadow': 0 0 2px 0 rgba(0, 0, 0, 0.50)
+  'shadow': 0 0 2px 0 rgba(0, 0, 0, 0.5),
+
+  // Borders
+  'border-color': rgba(0, 0, 0, 0.2),
 );
 
 $dark-theme: (
@@ -22,7 +25,10 @@ $dark-theme: (
   'surface': hsla(0, 0%, 20%, 1),
 
   // Shadows
-  'shadow': 0 0 2px 0 rgba(255, 255, 255, 1)
+  'shadow': 0 0 2px 0 rgba(255, 255, 255, 1),
+
+  // Border
+  'border-color': rgba(255, 255, 255, 0.2)
 );
 
 $global: (
@@ -47,13 +53,11 @@ $global: (
 );
 
 :root {
-  @media (prefers-color-scheme: light) {
-    @each $name, $value in $light-theme {
-      --#{$name}: #{$value};
-    }
+  @each $name, $value in $light-theme {
+    --#{$name}: #{$value};
   }
 
-  @media (prefers-color-scheme: dark) {
+  &[data-theme="dark"] {
     @each $name, $value in $dark-theme {
       --#{$name}: #{$value};
     }

@@ -7,7 +7,7 @@
   width: fit-content;
   gap: functions.rem(6);
   padding: functions.rem(4.5) functions.rem(14) functions.rem(4.5) functions.rem(6);
-  background: var(--background);
+  @include mixins.resetButton(none, var(--background));
   border-radius: functions.rem(22);
   box-shadow: var(--shadow);
 

@@ -8,6 +8,44 @@ import Navbar from "~/layouts/Navbar.vue";
 
 const page = usePage<Data.SharedProps>()
 
+initTheme()
+
+watch(() => page.props.user, () => {
+  if(page.props.user && page.props.user.theme) {
+    initTheme()
+  }
+})
+
+function initTheme() {
+  if (page.props.user && page.props.user.theme !== 'auto') {
+    if (
+      page.props.user.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches ||
+      page.props.user.theme === 'dark'
+    ) {
+      toggleTheme(true)
+    } else {
+      toggleTheme(false)
+    }
+  } else {
+    const hours = new Date().getHours()
+    const isDayTime = hours > 6 && hours < 20
+
+    if(isDayTime) {
+      toggleTheme(false)
+    } else {
+      toggleTheme(true)
+    }
+  }
+}
+
+function toggleTheme(dark: boolean) {
+  if(dark) {
+    document.documentElement.dataset.theme = 'dark'
+  } else {
+    document.documentElement.dataset.theme = 'light'
+  }
+}
+
 watch(
   () => page.url,
   () => toast.dismiss()

@@ -37,7 +37,8 @@ router
     router.delete('steps/:id', [controllers.Steps, 'destroy'])
     router.post('travels', [controllers.Travels, 'create'])
     router.get('travels', [controllers.Travels, 'index'])
-    router.get('create-share-link', [controllers.Session, 'createShareLink'])
+    router.get('users/create-share-link', [controllers.Session, 'createShareLink'])
+    router.post('users/update-theme', [controllers.Session, 'updateTheme'])
   })
   .use(middleware.auth())
 

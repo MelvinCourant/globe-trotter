@@ -110,9 +110,15 @@ const routes = {
   },
   'session.create_share_link': {
     methods: ["GET","HEAD"],
-    pattern: '/create-share-link',
-    tokens: [{"old":"/create-share-link","type":0,"val":"create-share-link","end":""}],
+    pattern: '/users/create-share-link',
+    tokens: [{"old":"/users/create-share-link","type":0,"val":"users","end":""},{"old":"/users/create-share-link","type":0,"val":"create-share-link","end":""}],
     types: placeholder as Registry['session.create_share_link']['types'],
+  },
+  'session.update_theme': {
+    methods: ["POST"],
+    pattern: '/users/update-theme',
+    tokens: [{"old":"/users/update-theme","type":0,"val":"users","end":""},{"old":"/users/update-theme","type":0,"val":"update-theme","end":""}],
+    types: placeholder as Registry['session.update_theme']['types'],
   },
   'travels.index_shared': {
     methods: ["GET","HEAD"],

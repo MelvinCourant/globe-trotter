@@ -10,6 +10,7 @@ export default class UserTransformer extends BaseTransformer<User> {
       'lastname',
       'image',
       'shareLink',
+      'theme',
       'createdAt',
       'updatedAt',
     ])

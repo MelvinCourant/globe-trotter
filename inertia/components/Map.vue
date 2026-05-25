@@ -4,8 +4,8 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import '../assets/css/components/_map.scss'
 import '../assets/css/components/_marker.scss'
 import '../assets/css/components/_user-position.scss'
-import { router } from '@inertiajs/vue3';
-import { createApp, markRaw, nextTick, onMounted, ref, useTemplateRef, watch } from "vue";
+import { router} from '@inertiajs/vue3';
+import { createApp, markRaw, nextTick, onMounted, onUnmounted, ref, useTemplateRef, watch } from "vue";
 import Popup from "~/components/Popup.vue";
 import Cluster from "~/components/Cluster.vue";
 import Loader from "~/components/Loader.vue";
@@ -60,17 +60,11 @@ const stepMarkers = ref<mapboxgl.Marker[]>([])
 const travelClusterMarkers = ref<mapboxgl.Marker[]>([])
 const proximityClusterMarkers = ref<mapboxgl.Marker[]>([])
 const zoomHandler = ref<(() => void) | null>(null)
-const theme = ref('light')
 const isLoading = ref(true)
+let themeObserver: MutationObserver | null = null
 
 onMounted(async () => {
   mapboxgl.accessToken = env.VITE_MAPBOX_ACCESSTOKEN
-
-  if(window.matchMedia) {
-    if(window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      theme.value = 'dark'
-    }
-  }
 
   let zoom = 2
   let center: [number, number] | undefined = undefined
@@ -100,11 +94,21 @@ onMounted(async () => {
     ...(center ? { center } : {}),
     container: mapContainer.value!,
     language: 'fr-FR',
-    style: `mapbox://styles/mapbox/${theme.value}-v11`,
+    style: `mapbox://styles/mapbox/${document.documentElement.dataset.theme}-v11`,
     zoom: zoom
   }))
 
   isLoading.value = false
+
+  themeObserver = new MutationObserver(() => {
+    const theme = document.documentElement.dataset.theme
+    mapInstance.value?.setStyle(`mapbox://styles/mapbox/${theme}-v11`)
+  })
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+})
+
+onUnmounted(() => {
+  themeObserver?.disconnect()
 })
 
 watch([userCoordinates, mapInstance], ([coords, map]) => {

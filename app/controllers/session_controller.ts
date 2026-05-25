@@ -1,13 +1,14 @@
 import User from '#models/user'
 import type { HttpContext } from '@adonisjs/core/http'
 import {randomUUID} from "node:crypto";
+import {updateThemeValidator} from "#validators/user";
 
 export default class SessionController {
   async create({ inertia }: HttpContext) {
     return inertia.render('auth/login', {})
   }
 
-  async store({ request, auth, response }: HttpContext) {
+  async store({ request, response, auth }: HttpContext) {
     const { email, password } = request.all()
     const user = await User.verifyCredentials(email, password)
 
@@ -29,5 +30,15 @@ export default class SessionController {
     response.status(200).send({
       shareLink: user.shareLink,
     })
+  }
+
+  async updateTheme({ request, response, auth }: HttpContext) {
+    const payload = await request.validateUsing(updateThemeValidator)
+    const user = await User.findOrFail(auth.user!.id)
+
+    user.theme = payload.theme
+    await user.save()
+
+    response.redirect().back()
   }
 }

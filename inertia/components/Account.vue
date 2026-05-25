@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import '../assets/css/components/_account.scss'
+import Settings from "~/components/Settings.vue";
+import {ref} from "vue";
 
 defineProps({
   user: {
@@ -7,10 +9,16 @@ defineProps({
     required: true
   }
 })
+
+const settingsOpen = ref(false)
 </script>
 
 <template>
-  <div class="account">
+  <button
+    class="account"
+    title="Paramètres du compte"
+    @click="settingsOpen = !settingsOpen"
+  >
     <img
       v-if="user.image"
       :src="`/uploads/${user.image}`"
@@ -24,5 +32,10 @@ defineProps({
       class="account__profile-picture"
     />
     <span class="account__firstname">{{ user.firstname }}</span>
-  </div>
+  </button>
+  <Settings
+    v-if="settingsOpen"
+    :user="user"
+    @close="settingsOpen = false"
+  />
 </template>

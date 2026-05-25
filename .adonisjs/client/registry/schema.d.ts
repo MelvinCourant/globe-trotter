@@ -213,7 +213,7 @@ export interface Registry {
   }
   'session.create_share_link': {
     methods: ["GET","HEAD"]
-    pattern: '/create-share-link'
+    pattern: '/users/create-share-link'
     types: {
       body: {}
       paramsTuple: []
@@ -221,6 +221,18 @@ export interface Registry {
       query: {}
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/session_controller').default['createShareLink']>>>
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/session_controller').default['createShareLink']>>>
+    }
+  }
+  'session.update_theme': {
+    methods: ["POST"]
+    pattern: '/users/update-theme'
+    types: {
+      body: ExtractBody<InferInput<(typeof import('#validators/user').updateThemeValidator)>>
+      paramsTuple: []
+      params: {}
+      query: ExtractQuery<InferInput<(typeof import('#validators/user').updateThemeValidator)>>
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/session_controller').default['updateTheme']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/session_controller').default['updateTheme']>>> | { status: 422; response: { errors: SimpleError[] } }
     }
   }
   'travels.index_shared': {

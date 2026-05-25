@@ -18,10 +18,14 @@ export const signupValidator = vine.create({
   password: password().confirmed({
     confirmationField: 'passwordConfirmation',
   }),
-  firstname: vine.string().maxLength(25),
+  firstname: vine.string().maxLength(25).optional().nullable(),
   lastname: vine.string().maxLength(50).optional().nullable(),
   image: vine.file({
     size: '8mb',
     extnames: ['jpg', 'png', 'jpeg', 'webp', 'heic']
   }).optional().nullable(),
+})
+
+export const updateThemeValidator = vine.create({
+  theme: vine.enum(['system', 'light', 'dark', 'auto'])
 })

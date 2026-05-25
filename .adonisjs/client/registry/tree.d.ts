@@ -18,6 +18,7 @@ export interface ApiDefinition {
     store: typeof routes['session.store']
     destroy: typeof routes['session.destroy']
     createShareLink: typeof routes['session.create_share_link']
+    updateTheme: typeof routes['session.update_theme']
   }
   forgottenPassword: {
     create: typeof routes['forgotten_password.create']

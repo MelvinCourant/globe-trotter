@@ -27,7 +27,7 @@ async function getShareLink() {
   if(page.props.user.shareLink) {
     await navigator.clipboard.writeText(`${window.location.origin}/shared/${page.props.user.shareLink}`);
   } else {
-    const json = await fetch('/create-share-link').then(response => response.json())
+    const json = await fetch('/users/create-share-link').then(response => response.json())
 
     await navigator.clipboard.writeText(`${window.location.origin}/shared/${json.shareLink}`);
   }
