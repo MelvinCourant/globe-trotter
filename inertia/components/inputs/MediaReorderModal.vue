@@ -14,12 +14,24 @@ const emit = defineEmits<{
 
 const localItems = ref([...props.items])
 const gridRef = useTemplateRef<HTMLDivElement>('grid')
-
 const dragSourceIndex = ref<number | null>(null)
 const dragOverIndex = ref<number | null>(null)
 const dragOverBefore = ref(true)
-
-// --- Shared reorder logic ---
+const touchActive = ref(false)
+const ghostX = ref(0)
+const ghostY = ref(0)
+const ghostWidth = ref(0)
+const ghostHeight = ref(0)
+let longPressTimer: ReturnType<typeof setTimeout> | null = null
+let touchStartX = 0
+let touchStartY = 0
+let touchOffsetX = 0
+let touchOffsetY = 0
+let lastTouchX = 0
+let lastTouchY = 0
+let touchedElement: HTMLElement | null = null
+const LONG_PRESS_DELAY = 200
+const MOVE_CANCEL_THRESHOLD = 10
 
 function applyReorder(sourceIndex: number, targetIndex: number) {
   if (sourceIndex === targetIndex) return
@@ -35,6 +47,15 @@ function applyReorder(sourceIndex: number, targetIndex: number) {
 function resetDragState() {
   dragSourceIndex.value = null
   dragOverIndex.value = null
+  touchActive.value = false
+  touchedElement = null
+}
+
+function cancelLongPress() {
+  if (longPressTimer) {
+    clearTimeout(longPressTimer)
+    longPressTimer = null
+  }
 }
 
 function onDragStart(e: DragEvent, index: number) {
@@ -74,15 +95,48 @@ function onDragEnd() {
   resetDragState()
 }
 
-function onTouchStart(index: number) {
-  dragSourceIndex.value = index
+function onTouchStart(e: TouchEvent, index: number) {
+  const touch = e.touches[0]
+  touchStartX = touch.clientX
+  touchStartY = touch.clientY
+  lastTouchX = touch.clientX
+  lastTouchY = touch.clientY
+  touchedElement = e.currentTarget as HTMLElement
+
+  cancelLongPress()
+
+  longPressTimer = setTimeout(() => {
+    if (!touchedElement) return
+    const rect = touchedElement.getBoundingClientRect()
+    ghostWidth.value = rect.width
+    ghostHeight.value = rect.height
+    touchOffsetX = lastTouchX - rect.left
+    touchOffsetY = lastTouchY - rect.top
+    ghostX.value = lastTouchX - touchOffsetX
+    ghostY.value = lastTouchY - touchOffsetY
+    dragSourceIndex.value = index
+    touchActive.value = true
+    navigator.vibrate?.(50)
+  }, LONG_PRESS_DELAY)
 }
 
 function onTouchMove(e: TouchEvent) {
-  if (dragSourceIndex.value === null) return
+  const touch = e.touches[0]
+  lastTouchX = touch.clientX
+  lastTouchY = touch.clientY
+
+  if (!touchActive.value) {
+    const dx = Math.abs(touch.clientX - touchStartX)
+    const dy = Math.abs(touch.clientY - touchStartY)
+    if (dx > MOVE_CANCEL_THRESHOLD || dy > MOVE_CANCEL_THRESHOLD) cancelLongPress()
+    return
+  }
+
   e.preventDefault()
 
-  const touch = e.touches[0]
+  ghostX.value = touch.clientX - touchOffsetX
+  ghostY.value = touch.clientY - touchOffsetY
+
   const el = document.elementFromPoint(touch.clientX, touch.clientY)
   const itemEl = el?.closest<HTMLElement>('.media-reorder__item')
 
@@ -105,12 +159,21 @@ function onTouchMove(e: TouchEvent) {
 }
 
 function onTouchEnd() {
+  cancelLongPress()
+  if (!touchActive.value) { resetDragState(); return }
+
   const sourceIndex = dragSourceIndex.value
   const targetIndex = dragOverIndex.value
   resetDragState()
+
   if (sourceIndex !== null && targetIndex !== null) {
     applyReorder(sourceIndex, targetIndex)
   }
+}
+
+function onTouchCancel() {
+  cancelLongPress()
+  resetDragState()
 }
 
 function confirm() {
@@ -135,6 +198,7 @@ function confirm() {
         class="media-reorder__grid-wrapper"
         @touchmove="onTouchMove"
         @touchend.passive="onTouchEnd"
+        @touchcancel.passive="onTouchCancel"
       >
         <div ref="grid" class="media-reorder__grid">
           <div
@@ -152,7 +216,7 @@ function confirm() {
             @dragleave="onDragLeave($event, index)"
             @drop="onDrop($event, index)"
             @dragend="onDragEnd"
-            @touchstart.passive="onTouchStart(index)"
+            @touchstart.passive="onTouchStart($event, index)"
           >
             <img :src="item.preview" :alt="`Média ${index + 1}`" draggable="false">
             <span class="media-reorder__item-badge">{{ index + 1 }}</span>
@@ -166,4 +230,19 @@ function confirm() {
       </div>
     </div>
   </div>
+
+  <Teleport to="body">
+    <div
+      v-if="touchActive && dragSourceIndex !== null"
+      class="media-reorder__ghost"
+      :style="{
+        left: `${ghostX}px`,
+        top: `${ghostY}px`,
+        width: `${ghostWidth}px`,
+        height: `${ghostHeight}px`,
+      }"
+    >
+      <img :src="localItems[dragSourceIndex!].preview" draggable="false">
+    </div>
+  </Teleport>
 </template>
