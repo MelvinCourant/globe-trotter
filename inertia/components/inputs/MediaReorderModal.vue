@@ -218,7 +218,12 @@ function confirm() {
             @dragend="onDragEnd"
             @touchstart.passive="onTouchStart($event, index)"
           >
-            <img :src="item.preview" :alt="`Média ${index + 1}`" draggable="false">
+            <img
+              :src="item.preview"
+              :alt="`Média ${index + 1}`"
+              draggable="false"
+              oncontextmenu="return false"
+            >
             <span class="media-reorder__item-badge">{{ index + 1 }}</span>
           </div>
         </div>
@@ -242,7 +247,11 @@ function confirm() {
         height: `${ghostHeight}px`,
       }"
     >
-      <img :src="localItems[dragSourceIndex!].preview" draggable="false">
+      <img
+        :src="localItems[dragSourceIndex!].preview"
+        draggable="false"
+        oncontextmenu="return false"
+      >
     </div>
   </Teleport>
 </template>
