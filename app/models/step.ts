@@ -1,5 +1,5 @@
 import { StepSchema } from '#database/schema'
-import { afterFetch, afterFind, beforeCreate } from "@adonisjs/lucid/orm";
+import { afterFetch, afterFind, beforeCreate, column } from "@adonisjs/lucid/orm";
 import { randomUUID } from "node:crypto";
 import drive from '@adonisjs/drive/services/main'
 
@@ -11,6 +11,16 @@ type MediaVariants = {
 }
 
 export default class Step extends StepSchema {
+  @column({
+    prepare: (value: string[] | null) => value !== null ? JSON.stringify(value) : null,
+    consume: (value: string | string[] | null) => {
+      if (!value) return null
+      if (Array.isArray(value)) return value
+      try { return JSON.parse(value) } catch { return null }
+    },
+  })
+  declare mediasOrder: string[] | null
+
   @beforeCreate()
   static assignUuid(step: Step) {
     step.id = randomUUID()
@@ -50,7 +60,17 @@ export default class Step extends StepSchema {
           variantMap.get(baseUuid)![variant] = obj.key
         }
 
-        step.$extras.mediaFiles = Array.from(variantMap.values())
+        const entries = Array.from(variantMap.entries())
+
+        if (step.mediasOrder && step.mediasOrder.length > 0) {
+          entries.sort(([uuidA], [uuidB]) => {
+            const indexA = step.mediasOrder!.indexOf(uuidA)
+            const indexB = step.mediasOrder!.indexOf(uuidB)
+            return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB)
+          })
+        }
+
+        step.$extras.mediaFiles = entries.map(([, variants]) => variants)
       } catch {
         step.$extras.mediaFiles = []
       }

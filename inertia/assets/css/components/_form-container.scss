@@ -12,6 +12,7 @@
   margin: 0 auto;
   background: var(--background);
   box-shadow: var(--shadow);
+  overflow: hidden;
 
   &--medium {
     padding: 36px 24px;

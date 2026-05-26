@@ -1,44 +1,68 @@
 <script setup lang="ts">
 import '../../assets/css/components/inputs/_gallery-input.scss'
-import {nextTick, onMounted, ref, useTemplateRef} from "vue";
-import { heicTo, isHeic} from "heic-to"
-import Button from "~/components/inputs/Button.vue";
+import { nextTick, onMounted, ref, useTemplateRef } from "vue"
+import { heicTo, isHeic } from "heic-to"
+import Button from "~/components/inputs/Button.vue"
+import MediaReorderModal from "~/components/inputs/MediaReorderModal.vue"
+
+type MediaItem = {
+  id: number
+  preview: string
+  key: string | null
+  file: File | null
+}
+
+let idCounter = 0
 
 const props = defineProps({
-  error: {
-    type: String,
-    default: '',
-  },
-  label: {
-    type: String,
-    default: '',
-  },
-  medias: {
-    type: Array,
-    default: () => [],
-  },
-  maxLength: {
-    type: Number,
-    default: 0,
-  }
+  error: { type: String, default: '' },
+  label: { type: String, default: '' },
+  medias: { type: Array, default: () => [] },
+  maxLength: { type: Number, default: 0 },
 })
 
-const emit = defineEmits<{ updateMedias: [payload: { existing: string[], files: File[] }] }>()
+const emit = defineEmits<{
+  updateMedias: [payload: { existing: string[], files: File[], orderRefs: string[] }]
+}>()
 
-const existingMedias = ref<string[]>([...(props.medias as string[])])
-const files = ref<File[]>([])
-const previews = ref<string[]>([...(props.medias as string[])])
+const items = ref<MediaItem[]>(
+  (props.medias as string[]).map(url => ({
+    id: idCounter++,
+    preview: url,
+    key: url.replace('/uploads/', ''),
+    file: null,
+  }))
+)
+
 const mediasSlider = useTemplateRef<HTMLDivElement>("mediasSlider")
+const showReorderModal = ref(false)
 
 let isGrabbing = false
 let grabStartX = 0
 let scrollStartLeft = 0
 
 onMounted(() => {
-  if(existingMedias.value.length > 0) {
+  if (items.value.length > 0) {
     scrollToLastMedia(true)
   }
 })
+
+function emitUpdate() {
+  const existingInOrder = items.value.filter(i => i.key !== null).map(i => i.key!)
+  const filesInOrder = items.value.filter(i => i.file !== null).map(i => i.file!)
+
+  const newItemIndexMap = new Map<number, number>()
+  let newIdx = 0
+  items.value.forEach(item => {
+    if (item.file !== null) newItemIndexMap.set(item.id, newIdx++)
+  })
+
+  const orderRefs = items.value.map(item =>
+    item.key !== null ? `old:${item.key}` : `new:${newItemIndexMap.get(item.id)}`
+  )
+
+  emit('updateMedias', { existing: existingInOrder, files: filesInOrder, orderRefs })
+}
 
 function onGrabStart(e: MouseEvent) {
   if (!mediasSlider.value) return
@@ -60,81 +84,76 @@ function onGrabEnd() {
   mediasSlider.value.style.cursor = 'grab'
 }
 
-async function scrollToLastMedia(noAnimation: boolean = false) {
-  await nextTick();
+function onReorderConfirm(orderedIds: number[]) {
+  const idToItem = new Map(items.value.map(item => [item.id, item]))
+  items.value = orderedIds.map(id => idToItem.get(id)!)
+  showReorderModal.value = false
+  emitUpdate()
+}
 
+async function scrollToLastMedia(noAnimation = false) {
+  await nextTick()
   if (mediasSlider.value) {
-    const items = mediasSlider.value.querySelectorAll<HTMLElement>('.gallery-input-media:not(.gallery-input-media--placeholder)')
-    const lastItem = items[items.length - 1]
-
+    const mediaItems = mediasSlider.value.querySelectorAll<HTMLElement>('.gallery-input-media:not(.gallery-input-media--placeholder)')
+    const lastItem = mediaItems[mediaItems.length - 1]
     if (lastItem) {
-      if(noAnimation) {
-        mediasSlider.value.scrollTo({ left: lastItem.offsetLeft - 20 })
-      } else {
-        mediasSlider.value.scrollTo({ left: lastItem.offsetLeft - 20, behavior: 'smooth' })
-      }
+      mediasSlider.value.scrollTo({
+        left: lastItem.offsetLeft - 20,
+        behavior: noAnimation ? undefined : 'smooth',
+      })
     }
   }
 }
 
 async function toJpegFile(file: File): Promise<File> {
-  const blob = await heicTo({blob: file, type: 'image/jpeg', quality: 1}) as Blob
+  const blob = await heicTo({ blob: file, type: 'image/jpeg', quality: 1 }) as Blob
   const jpegName = file.name.replace(/\.hei[cf]$/i, '.jpg')
-
   return new File([blob], jpegName, { type: 'image/jpeg' })
 }
 
-async function addFiles(event: { target: any; }) {
-  const input = event.target;
-  const remaining = props.maxLength > 0 ? props.maxLength - previews.value.length : Infinity
+async function addFiles(event: { target: any }) {
+  const input = event.target
+  const remaining = props.maxLength > 0 ? props.maxLength - items.value.length : Infinity
 
   for (const file of Array.from(input.files as FileList).slice(0, remaining)) {
     const processedFile = await isHeic(file) ? await toJpegFile(file) : file
-
-    files.value.push(processedFile)
-    previews.value.push(URL.createObjectURL(processedFile))
+    items.value.push({
+      id: idCounter++,
+      preview: URL.createObjectURL(processedFile),
+      key: null,
+      file: processedFile,
+    })
   }
 
-  await scrollToLastMedia();
-  emit('updateMedias', { existing: existingMedias.value.map(m => m.replace('/uploads/', '')), files: files.value });
+  await scrollToLastMedia()
+  emitUpdate()
 }
 
 function deleteFile(index: number) {
-  if (index < existingMedias.value.length) {
-    existingMedias.value.splice(index, 1)
-    previews.value.splice(index, 1)
-  } else {
-    const fileIndex = index - existingMedias.value.length
-    URL.revokeObjectURL(previews.value[index])
-    files.value.splice(fileIndex, 1)
-    previews.value.splice(index, 1)
-  }
-  emit('updateMedias', { existing: existingMedias.value.map(m => m.replace('/uploads/', '')), files: files.value });
+  const item = items.value[index]
+  if (item.file) URL.revokeObjectURL(item.preview)
+  items.value.splice(index, 1)
+  emitUpdate()
 }
 </script>
 
 <template>
   <div class="gallery-input">
-    <label
-      v-if="label"
-      for="image"
-      class="gallery-input__label"
-    >
-      {{ label }}
-    </label>
+    <label v-if="label" for="image" class="gallery-input__label">{{ label }}</label>
     <div
-      :class="[
-        'gallery-input__medias',
-        {'gallery-input__medias--empty': files.length === 0}
-      ]"
+      :class="['gallery-input__medias', { 'gallery-input__medias--empty': items.length === 0 }]"
       ref="mediasSlider"
       @mousedown="onGrabStart"
       @mousemove="onGrabMove"
       @mouseup="onGrabEnd"
       @mouseleave="onGrabEnd"
     >
-      <div v-for="(media, index) in previews" class="gallery-input-media">
-        <img :src="media" :alt="`Média ${index}`" draggable="false">
+      <div
+        v-for="(item, index) in items"
+        :key="item.id"
+        class="gallery-input-media"
+      >
+        <img :src="item.preview" :alt="`Média ${index}`" draggable="false">
         <Button
           className="gallery-input-media__delete"
           size="small"
@@ -151,10 +170,7 @@ function deleteFile(index: number) {
         </Button>
       </div>
       <div
-        v-if="
-          maxLength > 0 && previews.length < maxLength ||
-          maxLength === 0
-        "
+        v-if="maxLength > 0 && items.length < maxLength || maxLength === 0"
         class="gallery-input-media gallery-input-media--placeholder"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 38 38" fill="none">
@@ -173,11 +189,20 @@ function deleteFile(index: number) {
         >
       </div>
     </div>
-    <div
-      v-if="error"
-      class="gallery-input__error"
+    <button
+      v-if="items.length > 1"
+      class="gallery-input__reorder-btn"
+      type="button"
+      @click="showReorderModal = true"
     >
-      {{ error }}
-    </div>
+      Réorganiser
+    </button>
+    <div v-if="error" class="gallery-input__error">{{ error }}</div>
+    <MediaReorderModal
+      v-if="showReorderModal"
+      :items="items.map(i => ({ id: i.id, preview: i.preview }))"
+      @confirm="onReorderConfirm"
+      @close="showReorderModal = false"
+    />
   </div>
 </template>

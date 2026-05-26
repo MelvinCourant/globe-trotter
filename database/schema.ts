@@ -23,7 +23,7 @@ export class PasswordResetTokenSchema extends BaseModel {
 }
 
 export class StepSchema extends BaseModel {
-  static $columns = ['createdAt', 'description', 'endDate', 'id', 'latitude', 'link', 'longitude', 'medias', 'place', 'startDate', 'title', 'travelId', 'updatedAt'] as const
+  static $columns = ['createdAt', 'description', 'endDate', 'id', 'latitude', 'link', 'longitude', 'medias', 'mediasOrder', 'place', 'startDate', 'title', 'travelId', 'updatedAt'] as const
   $columns = StepSchema.$columns
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime | null
@@ -41,6 +41,8 @@ export class StepSchema extends BaseModel {
   declare longitude: string
   @column()
   declare medias: string | null
+  @column()
+  declare mediasOrder: any | null
   @column()
   declare place: string
   @column.date()
@@ -88,7 +90,7 @@ export class UserSchema extends BaseModel {
   @column()
   declare shareLink: string | null
   @column()
-  declare theme: string | null
+  declare theme: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }

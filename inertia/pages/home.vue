@@ -96,6 +96,7 @@ const form = useForm({
   link: '',
   new_medias: [] as File[],
   old_medias: [] as string[],
+  medias_order_refs: '' as string,
 })
 const formTitle = ref<string>('Ajouter une étape')
 const formType = ref<string>('create-step')
@@ -250,9 +251,10 @@ function updateDates(dates: [Date, Date] | null) {
   form.end_date = dates?.[1] ? toDateString(dates[1]) : null
 }
 
-function updateMedias(payload: { existing: string[], files: File[] }) {
+function updateMedias(payload: { existing: string[], files: File[], orderRefs: string[] }) {
   form.old_medias = payload.existing
   form.new_medias = payload.files
+  form.medias_order_refs = JSON.stringify(payload.orderRefs)
 }
 
 async function suggestLocation(searchText: string) {

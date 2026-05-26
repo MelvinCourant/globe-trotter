@@ -79,6 +79,20 @@
     }
   }
 
+  &__reorder-btn {
+    @include mixins.resetButton(none, transparent);
+    @include mixins.font-type('text-medium');
+    color: var(--primary);
+    margin-top: functions.rem(6);
+    text-decoration: underline;
+    cursor: pointer;
+    width: fit-content;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+
   &__error {
     @include mixins.font-type('text-medium');
     color: var(--danger);

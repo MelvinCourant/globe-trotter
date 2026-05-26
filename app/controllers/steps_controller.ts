@@ -19,17 +19,24 @@ export default class StepsController {
     }
 
     let folderId: string | null = null
+    const mediasOrder: string[] = []
 
     if (payload.new_medias) {
       folderId = randomUUID()
 
       for (const media of payload.new_medias) {
-        await processImageVariants(media, folderId)
+        const uuid = await processImageVariants(media, folderId)
+        mediasOrder.push(uuid)
       }
     }
 
     const { travel_title, new_medias, ...stepPayload } = payload
-    await Step.create({ ...stepPayload, travelId: travel.id, medias: folderId });
+    await Step.create({
+      ...stepPayload,
+      travelId: travel.id,
+      medias: folderId,
+      mediasOrder: mediasOrder.length > 0 ? mediasOrder : null,
+    });
 
     return response.redirect().back()
   }
@@ -67,6 +74,9 @@ export default class StepsController {
       }
     }
 
+    const orderedUuids: string[] = []
+    const newMediaUuids: string[] = []
+
     if (payload.old_medias && folderId) {
       const disk = drive.use()
       const { objects } = await disk.listAll(folderId)
@@ -93,17 +103,44 @@ export default class StepsController {
 
     if (payload.new_medias) {
       for (const media of payload.new_medias) {
-        await processImageVariants(media, folderId!)
+        const uuid = await processImageVariants(media, folderId!)
+        newMediaUuids.push(uuid)
       }
     }
 
-    const { travel_title, new_medias, old_medias, ...stepPayload } = payload
+    if (payload.medias_order_refs) {
+      try {
+        const refs = JSON.parse(payload.medias_order_refs) as string[]
+        for (const ref of refs) {
+          if (ref.startsWith('old:')) {
+            const filename = ref.slice(4).split('/').pop()!
+            orderedUuids.push(filename.replace(/\.[^.]+$/, ''))
+          } else if (ref.startsWith('new:')) {
+            const newIndex = parseInt(ref.slice(4), 10)
+            if (newMediaUuids[newIndex] !== undefined) orderedUuids.push(newMediaUuids[newIndex])
+          }
+        }
+      } catch {
+        for (const path of payload.old_medias ?? []) {
+          orderedUuids.push(path.split('/').pop()!.replace(/\.[^.]+$/, ''))
+        }
+        orderedUuids.push(...newMediaUuids)
+      }
+    } else {
+      for (const path of payload.old_medias ?? []) {
+        orderedUuids.push(path.split('/').pop()!.replace(/\.[^.]+$/, ''))
+      }
+      orderedUuids.push(...newMediaUuids)
+    }
+
+    const { travel_title, new_medias, old_medias, medias_order_refs, ...stepPayload } = payload
     step.merge({
       ...stepPayload,
       description: payload.description ?? null,
       link: payload.link ?? null,
       travelId: travel.id,
       medias: folderId,
+      mediasOrder: orderedUuids.length > 0 ? orderedUuids : null,
     })
     await step.save()
 
