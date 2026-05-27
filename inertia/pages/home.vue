@@ -247,9 +247,7 @@ async function displayStepForm(type: string) {
       form.place = selectedStep.value.place;
       form.description = selectedStep.value.description;
       form.link = selectedStep.value.link;
-      form.old_medias = selectedStep.value.medias.map((m: any) =>
-        m.medium ? m.medium : m.normal
-      );
+      form.old_medias = selectedStep.value.medias.map((m: any) => m.normal);
 
       travelInitialChips.value = [{ value: form.travel_id, text: form.travel_title }]
       datesInitialValue.value = [new Date(form.start_date), new Date(form.end_date)]
