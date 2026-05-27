@@ -47,6 +47,7 @@ const shareLinkId = computed(() => {
 })
 const stepSearchQuery = ref('')
 const selectedSearchTravelId = ref('')
+const fitBoundsTrigger = ref(false)
 
 const searchTravelSelectOptions = computed(() => [
   { value: '', text: 'Tous les voyages', selected: selectedSearchTravelId.value === '' },
@@ -96,6 +97,7 @@ const linkAttributes = {
   'placeholder': 'https://www.mesphotos.fr',
 };
 const searchStepAttributes = {
+  type: 'search',
   name: 'step-search',
   placeholder: 'Rechercher'
 }
@@ -138,6 +140,10 @@ onMounted(async () => {
 
     const url = params.toString() ? `/travels/search?${params}` : '/travels/steps-travels'
     travels.value = await fetch(url).then(r => r.json())
+
+    if(searchParam || travelParam) {
+      fitBoundsTrigger.value = !fitBoundsTrigger.value
+    }
 
     const allTravels = await fetch('/travels').then(r => r.json())
     travelOptions.value = allTravels.map((travel: { id: string; title: string }) => ({
@@ -444,10 +450,12 @@ async function performStepSearch() {
 
   if (!params.toString()) {
     travels.value = await fetch('/travels/steps-travels').then(r => r.json())
+    fitBoundsTrigger.value = !fitBoundsTrigger.value
     return
   }
 
   travels.value = await fetch(`/travels/search?${params}`).then(r => r.json())
+  fitBoundsTrigger.value = !fitBoundsTrigger.value
 }
 
 function updateSearchUrl() {
@@ -458,7 +466,7 @@ function updateSearchUrl() {
   if (selectedSearchTravelId.value) params.set('travel', selectedSearchTravelId.value)
   else params.delete('travel')
 
-  window.history.replaceState({}, '', window.location.pathname + (params.toString() ? `?${params}` : ''))
+  router.get(window.location.pathname + (params.toString() ? `?${params}` : ''), {}, { preserveState: true, preserveScroll: true })
 }
 
 function onSearchTravelChange(travelId: string) {
@@ -516,6 +524,7 @@ async function deleteStep() {
     </form>
     <Map
       :disablePopups="stepDetailsDisplayed"
+      :fitBoundsTrigger="fitBoundsTrigger"
       :travels="travels"
       :highlightLocation="highlightLocation"
       :highlightStep="highlightStep"

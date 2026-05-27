@@ -40,6 +40,7 @@ type Feature = {
 
 const props = defineProps<{
   disablePopups: boolean,
+  fitBoundsTrigger: boolean,
   highlightLocation: { latitude: number; longitude: number } | null,
   highlightStep: string | null,
   mapPadding: { top: number; right: number; bottom: number; left: number } | null,
@@ -198,6 +199,24 @@ watch([() => props.highlightStep, mapInstance], ([stepId, map]) => {
 
     break
   }
+})
+
+watch([() => props.fitBoundsTrigger, mapInstance], ([, map]) => {
+  if (!map) return
+
+  const coords = props.travels.flatMap(t =>
+    t.steps
+      .filter(s => Number(s.latitude) && Number(s.longitude))
+      .map(s => [Number(s.longitude), Number(s.latitude)] as [number, number])
+  )
+
+  if (coords.length === 0) return
+
+  const bounds = new mapboxgl.LngLatBounds()
+  coords.forEach(c => bounds.extend(c))
+
+  const doFit = () => map.fitBounds(bounds, { padding: 60, maxZoom: 10 })
+  map.loaded() ? doFit() : map.once('load', doFit)
 })
 
 watch([() => props.travels, mapInstance], ([travels, map]) => {
