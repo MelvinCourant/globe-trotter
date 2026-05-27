@@ -21,6 +21,10 @@
     border-radius: var(--border-radius-s);
     overflow: hidden;
 
+    &:has(.combobox__input:focus) {
+      outline: 2px solid var(--primary);
+    }
+
     &--open {
       border-radius: var(--border-radius-s) var(--border-radius-s) 0 0 !important;
     }

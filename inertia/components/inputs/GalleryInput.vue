@@ -29,7 +29,7 @@ const items = ref<MediaItem[]>(
   (props.medias as string[]).map(url => ({
     id: idCounter++,
     preview: url,
-    key: url.replace('/uploads/', ''),
+    key: url.replace('/uploads/', '').replace('_medium', ''),
     file: null,
   }))
 )
