@@ -472,7 +472,6 @@ function updateSearchUrl() {
 function onSearchTravelChange(travelId: string) {
   selectedSearchTravelId.value = travelId
   performStepSearch()
-  updateSearchUrl()
 }
 
 async function deleteStep() {

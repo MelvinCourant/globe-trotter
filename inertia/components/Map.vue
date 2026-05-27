@@ -202,7 +202,7 @@ watch([() => props.highlightStep, mapInstance], ([stepId, map]) => {
 })
 
 watch([() => props.fitBoundsTrigger, mapInstance], ([fitBoundsTrigger, map]) => {
-  if (!map || !fitBoundsTrigger) return
+  if (!map || !map.loaded() && !fitBoundsTrigger) return
 
   const coords = props.travels.flatMap(t =>
     t.steps
