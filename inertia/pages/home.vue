@@ -248,7 +248,7 @@ async function displayStepForm(type: string) {
       form.description = selectedStep.value.description;
       form.link = selectedStep.value.link;
       form.old_medias = selectedStep.value.medias.map((m: any) =>
-        typeof m === 'object' ? m.normal : m
+        m.medium ? m.medium : m.normal
       );
 
       travelInitialChips.value = [{ value: form.travel_id, text: form.travel_title }]
@@ -256,7 +256,7 @@ async function displayStepForm(type: string) {
       locationAttributes.value = form.place
       mediasInitialValue.value = []
       selectedStep.value.medias.forEach((media: any) => {
-        const key = typeof media === 'object' ? media.normal : media
+        const key = media.medium ? media.medium : media.normal
         mediasInitialValue.value.push(`/uploads/${key}`);
       })
 
