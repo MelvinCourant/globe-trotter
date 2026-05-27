@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import '../assets/css/pages/_home.scss'
-import { Head, usePage, useForm, router } from '@inertiajs/vue3'
+import {Head, router, useForm, usePage} from '@inertiajs/vue3'
 import Map from '../components/Map.vue'
 import Button from "~/components/inputs/Button.vue";
 import type {Data} from "@generated/data";
 import FormContainer from "~/components/FormContainer.vue";
-import {ref, computed, onMounted, onUnmounted, reactive, watch, nextTick} from "vue";
+import {computed, nextTick, onMounted, onUnmounted, reactive, ref, watch} from "vue";
 import InputString from "~/components/inputs/InputString.vue";
 import GalleryInput from "~/components/inputs/GalleryInput.vue";
 import Combobox from "~/components/inputs/Combobox.vue";
 import DatePicker from "~/components/inputs/DatePicker.vue";
 import Textarea from "~/components/inputs/Textarea.vue";
-import Search from "~/components/inputs/Search.vue";
+import Search from "~/components/inputs/Search.vue"
+import Select from "~/components/inputs/Select.vue";
 import Step from "~/components/Step.vue";
 import Lightbox from "~/components/Lightbox.vue";
 
@@ -44,6 +45,17 @@ const shareLinkId = computed(() => {
   if (!isShared.value) return null
   return page.url.split('?')[0].replace('/shared/', '')
 })
+const stepSearchQuery = ref('')
+const selectedSearchTravelId = ref('')
+
+const searchTravelSelectOptions = computed(() => [
+  { value: '', text: 'Tous les voyages', selected: selectedSearchTravelId.value === '' },
+  ...travelOptions.value.map(t => ({
+    value: t.value,
+    text: t.text,
+    selected: t.value === selectedSearchTravelId.value,
+  }))
+])
 
 const galleryMaxLength = 15;
 const travelAttributes = {
@@ -83,6 +95,10 @@ const linkAttributes = {
   'id': 'link',
   'placeholder': 'https://www.mesphotos.fr',
 };
+const searchStepAttributes = {
+  name: 'step-search',
+  placeholder: 'Rechercher'
+}
 const form = useForm({
   travel_id: '',
   travel_title: '',
@@ -109,10 +125,22 @@ onMounted(async () => {
     const response = await fetch(`/travels-shared/${shareLinkId.value}`);
     travels.value = await response.json();
   } else if(page.props.user) {
-    const response = await fetch('/travels');
-    travels.value = await response.json();
+    const urlParams = new URLSearchParams(window.location.search)
+    const searchParam = urlParams.get('search')
+    const travelParam = urlParams.get('travel')
 
-    travelOptions.value = travels.value.map((travel: { id: string; title: string }) => ({
+    if (searchParam) stepSearchQuery.value = searchParam
+    if (travelParam) selectedSearchTravelId.value = travelParam
+
+    const params = new URLSearchParams()
+    if (searchParam) params.set('search', searchParam)
+    if (travelParam) params.set('travel', travelParam)
+
+    const url = params.toString() ? `/travels/search?${params}` : '/travels/steps-travels'
+    travels.value = await fetch(url).then(r => r.json())
+
+    const allTravels = await fetch('/travels').then(r => r.json())
+    travelOptions.value = allTravels.map((travel: { id: string; title: string }) => ({
       value: travel.id,
       text: travel.title,
       display: true,
@@ -302,7 +330,7 @@ async function submitForm() {
     form.post('/steps', {
       forceFormData: true,
       onSuccess: async () => {
-        travels.value = await fetch('/travels').then(response => response.json())
+        travels.value = await fetch('/travels/steps-travels').then(response => response.json())
         travelOptions.value = travels.value.map((travel: { id: string; title: string }) => ({
           value: travel.id,
           text: travel.title,
@@ -319,7 +347,7 @@ async function submitForm() {
       forceFormData: true,
       onSuccess: async () => {
         const stepId = selectedStep.value.id
-        travels.value = await fetch('/travels').then(response => response.json())
+        travels.value = await fetch('/travels/steps-travels').then(response => response.json())
         form.reset()
         stepFormDisplayed.value = false
         hideStepDetails.value = false
@@ -390,7 +418,10 @@ async function displayStep(stepId: string) {
 }
 
 function closeStep() {
-  router.get(window.location.pathname, {}, { preserveState: true, preserveScroll: true })
+  const params = new URLSearchParams(window.location.search)
+  params.delete('step')
+
+  router.get(window.location.pathname + (params.toString() ? `?${params}` : ''), {}, { preserveState: true, preserveScroll: true })
 }
 
 function openLightbox(mediaIndex: number) {
@@ -403,6 +434,39 @@ function closeLightbox() {
   activeMediaIndex.value = 1;
 }
 
+async function performStepSearch() {
+  const params = new URLSearchParams()
+  updateSearchUrl()
+
+  if (stepSearchQuery.value) params.set('search', stepSearchQuery.value)
+
+  if (selectedSearchTravelId.value) params.set('travel', selectedSearchTravelId.value)
+
+  if (!params.toString()) {
+    travels.value = await fetch('/travels/steps-travels').then(r => r.json())
+    return
+  }
+
+  travels.value = await fetch(`/travels/search?${params}`).then(r => r.json())
+}
+
+function updateSearchUrl() {
+  const params = new URLSearchParams(window.location.search)
+
+  if (stepSearchQuery.value) params.set('search', stepSearchQuery.value)
+  else params.delete('search')
+  if (selectedSearchTravelId.value) params.set('travel', selectedSearchTravelId.value)
+  else params.delete('travel')
+
+  window.history.replaceState({}, '', window.location.pathname + (params.toString() ? `?${params}` : ''))
+}
+
+function onSearchTravelChange(travelId: string) {
+  selectedSearchTravelId.value = travelId
+  performStepSearch()
+  updateSearchUrl()
+}
+
 async function deleteStep() {
   const message = "Êtes-vous sûr de supprimer cette étape ? \nDans le cas où cette étape est la seule du voyage, il sera supprimé également."
 
@@ -410,7 +474,7 @@ async function deleteStep() {
     router.delete(`/steps/${selectedStep.value.id}`, {
       onSuccess: async () => {
         closeStep()
-        travels.value = await fetch('/travels').then(response => response.json())
+        travels.value = await fetch('/travels/steps-travels').then(response => response.json())
 
         if(travels.value.length !== travelOptions.value.length) {
           travelOptions.value = travels.value.map((travel: { id: string; title: string }) => ({
@@ -429,6 +493,27 @@ async function deleteStep() {
   <main class="home">
     <Head title="Ma carte" />
     <h1 class="hidden-title">Ma carte</h1>
+    <form
+      v-if="page.props.user && !isShared"
+      v-show="!stepFormDisplayed && !stepDetailsDisplayed"
+      class="search-bar"
+      @submit.prevent="performStepSearch"
+    >
+      <Search
+        :attributes="searchStepAttributes"
+        @search="stepSearchQuery = $event"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <circle cx="9.16667" cy="9.16671" r="5.83333" stroke="var(--color-secondary)" stroke-width="1.66667"/>
+          <path d="M16.6667 16.6666L14.1667 14.1666" stroke="var(--color-secondary)" stroke-width="1.66667" stroke-linecap="round"/>
+        </svg>
+      </Search>
+      <Select
+        :attributes="{ id: 'search-travel', name: 'search-travel' }"
+        :options="searchTravelSelectOptions"
+        @change="onSearchTravelChange"
+      />
+    </form>
     <Map
       :disablePopups="stepDetailsDisplayed"
       :travels="travels"

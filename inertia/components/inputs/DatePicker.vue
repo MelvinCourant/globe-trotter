@@ -52,7 +52,10 @@ watch(dates, (value) => emit('updateDates', value))
 
 <template>
   <div class="date-picker">
-    <label class="date-picker__label">
+    <label
+      v-if="label"
+      class="date-picker__label"
+    >
       {{ label }}
     </label>
     <VueDatePicker

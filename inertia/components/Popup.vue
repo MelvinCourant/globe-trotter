@@ -16,6 +16,12 @@ const props = defineProps({
   }
 })
 
+const stepHref = computed(() => {
+  const params = new URLSearchParams(window.location.search)
+  params.set('step', props.step.id)
+  return `?${params}`
+})
+
 const formatDate = (dateStr: string, options: Intl.DateTimeFormatOptions) =>
   new Date(dateStr).toLocaleDateString('fr-FR', options)
 
@@ -59,7 +65,7 @@ const datesFormated = computed(() => {
   <div class="popup">
     <MediasSlider :medias="step.medias" size="small"/>
     <Link
-      :href="`?step=${step.id}`"
+      :href="stepHref"
       title="Afficher le détail de cette étape"
       preserve-state
       class="popup__content"

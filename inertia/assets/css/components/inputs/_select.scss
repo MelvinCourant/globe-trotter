@@ -2,6 +2,22 @@
 @use "../../partials/mixins";
 
 .select {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: fit-content;
+
+  &:after {
+    position: absolute;
+    right: functions.rem(9);
+    bottom: functions.rem(18);
+    transform: translateY(50%);
+    content: '';
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7' fill='none'%3E%3Cpath d='M10.5893 0.589234L5.58926 5.58923L0.589264 0.589234' stroke='%23090101' stroke-width='1.66667'/%3E%3C/svg%3E");
+    width: 12px;
+    height: 7px;
+  }
+
   &__label {
     display: flex;
     width: fit-content;
@@ -11,11 +27,21 @@
 
   &__input {
     @include mixins.font-type('text-medium');
-    background: var(--input);
-    padding: functions.rem(9) functions.rem(12);
+    line-height: initial;
+    background: var(--background);
+    padding: functions.rem(9) functions.rem(36) functions.rem(9) functions.rem(12);
     border: none;
     border-radius: var(--border-radius-s);
     box-shadow: var(--shadow);
     min-width: 170px;
+    appearance: none;
+  }
+}
+
+[data-theme="dark"] {
+  .select {
+    &:after {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7' fill='none'%3E%3Cpath d='M10.5893 0.589234L5.58926 5.58923L0.589264 0.589234' stroke='%23FEF6F6FF' stroke-width='1.66667'/%3E%3C/svg%3E");
+    }
   }
 }

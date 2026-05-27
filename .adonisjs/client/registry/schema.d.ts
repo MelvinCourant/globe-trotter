@@ -211,6 +211,30 @@ export interface Registry {
       errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/travels_controller').default['index']>>>
     }
   }
+  'travels.index_steps_travels': {
+    methods: ["GET","HEAD"]
+    pattern: '/travels/steps-travels'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/travels_controller').default['indexStepsTravels']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/travels_controller').default['indexStepsTravels']>>>
+    }
+  }
+  'travels.search': {
+    methods: ["GET","HEAD"]
+    pattern: '/travels/search'
+    types: {
+      body: {}
+      paramsTuple: []
+      params: {}
+      query: {}
+      response: ExtractResponse<Awaited<ReturnType<import('#controllers/travels_controller').default['search']>>>
+      errorResponse: ExtractErrorResponse<Awaited<ReturnType<import('#controllers/travels_controller').default['search']>>>
+    }
+  }
   'session.create_share_link': {
     methods: ["GET","HEAD"]
     pattern: '/users/create-share-link'

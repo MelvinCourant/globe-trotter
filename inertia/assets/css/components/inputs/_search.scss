@@ -17,6 +17,7 @@
     position: relative;
     display: flex;
     width: 100%;
+    background: var(--background);
     box-shadow: var(--shadow);
     border-radius: var(--border-radius-s);
     overflow: hidden;
@@ -38,11 +39,22 @@
         padding: functions.rem(9) functions.rem(12) functions.rem(9) functions.rem(35);
       }
     }
+
+    > svg {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      left: functions.rem(9);
+
+      & + .search__input {
+        padding: functions.rem(9) functions.rem(12) functions.rem(9) functions.rem(35);
+      }
+    }
   }
 
   &__input {
     @include mixins.font-type('text-medium');
-    background: var(--background);
+    background: transparent;
     padding: functions.rem(9) functions.rem(12);
     border: none;
     flex: 1;

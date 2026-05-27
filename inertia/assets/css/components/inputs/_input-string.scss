@@ -14,7 +14,7 @@
 
   &__input {
     @include mixins.font-type('text-medium');
-    background: var(--input);
+    background: var(--background);
     padding: functions.rem(9) functions.rem(12);
     border: none;
     border-radius: var(--border-radius-s);
@@ -29,7 +29,7 @@
     }
 
     &:autofill {
-      background: var(--input);
+      background: var(--background);
     }
   }
 

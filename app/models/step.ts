@@ -1,7 +1,9 @@
 import { StepSchema } from '#database/schema'
-import { afterFetch, afterFind, beforeCreate, column } from "@adonisjs/lucid/orm";
+import { afterFetch, afterFind, beforeCreate, belongsTo, column } from "@adonisjs/lucid/orm";
 import { randomUUID } from "node:crypto";
 import drive from '@adonisjs/drive/services/main'
+import type { BelongsTo } from "@adonisjs/lucid/types/relations";
+import Travel from '#models/travel'
 
 type MediaVariants = {
   normal: string
@@ -11,6 +13,9 @@ type MediaVariants = {
 }
 
 export default class Step extends StepSchema {
+  @belongsTo(() => Travel)
+  declare travel: BelongsTo<typeof Travel>
+
   @column({
     prepare: (value: string[] | null) => value !== null ? JSON.stringify(value) : null,
     consume: (value: string | string[] | null) => {

@@ -17,10 +17,10 @@ const themeAttributes = {
   'id': 'theme',
 }
 const themeOptions = [
-  { value: 'system', name: 'Système' },
-  { value: 'light', name: 'Clair' },
-  { value: 'dark', name: 'Sombre' },
-  { value: 'auto', name: 'Auto (claire le jour, sombre la nuit)' },
+  { value: 'system', text: 'Système' },
+  { value: 'light', text: 'Clair' },
+  { value: 'dark', text: 'Sombre' },
+  { value: 'auto', text: 'Auto (claire le jour, sombre la nuit)' },
 ].map(option => ({ ...option, selected: option.value === props.user.theme }))
 
 function updateTheme(theme: string) {

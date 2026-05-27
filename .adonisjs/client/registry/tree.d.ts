@@ -37,6 +37,8 @@ export interface ApiDefinition {
   travels: {
     create: typeof routes['travels.create']
     index: typeof routes['travels.index']
+    indexStepsTravels: typeof routes['travels.index_steps_travels']
+    search: typeof routes['travels.search']
     indexShared: typeof routes['travels.index_shared']
   }
 }

@@ -21,6 +21,8 @@ export type ScannedRoutes = {
     'steps.destroy': { paramsTuple: [ParamValue]; params: {'id': ParamValue} }
     'travels.create': { paramsTuple?: []; params?: {} }
     'travels.index': { paramsTuple?: []; params?: {} }
+    'travels.index_steps_travels': { paramsTuple?: []; params?: {} }
+    'travels.search': { paramsTuple?: []; params?: {} }
     'session.create_share_link': { paramsTuple?: []; params?: {} }
     'session.update_theme': { paramsTuple?: []; params?: {} }
     'session.update_profile_picture': { paramsTuple?: []; params?: {} }
@@ -35,6 +37,8 @@ export type ScannedRoutes = {
     'forgotten_password.create': { paramsTuple?: []; params?: {} }
     'password_reset.edit': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'travels.index': { paramsTuple?: []; params?: {} }
+    'travels.index_steps_travels': { paramsTuple?: []; params?: {} }
+    'travels.search': { paramsTuple?: []; params?: {} }
     'session.create_share_link': { paramsTuple?: []; params?: {} }
     'travels.index_shared': { paramsTuple: [ParamValue]; params: {'shareLinkId': ParamValue} }
   }
@@ -47,6 +51,8 @@ export type ScannedRoutes = {
     'forgotten_password.create': { paramsTuple?: []; params?: {} }
     'password_reset.edit': { paramsTuple: [ParamValue]; params: {'token': ParamValue} }
     'travels.index': { paramsTuple?: []; params?: {} }
+    'travels.index_steps_travels': { paramsTuple?: []; params?: {} }
+    'travels.search': { paramsTuple?: []; params?: {} }
     'session.create_share_link': { paramsTuple?: []; params?: {} }
     'travels.index_shared': { paramsTuple: [ParamValue]; params: {'shareLinkId': ParamValue} }
   }

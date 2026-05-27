@@ -104,7 +104,11 @@ function search(value) {
 <template>
   <div class="combobox">
     <div class="combobox__container">
-      <label for="combobox" class="combobox__label">
+      <label
+        v-if="label"
+        for="combobox"
+        class="combobox__label"
+      >
         {{ label }}
       </label>
       <div

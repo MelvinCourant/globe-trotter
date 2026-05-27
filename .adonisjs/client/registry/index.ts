@@ -108,6 +108,18 @@ const routes = {
     tokens: [{"old":"/travels","type":0,"val":"travels","end":""}],
     types: placeholder as Registry['travels.index']['types'],
   },
+  'travels.index_steps_travels': {
+    methods: ["GET","HEAD"],
+    pattern: '/travels/steps-travels',
+    tokens: [{"old":"/travels/steps-travels","type":0,"val":"travels","end":""},{"old":"/travels/steps-travels","type":0,"val":"steps-travels","end":""}],
+    types: placeholder as Registry['travels.index_steps_travels']['types'],
+  },
+  'travels.search': {
+    methods: ["GET","HEAD"],
+    pattern: '/travels/search',
+    tokens: [{"old":"/travels/search","type":0,"val":"travels","end":""},{"old":"/travels/search","type":0,"val":"search","end":""}],
+    types: placeholder as Registry['travels.search']['types'],
+  },
   'session.create_share_link': {
     methods: ["GET","HEAD"],
     pattern: '/users/create-share-link',

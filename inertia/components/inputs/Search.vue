@@ -11,6 +11,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  disableSuggestions: {
+    type: Boolean,
+    default: false,
+  },
   error: {
     type: String,
     default: '',
@@ -21,7 +25,7 @@ const props = defineProps({
   },
   options: {
     type: Array,
-    required: true,
+    default: () => [],
   },
 })
 const emit = defineEmits(["search", "updateValue"]);
@@ -51,14 +55,18 @@ function selectOption(option) {
 
 function search(value) {
   emit("search", value);
-  isOpen.value = props.options.length > 0;
+  if (!props.disableSuggestions) {
+    isOpen.value = props.options.length > 0;
+  }
 }
 </script>
 
 <template>
   <div class="search">
     <div class="search__container">
-      <label for="search" class="search__label">
+      <label
+        v-if="label"
+        for="search" class="search__label">
         {{ label }}
       </label>
       <div
@@ -83,10 +91,11 @@ function search(value) {
           aria-expanded="false"
           autocomplete="off"
           @input="search($event.target.value)"
-          @focus="isOpen = options.length > 0"
+          @focus="!disableSuggestions && (isOpen = options.length > 0)"
         />
       </div>
       <ul
+        v-if="!disableSuggestions"
         ref="listRef"
         role="listbox"
         :class="[

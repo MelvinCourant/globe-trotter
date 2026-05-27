@@ -37,6 +37,8 @@ router
     router.delete('steps/:id', [controllers.Steps, 'destroy'])
     router.post('travels', [controllers.Travels, 'create'])
     router.get('travels', [controllers.Travels, 'index'])
+    router.get('travels/steps-travels', [controllers.Travels, 'indexStepsTravels'])
+    router.get('travels/search', [controllers.Travels, 'search'])
     router.get('users/create-share-link', [controllers.Session, 'createShareLink'])
     router.post('users/update-theme', [controllers.Session, 'updateTheme'])
     router.post('users/update-profile-picture', [controllers.Session, 'updateProfilePicture'])

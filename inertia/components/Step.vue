@@ -110,6 +110,12 @@ window.addEventListener("resize", () => {
   }
 })
 
+function stepUrl(stepId: string): string {
+  const params = new URLSearchParams(window.location.search)
+  params.set('step', stepId)
+  return `?${params}`
+}
+
 function handleAction(actionName: string) {
   if(actionName === 'update') {
     emits('updateStep')
@@ -223,7 +229,7 @@ function onDragEnd() {
       <Link
         v-if="previousStep"
         class="step__page"
-        :href="`?step=${previousStep}`"
+        :href="stepUrl(previousStep)"
         preserve-state
         title="Voir l'étape précédente"
       >
@@ -240,7 +246,7 @@ function onDragEnd() {
       <Link
         v-if="nextStep"
         class="step__page"
-        :href="`?step=${nextStep}`"
+        :href="stepUrl(nextStep)"
         preserve-state
         title="Voir l'étape suivante"
       >

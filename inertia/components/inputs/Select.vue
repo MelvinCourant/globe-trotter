@@ -37,7 +37,7 @@ const emit = defineEmits(['change'])
         v-for="option in options"
         :value="option.value"
         :selected="option.selected"
-        >{{ option.name }}</option>
+        >{{ option.text }}</option>
     </select>
   </div>
 </template>

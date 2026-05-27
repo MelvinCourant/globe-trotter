@@ -139,7 +139,11 @@ function deleteFile(index: number) {
 
 <template>
   <div class="gallery-input">
-    <label v-if="label" for="image" class="gallery-input__label">{{ label }}</label>
+    <label
+      v-if="label"
+      for="image"
+      class="gallery-input__label"
+    >{{ label }}</label>
     <div
       :class="['gallery-input__medias', { 'gallery-input__medias--empty': items.length === 0 }]"
       ref="mediasSlider"

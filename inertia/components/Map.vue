@@ -303,7 +303,12 @@ watch([() => props.travels, mapInstance], ([travels, map]) => {
       const popupHeight = popup.getElement()?.offsetHeight ?? 0
       const basePadding = props.mapPadding ?? { top: 0, right: 0, bottom: 0, left: 0 }
 
-      map.setPadding({ ...basePadding, top: basePadding.bottom + popupHeight + 56 })
+      if (window.innerWidth >= 768) {
+        map.setPadding({ ...basePadding, top: basePadding.bottom + popupHeight + 56 })
+      } else {
+        map.setPadding({ ...basePadding, top: basePadding.bottom + popupHeight + 106 })
+      }
+
       map.flyTo({ center: feature.geometry.coordinates })
     })
 
