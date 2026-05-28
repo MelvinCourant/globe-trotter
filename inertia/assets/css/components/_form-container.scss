@@ -12,7 +12,6 @@
   margin: 0 auto;
   background: var(--background);
   box-shadow: var(--shadow);
-  overflow: hidden;
 
   &--medium {
     padding: 36px 24px;
@@ -36,13 +35,19 @@
 
     @media screen and (max-width: 767px) {
       padding: 18px 18px 48px;
-      width: 100%;
+      max-width: 100%;
       border-radius: 0;
       box-shadow: none;
       overflow-y: auto;
 
       form {
         flex: 1;
+      }
+    }
+
+    .loader__overlay {
+      @media screen and (max-width: 767px) {
+        border-radius: 0 !important;
       }
     }
   }
@@ -109,5 +114,9 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+  }
+
+  .loader__overlay {
+    border-radius: var(--border-radius-xl);
   }
 }
