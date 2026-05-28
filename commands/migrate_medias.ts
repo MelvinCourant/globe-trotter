@@ -1,4 +1,4 @@
-import { BaseCommand } from '@adonisjs/core/ace'
+import { BaseCommand, flags } from '@adonisjs/core/ace'
 import type { CommandOptions } from '@adonisjs/core/types/ace'
 import Step from '#models/step'
 import drive from '@adonisjs/drive/services/main'
@@ -17,6 +17,9 @@ export default class MigrateMedias extends BaseCommand {
   static options: CommandOptions = {
     startApp: true,
   }
+
+  @flags.boolean({ description: 'Delete existing variants and recreate them all' })
+  declare force: boolean
 
   async run() {
     const sharp = (await import('sharp')).default
@@ -55,12 +58,21 @@ export default class MigrateMedias extends BaseCommand {
           const filename = sourceFile.key.split('/').pop()!
           const baseUuid = filename.replace(/\.[^.]+$/, '')
 
-          if (processedUuids.has(baseUuid)) {
+          if (!this.force && processedUuids.has(baseUuid)) {
             skipped++
             continue
           }
 
           try {
+            if (this.force) {
+              for (const { suffix } of VARIANTS.filter((v) => v.suffix !== '')) {
+                const variantKey = `${folderId}/${baseUuid}${suffix}.webp`
+                if (await disk.exists(variantKey)) {
+                  await disk.delete(variantKey)
+                }
+              }
+            }
+
             const inputBytes = await disk.getBytes(sourceFile.key)
             const isWebp = filename.endsWith('.webp')
 
@@ -71,7 +83,7 @@ export default class MigrateMedias extends BaseCommand {
               if (width && height) {
                 pipeline = pipeline.resize(width, height, { fit: 'cover' })
               }
-              const buffer = await pipeline.webp({ quality: 80 }).toBuffer()
+              const buffer = await pipeline.webp({ quality: 90 }).toBuffer()
               await disk.put(`${folderId}/${baseUuid}${suffix}.webp`, buffer, {
                 contentType: 'image/webp',
               })
