@@ -125,6 +125,7 @@ async function addFiles(event: { target: any }) {
     })
   }
 
+  input.value = ''
   await scrollToLastMedia()
   emitUpdate()
 }
@@ -202,11 +203,13 @@ function deleteFile(index: number) {
       Réorganiser
     </button>
     <div v-if="error" class="gallery-input__error">{{ error }}</div>
-    <MediaReorderModal
-      v-if="showReorderModal"
-      :items="items.map(i => ({ id: i.id, preview: i.preview }))"
-      @confirm="onReorderConfirm"
-      @close="showReorderModal = false"
-    />
+    <Teleport to="body">
+      <MediaReorderModal
+        v-if="showReorderModal"
+        :items="items.map(i => ({ id: i.id, preview: i.preview }))"
+        @confirm="onReorderConfirm"
+        @close="showReorderModal = false"
+      />
+    </Teleport>
   </div>
 </template>

@@ -33,9 +33,11 @@ const settingsOpen = ref(false)
     />
     <span class="account__firstname">{{ user.firstname }}</span>
   </button>
-  <Settings
-    v-if="settingsOpen"
-    :user="user"
-    @close="settingsOpen = false"
-  />
+  <Teleport to="body">
+    <Settings
+      v-if="settingsOpen"
+      :user="user"
+      @close="settingsOpen = false"
+    />
+  </Teleport>
 </template>
