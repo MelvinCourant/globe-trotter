@@ -12,7 +12,12 @@
   .dp {
     &__theme_light {
       --dp-background-color: var(--background);
+      --dp-hover-color: var(--background-hover);
+      --dp-hover-text-color: var(--color);
       --dp-primary-color: var(--primary);
+      --dp-range-between-dates-background-color: var(--surface);
+      --dp-range-between-dates-text-color: var(--color);
+      --dp-range-between-border-color: var(--surface);
       --dp-secondary-color : var(--color-secondary);
       --dp-text-color: var(--color);
     }
