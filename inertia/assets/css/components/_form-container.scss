@@ -32,13 +32,14 @@
 
   &--large {
     padding: 18px;
+    max-height: calc(100% - 20px);
+    overflow-y: auto;
 
     @media screen and (max-width: 767px) {
       padding: 18px 18px 48px;
       max-width: 100%;
       border-radius: 0;
       box-shadow: none;
-      overflow-y: auto;
 
       form {
         flex: 1;

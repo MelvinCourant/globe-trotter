@@ -65,6 +65,7 @@ watch(dates, (value) => emit('updateDates', value))
       :formats="{ input: 'dd/MM/yyyy'}"
       :locale="fr"
       :time-config="{ enableTimePicker: false }"
+      :teleport="true"
     />
     <div
         v-if="error"
