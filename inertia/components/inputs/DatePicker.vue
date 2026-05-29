@@ -61,6 +61,7 @@ watch(dates, (value) => emit('updateDates', value))
     <VueDatePicker
       v-model="dates"
       v-bind="attributes"
+      :action-row="{selectBtnLabel: 'Sélectionner', cancelBtnLabel: 'Annuler'}"
       :multi-calendars="!isMobile"
       :formats="{ input: 'dd/MM/yyyy'}"
       :locale="fr"
