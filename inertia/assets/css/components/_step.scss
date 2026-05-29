@@ -97,6 +97,10 @@
     display: flex;
     padding: 18px 18px 36px 18px;
     flex-direction: column;
+
+    @media screen and (max-width: 767px) {
+      min-height: 140px;
+    }
   }
 
   &__title {
