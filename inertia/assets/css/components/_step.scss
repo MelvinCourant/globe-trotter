@@ -153,6 +153,7 @@
     a {
       @include mixins.font-type('text-medium');
       font-weight: 500;
+      line-height: 1.14;
       color: var(--primary);
       text-decoration: underline;
       text-overflow: ellipsis;

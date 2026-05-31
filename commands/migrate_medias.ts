@@ -83,7 +83,7 @@ export default class MigrateMedias extends BaseCommand {
               if (width && height) {
                 pipeline = pipeline.resize(width, height, { fit: 'cover' })
               }
-              const buffer = await pipeline.webp({ quality: 90 }).toBuffer()
+              const buffer = await pipeline.webp({ quality: 100 }).toBuffer()
               await disk.put(`${folderId}/${baseUuid}${suffix}.webp`, buffer, {
                 contentType: 'image/webp',
               })

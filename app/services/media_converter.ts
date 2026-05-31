@@ -40,7 +40,7 @@ export async function processImageVariants(file: MultipartFile, folderId: string
     if (width && height) {
       pipeline = pipeline.resize(width, height, { fit: 'cover' })
     }
-    const buffer = await pipeline.webp({ quality: 90 }).toBuffer()
+    const buffer = await pipeline.webp({ quality: 100 }).toBuffer()
     await drive.use().put(`${folderId}/${uuid}${suffix}.webp`, buffer, {
       contentType: 'image/webp',
     })
