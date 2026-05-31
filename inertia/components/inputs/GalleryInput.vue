@@ -149,7 +149,7 @@ async function addFiles(event: { target: any }) {
         id: idCounter++,
         preview: URL.createObjectURL(processedFile),
         key: null,
-        file: processedFile,
+        file: converted,
       })
     }
   } finally {
