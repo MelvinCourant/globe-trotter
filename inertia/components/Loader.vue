@@ -1,14 +1,13 @@
 <script setup>
 import '../assets/css/components/_loader.scss'
-
 defineProps({
   className: {
     type: String,
     default: ''
   },
   overlay: {
-    type: Boolean,
-    default: false
+    type: String,
+    default: ''
   }
 })
 </script>
@@ -22,6 +21,6 @@ defineProps({
     v-if="overlay"
     class="loader__overlay"
   >
-    <span>Chargement ...</span>
+    <span>{{ overlay }}</span>
   </div>
 </template>

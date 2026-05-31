@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import '../../assets/css/components/inputs/_gallery-input.scss'
-import { nextTick, onMounted, ref, useTemplateRef } from "vue"
+import {inject, nextTick, onMounted, ref, useTemplateRef} from "vue"
 import { heicTo, isHeic } from "heic-to"
 import Button from "~/components/inputs/Button.vue"
 import MediaReorderModal from "~/components/inputs/MediaReorderModal.vue"
@@ -33,6 +33,8 @@ const items = ref<MediaItem[]>(
     file: null,
   }))
 )
+
+const setFormLoading = inject<(value: boolean, overlay?: string) => void>('formLoading', () => {})
 
 const mediasSlider = useTemplateRef<HTMLDivElement>("mediasSlider")
 const showReorderModal = ref(false)
@@ -111,18 +113,47 @@ async function toJpegFile(file: File): Promise<File> {
   return new File([blob], jpegName, { type: 'image/jpeg' })
 }
 
+async function resizeImage(file: File): Promise<File> {
+  const bitmap = await createImageBitmap(file)
+  const canvas = document.createElement('canvas')
+
+  canvas.width = 390
+  canvas.height = 200
+
+  const ctx = canvas.getContext('2d')!
+  const scale = Math.max(390 / bitmap.width, 200 / bitmap.height)
+  const w = bitmap.width * scale
+  const h = bitmap.height * scale
+
+  ctx.drawImage(bitmap, (390 - w) / 2, (200 - h) / 2, w, h)
+  bitmap.close()
+
+  const type = file.type || 'image/jpeg'
+  return new Promise(resolve => {
+    canvas.toBlob(blob => resolve(new File([blob!], file.name, { type })), type, 1)
+  })
+}
+
 async function addFiles(event: { target: any }) {
   const input = event.target
   const remaining = props.maxLength > 0 ? props.maxLength - items.value.length : Infinity
 
-  for (const file of Array.from(input.files as FileList).slice(0, remaining)) {
-    const processedFile = await isHeic(file) ? await toJpegFile(file) : file
-    items.value.push({
-      id: idCounter++,
-      preview: URL.createObjectURL(processedFile),
-      key: null,
-      file: processedFile,
-    })
+  setFormLoading(true, 'Ajout des images ...')
+
+  try {
+    for (const file of Array.from(input.files as FileList).slice(0, remaining)) {
+      const converted = await isHeic(file) ? await toJpegFile(file) : file
+      const processedFile = await resizeImage(converted)
+
+      items.value.push({
+        id: idCounter++,
+        preview: URL.createObjectURL(processedFile),
+        key: null,
+        file: processedFile,
+      })
+    }
+  } finally {
+    setFormLoading(false)
   }
 
   input.value = ''

@@ -1,9 +1,9 @@
-<script setup>
+<script setup lang="ts">
 import '../assets/css/components/_form-container.scss';
-import {onMounted, ref} from "vue";
+import {computed, onMounted, provide, ref} from "vue";
 import Loader from "~/components/Loader.vue";
 
-defineProps({
+const props = defineProps({
   className: {
     type: String,
     default: ''
@@ -11,6 +11,10 @@ defineProps({
   loading: {
     type: Boolean,
     default: false
+  },
+  overlay: {
+    type: String,
+    default: 'Chargement ...'
   },
   size: {
     type: String,
@@ -21,6 +25,18 @@ defineProps({
     default: '',
   }
 })
+
+const internalLoading = ref(false)
+const internalOverlay = ref('')
+
+const isLoading = computed(() => props.loading || internalLoading.value)
+const activeOverlay = computed(() => internalLoading.value ? internalOverlay.value : props.overlay)
+
+provide('formLoading', (value: boolean, overlay = '') => {
+  internalLoading.value = value
+  internalOverlay.value = overlay
+})
+
 const isMobile = ref(false)
 
 onMounted(() => {
@@ -49,9 +65,9 @@ onMounted(() => {
     </h2>
     <slot />
     <Loader
-      v-if="loading"
+      v-if="isLoading"
       className="form-container__loader"
-      :overlay="true"
+      :overlay="activeOverlay"
     />
   </div>
 </template>
