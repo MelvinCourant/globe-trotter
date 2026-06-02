@@ -201,24 +201,6 @@ watch([() => props.highlightStep, mapInstance], ([stepId, map]) => {
   }
 })
 
-watch([() => props.fitBoundsTrigger, mapInstance], ([fitBoundsTrigger, map]) => {
-  if (!map || !map.loaded() && !fitBoundsTrigger) return
-
-  const coords = props.travels.flatMap(t =>
-    t.steps
-      .filter(s => Number(s.latitude) && Number(s.longitude))
-      .map(s => [Number(s.longitude), Number(s.latitude)] as [number, number])
-  )
-
-  if (coords.length === 0) return
-
-  const bounds = new mapboxgl.LngLatBounds()
-  coords.forEach(c => bounds.extend(c))
-
-  const doFit = () => map.fitBounds(bounds, { padding: 60, maxZoom: 10 })
-  map.loaded() ? doFit() : map.once('load', doFit)
-})
-
 watch([() => props.travels, mapInstance], ([travels, map]) => {
   if (!map) return
 
@@ -416,6 +398,15 @@ watch([() => props.travels, mapInstance], ([travels, map]) => {
   applyVisibility(map.getZoom())
   zoomHandler.value = () => applyVisibility(map.getZoom())
   map.on('zoom', zoomHandler.value)
+
+  if(props.fitBoundsTrigger && geojson.features.length > 0) {
+    const bounds = new mapboxgl.LngLatBounds()
+
+    geojson.features.forEach(f => bounds.extend(f.geometry.coordinates))
+
+    const doFit = () => map.fitBounds(bounds, { padding: 60, maxZoom: 10, speed: 1.5 })
+    map.loaded() ? doFit() : map.once('load', doFit)
+  }
 }, { deep: true })
 </script>
 

@@ -142,7 +142,7 @@ onMounted(async () => {
     travels.value = await fetch(url).then(r => r.json())
 
     if(searchParam || travelParam) {
-      fitBoundsTrigger.value = !fitBoundsTrigger.value
+      fitBoundsTrigger.value = true
     }
 
     const allTravels = await fetch('/travels').then(r => r.json())
@@ -448,12 +448,12 @@ async function performStepSearch() {
 
   if (!params.toString()) {
     travels.value = await fetch('/travels/steps-travels').then(r => r.json())
-    fitBoundsTrigger.value = !fitBoundsTrigger.value
+    fitBoundsTrigger.value = true
     return
   }
 
   travels.value = await fetch(`/travels/search?${params}`).then(r => r.json())
-  fitBoundsTrigger.value = !fitBoundsTrigger.value
+  fitBoundsTrigger.value = true
 }
 
 function updateSearchUrl() {
