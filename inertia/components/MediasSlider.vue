@@ -72,6 +72,30 @@ function slideTo(index: number) {
         </picture>
       </div>
     </div>
+    <Button
+      v-if="medias.length > 1"
+      v-show="activeIndex > 0"
+      className="medias-slider__arrow medias-slider__arrow--previous"
+      size="small"
+      :iconOnly="true"
+      @click="slideTo(activeIndex - 1)"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="9" height="14" viewBox="0 0 9 14" fill="none">
+        <path d="M7.41418 0.707092L1.41418 6.70709L7.41418 12.7071" stroke="#090101" stroke-width="2"/>
+      </svg>
+    </Button>
+    <Button
+      v-if="medias.length > 1"
+      v-show="activeIndex < medias.length - 1"
+      className="medias-slider__arrow medias-slider__arrow--next"
+      size="small"
+      :iconOnly="true"
+      @click="slideTo(activeIndex + 1)"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="9" height="14" viewBox="0 0 9 14" fill="none">
+        <path d="M0.707031 12.7071L6.70703 6.70709L0.707031 0.707092" stroke="#090101" stroke-width="2"/>
+      </svg>
+    </Button>
     <div class="medias-slider__dots" v-if="medias.length > 1">
       <input
         :class="[

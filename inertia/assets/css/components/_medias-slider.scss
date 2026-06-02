@@ -55,6 +55,21 @@
     bottom: 10px;
   }
 
+  &__arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 50%;
+
+    &--previous {
+      left: 10px;
+    }
+
+    &--next {
+      right: 10px;
+    }
+  }
+
   &__dots {
     position: absolute;
     left: 50%;
