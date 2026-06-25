@@ -3,14 +3,20 @@ import '../../assets/css/components/inputs/_gallery-input.scss'
 import {inject, nextTick, onMounted, ref, useTemplateRef} from "vue"
 import { heicTo, isHeic } from "heic-to"
 import Button from "~/components/inputs/Button.vue"
-import MediaReorderModal from "~/components/inputs/MediaReorderModal.vue"
+import MediasEditor from "~/components/inputs/MediasEditor.vue";
+
+type Crop = { x: number; y: number }
 
 type MediaItem = {
   id: number
   preview: string
   key: string | null
   file: File | null
+  crop: Crop
+  initialCrop: Crop
 }
+
+const centerCrop = (): Crop => ({ x: 50, y: 50 })
 
 let idCounter = 0
 
@@ -22,22 +28,34 @@ const props = defineProps({
 })
 
 const emit = defineEmits<{
-  updateMedias: [payload: { existing: string[], files: File[], orderRefs: string[] }]
+  updateMedias: [payload: {
+    existing: string[]
+    files: File[]
+    orderRefs: string[]
+    newCrops: Crop[]
+    oldCrops: Record<string, Crop>
+  }]
 }>()
 
 const items = ref<MediaItem[]>(
-  (props.medias as string[]).map(url => ({
-    id: idCounter++,
-    preview: url,
-    key: url.replace('/uploads/', '').replace('_medium', ''),
-    file: null,
-  }))
+  (props.medias as { url: string; crop: Crop | null }[]).map(media => {
+    const crop = media.crop ?? centerCrop()
+    return {
+      id: idCounter++,
+      preview: media.url.replace('_medium', ''),
+      key: media.url.replace('/uploads/', '').replace('_medium', ''),
+      file: null,
+      crop,
+      initialCrop: { ...crop },
+    }
+  })
 )
 
 const setFormLoading = inject<(value: boolean, overlay?: string) => void>('formLoading', () => {})
 
 const mediasSlider = useTemplateRef<HTMLDivElement>("mediasSlider")
-const showReorderModal = ref(false)
+const showMediasEditor = ref(false)
+const editorStartIndex = ref(0)
 
 let isGrabbing = false
 let grabStartX = 0
@@ -63,7 +81,16 @@ function emitUpdate() {
     item.key !== null ? `old:${item.key}` : `new:${newItemIndexMap.get(item.id)}`
   )
 
-  emit('updateMedias', { existing: existingInOrder, files: filesInOrder, orderRefs })
+  const newCrops = items.value.filter(i => i.file !== null).map(i => i.crop)
+
+  const oldCrops: Record<string, Crop> = {}
+  items.value.forEach(item => {
+    if (item.key !== null && (item.crop.x !== item.initialCrop.x || item.crop.y !== item.initialCrop.y)) {
+      oldCrops[item.key] = item.crop
+    }
+  })
+
+  emit('updateMedias', { existing: existingInOrder, files: filesInOrder, orderRefs, newCrops, oldCrops })
 }
 
 function onGrabStart(e: MouseEvent) {
@@ -86,11 +113,23 @@ function onGrabEnd() {
   mediasSlider.value.style.cursor = 'grab'
 }
 
-function onReorderConfirm(orderedIds: number[]) {
-  const idToItem = new Map(items.value.map(item => [item.id, item]))
-  items.value = orderedIds.map(id => idToItem.get(id)!)
-  showReorderModal.value = false
+function openEditor(startIndex: number) {
+  editorStartIndex.value = startIndex
+  showMediasEditor.value = true
+}
+
+function onEditorConfirm(crops: { id: number; crop: Crop }[]) {
+  const cropById = new Map(crops.map(c => [c.id, c.crop]))
+  items.value.forEach(item => {
+    const crop = cropById.get(item.id)
+    if (crop) item.crop = crop
+  })
+  showMediasEditor.value = false
   emitUpdate()
+}
+
+function onEditorClose() {
+  showMediasEditor.value = false
 }
 
 async function scrollToLastMedia(noAnimation = false) {
@@ -113,43 +152,24 @@ async function toJpegFile(file: File): Promise<File> {
   return new File([blob], jpegName, { type: 'image/jpeg' })
 }
 
-async function resizeImage(file: File): Promise<File> {
-  const bitmap = await createImageBitmap(file)
-  const canvas = document.createElement('canvas')
-
-  canvas.width = 390
-  canvas.height = 200
-
-  const ctx = canvas.getContext('2d')!
-  const scale = Math.max(390 / bitmap.width, 200 / bitmap.height)
-  const w = bitmap.width * scale
-  const h = bitmap.height * scale
-
-  ctx.drawImage(bitmap, (390 - w) / 2, (200 - h) / 2, w, h)
-  bitmap.close()
-
-  const type = file.type || 'image/jpeg'
-  return new Promise(resolve => {
-    canvas.toBlob(blob => resolve(new File([blob!], file.name, { type })), type, 1)
-  })
-}
-
 async function addFiles(event: { target: any }) {
   const input = event.target
   const remaining = props.maxLength > 0 ? props.maxLength - items.value.length : Infinity
+  const firstNewIndex = items.value.length
 
   setFormLoading(true, 'Ajout des images ...')
 
   try {
     for (const file of Array.from(input.files as FileList).slice(0, remaining)) {
       const converted = await isHeic(file) ? await toJpegFile(file) : file
-      const processedFile = await resizeImage(converted)
 
       items.value.push({
         id: idCounter++,
-        preview: URL.createObjectURL(processedFile),
+        preview: URL.createObjectURL(converted),
         key: null,
         file: converted,
+        crop: centerCrop(),
+        initialCrop: centerCrop(),
       })
     }
   } finally {
@@ -159,6 +179,10 @@ async function addFiles(event: { target: any }) {
   input.value = ''
   await scrollToLastMedia()
   emitUpdate()
+
+  if (items.value.length > firstNewIndex) {
+    openEditor(firstNewIndex)
+  }
 }
 
 function deleteFile(index: number) {
@@ -189,7 +213,12 @@ function deleteFile(index: number) {
         :key="item.id"
         class="gallery-input-media"
       >
-        <img :src="item.preview" :alt="`Média ${index}`" draggable="false">
+        <img
+          :src="item.preview"
+          :alt="`Média ${index}`"
+          :style="{ objectPosition: `${item.crop.x}% ${item.crop.y}%` }"
+          draggable="false"
+        >
         <Button
           className="gallery-input-media__delete"
           size="small"
@@ -226,20 +255,21 @@ function deleteFile(index: number) {
       </div>
     </div>
     <button
-      v-if="items.length > 1"
-      class="gallery-input__reorder-btn"
+      v-if="items.length > 0"
+      class="gallery-input__edit-btn"
       type="button"
-      @click="showReorderModal = true"
+      @click="openEditor(0)"
     >
-      Réorganiser
+      Éditer
     </button>
     <div v-if="error" class="gallery-input__error">{{ error }}</div>
     <Teleport to="body">
-      <MediaReorderModal
-        v-if="showReorderModal"
-        :items="items.map(i => ({ id: i.id, preview: i.preview }))"
-        @confirm="onReorderConfirm"
-        @close="showReorderModal = false"
+      <MediasEditor
+        v-if="showMediasEditor"
+        :items="items.map(i => ({ id: i.id, original: i.preview, crop: i.crop }))"
+        :startIndex="editorStartIndex"
+        @confirm="onEditorConfirm"
+        @close="onEditorClose"
       />
     </Teleport>
   </div>

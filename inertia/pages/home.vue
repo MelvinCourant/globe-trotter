@@ -36,7 +36,7 @@ const highlightLocation = ref<{ latitude: number; longitude: number } | null>(nu
 const highlightStep = ref<string | null>(null);
 const travelInitialChips = ref<{ value: string; text: string }[]>([])
 const datesInitialValue = ref<[Date, Date] | null>(null)
-const mediasInitialValue = ref<string[]>([])
+const mediasInitialValue = ref<{ url: string; crop: { x: number; y: number } | null }[]>([])
 const displayLightbox = ref<boolean>(false)
 const activeMediaIndex = ref<number>(0)
 const mapPadding = ref<{ top: number; right: number; bottom: number; left: number }>({ top: 0, right: 0, bottom: 0, left: 0 })
@@ -115,6 +115,8 @@ const form = useForm({
   new_medias: [] as File[],
   old_medias: [] as string[],
   medias_order_refs: '' as string,
+  new_medias_crop: '' as string,
+  old_medias_crop: '' as string,
 })
 const formTitle = ref<string>('Ajouter une étape')
 const formType = ref<string>('create-step')
@@ -255,7 +257,7 @@ async function displayStepForm(type: string) {
       mediasInitialValue.value = []
       selectedStep.value.medias.forEach((media: any) => {
         const key = media.medium ? media.medium : media.normal
-        mediasInitialValue.value.push(`/uploads/${key}`);
+        mediasInitialValue.value.push({ url: `/uploads/${key}`, crop: media.crop ?? null });
       })
 
       stepFormDisplayed.value = true;
@@ -283,10 +285,18 @@ function updateDates(dates: [Date, Date] | null) {
   form.end_date = dates?.[1] ? toDateString(dates[1]) : null
 }
 
-function updateMedias(payload: { existing: string[], files: File[], orderRefs: string[] }) {
+function updateMedias(payload: {
+  existing: string[]
+  files: File[]
+  orderRefs: string[]
+  newCrops: { x: number; y: number }[]
+  oldCrops: Record<string, { x: number; y: number }>
+}) {
   form.old_medias = payload.existing
   form.new_medias = payload.files
   form.medias_order_refs = JSON.stringify(payload.orderRefs)
+  form.new_medias_crop = JSON.stringify(payload.newCrops)
+  form.old_medias_crop = JSON.stringify(payload.oldCrops)
 }
 
 async function suggestLocation(searchText: string) {

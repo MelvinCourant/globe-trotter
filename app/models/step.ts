@@ -5,11 +5,14 @@ import drive from '@adonisjs/drive/services/main'
 import type { BelongsTo } from "@adonisjs/lucid/types/relations";
 import Travel from '#models/travel'
 
+type Crop = { x: number; y: number }
+
 type MediaVariants = {
   normal: string
   small: string
   medium: string
   large: string
+  crop?: Crop
 }
 
 export default class Step extends StepSchema {
@@ -25,6 +28,16 @@ export default class Step extends StepSchema {
     },
   })
   declare mediasOrder: string[] | null
+
+  @column({
+    prepare: (value: Record<string, Crop> | null) => value !== null ? JSON.stringify(value) : null,
+    consume: (value: string | Record<string, Crop> | null) => {
+      if (!value) return null
+      if (typeof value === 'object') return value
+      try { return JSON.parse(value) } catch { return null }
+    },
+  })
+  declare mediasCrop: Record<string, Crop> | null
 
   @beforeCreate()
   static assignUuid(step: Step) {
@@ -75,7 +88,10 @@ export default class Step extends StepSchema {
           })
         }
 
-        step.$extras.mediaFiles = entries.map(([, variants]) => variants)
+        step.$extras.mediaFiles = entries.map(([baseUuid, variants]) => ({
+          ...variants,
+          crop: step.mediasCrop?.[baseUuid] ?? null,
+        }))
       } catch {
         step.$extras.mediaFiles = []
       }

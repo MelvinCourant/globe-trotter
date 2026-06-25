@@ -4,7 +4,29 @@ import drive from '@adonisjs/drive/services/main'
 import {randomUUID} from "node:crypto";
 import Step from "#models/step";
 import Travel from "#models/travel";
-import { processImageVariants } from "#services/media_converter";
+import { processImageVariants, recropImageVariants, type Crop } from "#services/media_converter";
+
+const isCenter = (crop?: Crop): boolean => !crop || (crop.x === 50 && crop.y === 50)
+
+function parseNewCrops(raw?: string): Crop[] {
+  if (!raw) return []
+  try {
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
+function parseOldCrops(raw?: string): Record<string, Crop> {
+  if (!raw) return {}
+  try {
+    const parsed = JSON.parse(raw)
+    return parsed && typeof parsed === 'object' ? parsed : {}
+  } catch {
+    return {}
+  }
+}
 
 export default class StepsController {
   async create({ request, response, auth }: HttpContext) {
@@ -20,22 +42,27 @@ export default class StepsController {
 
     let folderId: string | null = null
     const mediasOrder: string[] = []
+    const mediasCrop: Record<string, Crop> = {}
 
     if (payload.new_medias) {
       folderId = randomUUID()
+      const newCrops = parseNewCrops(payload.new_medias_crop)
 
-      for (const media of payload.new_medias) {
-        const uuid = await processImageVariants(media, folderId)
+      for (const [index, media] of payload.new_medias.entries()) {
+        const crop = newCrops[index]
+        const uuid = await processImageVariants(media, folderId, crop)
         mediasOrder.push(uuid)
+        if (!isCenter(crop)) mediasCrop[uuid] = crop
       }
     }
 
-    const { travel_title, new_medias, ...stepPayload } = payload
+    const { travel_title, new_medias, new_medias_crop, ...stepPayload } = payload
     await Step.create({
       ...stepPayload,
       travelId: travel.id,
       medias: folderId,
       mediasOrder: mediasOrder.length > 0 ? mediasOrder : null,
+      mediasCrop: Object.keys(mediasCrop).length > 0 ? mediasCrop : null,
     });
 
     return response.redirect().back()
@@ -76,6 +103,7 @@ export default class StepsController {
 
     const orderedUuids: string[] = []
     const newMediaUuids: string[] = []
+    const mediasCrop: Record<string, Crop> = { ...(step.mediasCrop ?? {}) }
 
     if (payload.old_medias && folderId) {
       const disk = drive.use()
@@ -101,10 +129,23 @@ export default class StepsController {
       await Promise.all(deleteOps)
     }
 
+    if (payload.old_medias_crop && folderId) {
+      const oldCrops = parseOldCrops(payload.old_medias_crop)
+      for (const [key, crop] of Object.entries(oldCrops)) {
+        const uuid = key.split('/').pop()!.replace(/\.[^.]+$/, '')
+        await recropImageVariants(folderId, uuid, crop)
+        if (isCenter(crop)) delete mediasCrop[uuid]
+        else mediasCrop[uuid] = crop
+      }
+    }
+
     if (payload.new_medias) {
-      for (const media of payload.new_medias) {
-        const uuid = await processImageVariants(media, folderId!)
+      const newCrops = parseNewCrops(payload.new_medias_crop)
+      for (const [index, media] of payload.new_medias.entries()) {
+        const crop = newCrops[index]
+        const uuid = await processImageVariants(media, folderId!, crop)
         newMediaUuids.push(uuid)
+        if (!isCenter(crop)) mediasCrop[uuid] = crop
       }
     }
 
@@ -133,7 +174,12 @@ export default class StepsController {
       orderedUuids.push(...newMediaUuids)
     }
 
-    const { travel_title, new_medias, old_medias, medias_order_refs, ...stepPayload } = payload
+    const keptUuids = new Set(orderedUuids)
+    for (const uuid of Object.keys(mediasCrop)) {
+      if (!keptUuids.has(uuid)) delete mediasCrop[uuid]
+    }
+
+    const { travel_title, new_medias, old_medias, medias_order_refs, new_medias_crop, old_medias_crop, ...stepPayload } = payload
     step.merge({
       ...stepPayload,
       description: payload.description ?? null,
@@ -141,6 +187,7 @@ export default class StepsController {
       travelId: travel.id,
       medias: folderId,
       mediasOrder: orderedUuids.length > 0 ? orderedUuids : null,
+      mediasCrop: Object.keys(mediasCrop).length > 0 ? mediasCrop : null,
     })
     await step.save()
 
