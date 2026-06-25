@@ -89,36 +89,17 @@
     border-radius: 50%;
 
     &--previous {
-      left: 10px;
+      left: 20px;
     }
 
     &--next {
-      right: 10px;
+      right: 20px;
     }
   }
 
-  &__action {
-    @include mixins.resetButton(none, transparent);
-    @include mixins.font-type('text-medium');
-    padding: 8px 18px;
-    border-radius: var(--border-radius-s);
-    cursor: pointer;
-
-    &--cancel {
-      color: var(--text);
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-
-    &--confirm {
-      background-color: var(--primary);
-      color: var(--background);
-
-      &:hover {
-        background-color: var(--primary-hover);
-      }
-    }
+  &__reorder {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
   }
 }

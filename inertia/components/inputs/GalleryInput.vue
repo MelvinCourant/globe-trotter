@@ -10,6 +10,7 @@ type Crop = { x: number; y: number }
 type MediaItem = {
   id: number
   preview: string
+  thumb: string | null
   key: string | null
   file: File | null
   crop: Crop
@@ -17,6 +18,12 @@ type MediaItem = {
 }
 
 const centerCrop = (): Crop => ({ x: 50, y: 50 })
+const cropVersion = (crop: Crop | null) =>
+  !crop || (crop.x === 50 && crop.y === 50) ? 'c' : `${crop.x}-${crop.y}`
+
+function showThumb(item: MediaItem) {
+  return !!item.thumb && item.crop.x === item.initialCrop.x && item.crop.y === item.initialCrop.y
+}
 
 let idCounter = 0
 
@@ -43,6 +50,7 @@ const items = ref<MediaItem[]>(
     return {
       id: idCounter++,
       preview: media.url.replace('_medium', ''),
+      thumb: `${media.url}?v=${cropVersion(media.crop)}`,
       key: media.url.replace('/uploads/', '').replace('_medium', ''),
       file: null,
       crop,
@@ -118,12 +126,24 @@ function openEditor(startIndex: number) {
   showMediasEditor.value = true
 }
 
-function onEditorConfirm(crops: { id: number; crop: Crop }[]) {
-  const cropById = new Map(crops.map(c => [c.id, c.crop]))
+function onEditorConfirm(result: { id: number; crop: Crop }[]) {
+  const cropById = new Map(result.map(c => [c.id, c.crop]))
+  const orderIndex = new Map(result.map((c, i) => [c.id, i]))
+
+  // Items missing from the editor result were deleted there; drop them (and free blob URLs).
+  items.value = items.value.filter(item => {
+    if (orderIndex.has(item.id)) return true
+    if (item.file) URL.revokeObjectURL(item.preview)
+    return false
+  })
+
   items.value.forEach(item => {
     const crop = cropById.get(item.id)
     if (crop) item.crop = crop
   })
+
+  items.value.sort((a, b) => orderIndex.get(a.id)! - orderIndex.get(b.id)!)
+
   showMediasEditor.value = false
   emitUpdate()
 }
@@ -166,6 +186,7 @@ async function addFiles(event: { target: any }) {
       items.value.push({
         id: idCounter++,
         preview: URL.createObjectURL(converted),
+        thumb: null,
         key: null,
         file: converted,
         crop: centerCrop(),
@@ -214,9 +235,9 @@ function deleteFile(index: number) {
         class="gallery-input-media"
       >
         <img
-          :src="item.preview"
+          :src="showThumb(item) ? item.thumb! : item.preview"
           :alt="`Média ${index}`"
-          :style="{ objectPosition: `${item.crop.x}% ${item.crop.y}%` }"
+          :style="showThumb(item) ? undefined : { objectPosition: `${item.crop.x}% ${item.crop.y}%` }"
           draggable="false"
         >
         <Button

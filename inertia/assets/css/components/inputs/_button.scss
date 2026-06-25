@@ -32,6 +32,13 @@
     }
   }
 
+  &--very-small {
+    width: 18px;
+    height: 18px;
+    border-radius: var(--border-radius-xxs);
+    padding: 1.5px;
+  }
+
   &--small {
     width: functions.rem(24);
     height: functions.rem(24);
@@ -42,7 +49,9 @@
   &--medium {
     &.button--icon-only {
       width: functions.rem(50);
+      min-width: functions.rem(50);
       height: functions.rem(50);
+      min-height: functions.rem(50);
       border-radius: 50%;
     }
   }

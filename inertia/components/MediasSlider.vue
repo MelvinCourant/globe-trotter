@@ -30,6 +30,25 @@ function slideTo(index: number) {
   const mediaWidth = document.querySelectorAll('.medias-slider__media')[0].clientWidth
   mediasSliderTrack.value.scrollTo({ left: index * mediaWidth, behavior: 'smooth' })
 }
+
+// Cropped variants are regenerated server-side at the same filename when their crop changes, so
+// we append a crop-based version to bust the browser cache. The 'c' sentinel keeps a stable,
+// distinct version for centered crops (covers resetting back to center).
+function mediaUrl(media: unknown, variant: string): string {
+  if (typeof media !== 'object' || media === null) {
+    return `/uploads/${media}`
+  }
+
+  const m = media as Record<string, any>
+  const key = m[variant] ?? m.normal
+  const isCropped = variant === 'small' || variant === 'medium' || variant === 'large'
+
+  if (!isCropped) return `/uploads/${key}`
+
+  const crop = m.crop
+  const version = !crop || (crop.x === 50 && crop.y === 50) ? 'c' : `${crop.x}-${crop.y}`
+  return `/uploads/${key}?v=${version}`
+}
 </script>
 
 <template>
@@ -51,7 +70,7 @@ function slideTo(index: number) {
           className="medias-slider__expand"
           size="small"
           :iconOnly="true"
-          title="Afficher le média en plein écran"
+          title="Afficher la photo en plein écran"
           @click="$emit('expandMedia', index)"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -63,10 +82,10 @@ function slideTo(index: number) {
           <source
             v-if="size === 'medium' && typeof media === 'object' && (media as any).large"
             media="(min-width: 600px) and (max-width: 767px)"
-            :srcset="`/uploads/${(media as any).large}`"
+            :srcset="mediaUrl(media, 'large')"
           >
           <img
-            :src="`/uploads/${typeof media === 'object' ? ((media as any)[size] ?? (media as any).normal) : media}`"
+            :src="mediaUrl(media, size)"
             draggable="false"
           />
         </picture>
@@ -78,10 +97,11 @@ function slideTo(index: number) {
       className="medias-slider__arrow medias-slider__arrow--previous"
       size="small"
       :iconOnly="true"
+      title="Voir la photo précédente"
       @click="slideTo(activeIndex - 1)"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" width="9" height="14" viewBox="0 0 9 14" fill="none">
-        <path d="M7.41418 0.707092L1.41418 6.70709L7.41418 12.7071" stroke="#090101" stroke-width="2"/>
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 1L4 7L10 13" stroke="var(--color)" stroke-width="2"/>
       </svg>
     </Button>
     <Button
@@ -90,10 +110,11 @@ function slideTo(index: number) {
       className="medias-slider__arrow medias-slider__arrow--next"
       size="small"
       :iconOnly="true"
+      title="Voir la photo suivante"
       @click="slideTo(activeIndex + 1)"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" width="9" height="14" viewBox="0 0 9 14" fill="none">
-        <path d="M0.707031 12.7071L6.70703 6.70709L0.707031 0.707092" stroke="#090101" stroke-width="2"/>
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M4 13L10 7L4 1" stroke="var(--color)" stroke-width="2"/>
       </svg>
     </Button>
     <div class="medias-slider__dots" v-if="medias.length > 1">

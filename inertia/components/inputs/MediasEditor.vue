@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import '../../assets/css/components/inputs/_medias-editor.scss'
-import { computed, onMounted, onBeforeUnmount, reactive, ref } from 'vue'
+import { computed, onMounted, onBeforeUnmount, reactive, ref, watch } from 'vue'
 import Button from "~/components/inputs/Button.vue";
+import MediasReorder from "~/components/inputs/MediasReorder.vue";
 
 type Crop = { x: number; y: number }
 
@@ -11,19 +12,22 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  confirm: [crops: { id: number; crop: Crop }[]]
+  confirm: [items: { id: number; crop: Crop }[]]
   close: []
 }>()
 
+const localItems = ref([...props.items])
 const crops = reactive<Record<number, Crop>>(
   Object.fromEntries(props.items.map(i => [i.id, { ...i.crop }]))
 )
 const currentMediaIndex = ref(Math.min(props.startIndex ?? 0, props.items.length - 1))
+const showReorder = ref(false)
+const reorderEl = ref<{ $el: HTMLElement } | null>(null)
 const previewEl = ref<HTMLElement | null>(null)
 const naturalDims: Record<number, { w: number; h: number }> = {}
 
-const currentItem = computed(() => props.items[currentMediaIndex.value])
-const currentCrop = computed(() => crops[currentItem.value.id])
+const currentItem = computed(() => localItems.value[currentMediaIndex.value])
+const currentCrop = computed(() => (currentItem.value ? crops[currentItem.value.id] : { x: 50, y: 50 }))
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
 
@@ -34,13 +38,29 @@ let startCropX = 50
 let startCropY = 50
 
 onMounted(() => {
-  props.items.forEach(loadDims)
+  localItems.value.forEach(loadDims)
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('mousemove', onDragMove)
   window.removeEventListener('mouseup', onDragEnd)
+  document.removeEventListener('mousedown', onReorderOutsideClick)
 })
+
+watch(showReorder, (open) => {
+  if (open) {
+    document.addEventListener('mousedown', onReorderOutsideClick)
+  } else {
+    document.removeEventListener('mousedown', onReorderOutsideClick)
+  }
+})
+
+function onReorderOutsideClick(e: MouseEvent) {
+  const root = reorderEl.value?.$el
+  if (root && !root.contains(e.target as Node)) {
+    showReorder.value = false
+  }
+}
 
 function loadDims(item: { id: number; original: string }) {
   if (naturalDims[item.id]) return
@@ -53,6 +73,27 @@ function loadDims(item: { id: number; original: string }) {
 
 function goTo(index: number) {
   currentMediaIndex.value = index
+}
+
+function onReorder(from: number, to: number) {
+  const list = localItems.value
+  const [moved] = list.splice(from, 1)
+  list.splice(to, 0, moved)
+
+  const current = currentMediaIndex.value
+  if (current === from) {
+    currentMediaIndex.value = to
+  } else if (from < current && to >= current) {
+    currentMediaIndex.value = current - 1
+  } else if (from > current && to <= current) {
+    currentMediaIndex.value = current + 1
+  }
+}
+
+function onDelete(index: number) {
+  localItems.value.splice(index, 1)
+  if (index < currentMediaIndex.value) currentMediaIndex.value--
+  currentMediaIndex.value = clamp(currentMediaIndex.value, 0, Math.max(localItems.value.length - 1, 0))
 }
 
 function onDragStart(e: MouseEvent) {
@@ -88,12 +129,12 @@ function onDragEnd() {
 }
 
 function confirm() {
-  emit('confirm', props.items.map(i => ({ id: i.id, crop: { ...crops[i.id] } })))
+  emit('confirm', localItems.value.map(i => ({ id: i.id, crop: { ...crops[i.id] } })))
 }
 </script>
 
 <template>
-  <div class="medias-editor" @mousedown.self="emit('close')">
+  <div class="medias-editor">
     <div class="medias-editor__container">
       <div class="medias-editor__header">
         <button
@@ -114,6 +155,7 @@ function confirm() {
       </div>
       <div class="medias-editor__body">
         <div
+          v-if="currentItem"
           ref="previewEl"
           class="medias-editor__preview"
           :style="{
@@ -138,26 +180,54 @@ function confirm() {
           className="medias-editor__arrow medias-editor__arrow--previous"
           size="small"
           :iconOnly="true"
+          title="Voir la photo précédente"
           v-show="!dragging"
-          v-if="items.length > 1 && currentMediaIndex > 0"
+          v-if="localItems.length > 1 && currentMediaIndex > 0"
           @click="goTo(currentMediaIndex - 1)"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="9" height="14" viewBox="0 0 9 14" fill="none">
-            <path d="M7.41418 0.707092L1.41418 6.70709L7.41418 12.7071" stroke="#090101" stroke-width="2"/>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 1L4 7L10 13" stroke="var(--color)" stroke-width="2"/>
           </svg>
         </Button>
         <Button
           className="medias-editor__arrow medias-editor__arrow--next"
           size="small"
           :iconOnly="true"
+          title="Voir la photo suivante"
           v-show="!dragging"
-          v-if="items.length > 1 && currentMediaIndex < items.length - 1"
+          v-if="localItems.length > 1 && currentMediaIndex < localItems.length - 1"
           @click="goTo(currentMediaIndex + 1)"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="9" height="14" viewBox="0 0 9 14" fill="none">
-            <path d="M0.707031 12.7071L6.70703 6.70709L0.707031 0.707092" stroke="#090101" stroke-width="2"/>
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M4 13L10 7L4 1" stroke="var(--color)" stroke-width="2"/>
           </svg>
         </Button>
+        <Button
+          v-if="localItems.length > 1"
+          className="medias-editor__reorder"
+          size="small"
+          :iconOnly="true"
+          title="Réorganiser l'ordre des photos"
+          v-show="!dragging && !showReorder"
+          @click="showReorder = !showReorder"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M9.99996 2.5L10.5205 1.84928L9.99996 1.43281L9.47938 1.84928L9.99996 2.5ZM9.16663 7.5C9.16663 7.96024 9.53972 8.33333 9.99996 8.33333C10.4602 8.33333 10.8333 7.96024 10.8333 7.5H9.99996H9.16663ZM13.3333 5.16667L13.8539 4.51594L10.5205 1.84928L9.99996 2.5L9.47938 3.15072L12.8127 5.81739L13.3333 5.16667ZM9.99996 2.5L9.47938 1.84928L6.14605 4.51594L6.66663 5.16667L7.18721 5.81739L10.5205 3.15072L9.99996 2.5ZM9.99996 2.5H9.16663V7.5H9.99996H10.8333V2.5H9.99996Z" fill="var(--color)"/>
+            <path d="M17.5 9.99984L18.1507 10.5204L18.5672 9.99984L18.1507 9.47926L17.5 9.99984ZM12.5 9.1665C12.0398 9.1665 11.6667 9.5396 11.6667 9.99984C11.6667 10.4601 12.0398 10.8332 12.5 10.8332L12.5 9.99984L12.5 9.1665ZM14.8333 13.3332L15.4841 13.8537L18.1507 10.5204L17.5 9.99984L16.8493 9.47926L14.1826 12.8126L14.8333 13.3332ZM17.5 9.99984L18.1507 9.47926L15.4841 6.14592L14.8333 6.6665L14.1826 7.18708L16.8493 10.5204L17.5 9.99984ZM17.5 9.99984L17.5 9.1665L12.5 9.1665L12.5 9.99984L12.5 10.8332L17.5 10.8332L17.5 9.99984Z" fill="var(--color)"/>
+            <path d="M9.99996 17.5L10.5205 18.1507L9.99996 18.5672L9.47938 18.1507L9.99996 17.5ZM9.16663 12.5C9.16663 12.0398 9.53972 11.6667 9.99996 11.6667C10.4602 11.6667 10.8333 12.0398 10.8333 12.5H9.99996H9.16663ZM13.3333 14.8333L13.8539 15.4841L10.5205 18.1507L9.99996 17.5L9.47938 16.8493L12.8127 14.1826L13.3333 14.8333ZM9.99996 17.5L9.47938 18.1507L6.14605 15.4841L6.66663 14.8333L7.18721 14.1826L10.5205 16.8493L9.99996 17.5ZM9.99996 17.5H9.16663V12.5H9.99996H10.8333V17.5H9.99996Z" fill="var(--color)"/>
+            <path d="M2.5 9.99984L1.84928 10.5204L1.43281 9.99984L1.84928 9.47926L2.5 9.99984ZM7.5 9.1665C7.96024 9.1665 8.33333 9.5396 8.33333 9.99984C8.33333 10.4601 7.96024 10.8332 7.5 10.8332L7.5 9.99984L7.5 9.1665ZM5.16667 13.3332L4.51594 13.8537L1.84928 10.5204L2.5 9.99984L3.15072 9.47926L5.81739 12.8126L5.16667 13.3332ZM2.5 9.99984L1.84928 9.47926L4.51594 6.14592L5.16667 6.6665L5.81739 7.18708L3.15072 10.5204L2.5 9.99984ZM2.5 9.99984L2.5 9.1665L7.5 9.1665L7.5 9.99984L7.5 10.8332L2.5 10.8332L2.5 9.99984Z" fill="var(--color)"/>
+          </svg>
+        </Button>
+        <MediasReorder
+          ref="reorderEl"
+          v-if="showReorder && localItems.length > 1"
+          v-show="!dragging"
+          :items="localItems"
+          :currentMediaIndex="currentMediaIndex"
+          @select="goTo"
+          @reorder="onReorder"
+          @delete="onDelete"
+        />
       </div>
     </div>
   </div>
