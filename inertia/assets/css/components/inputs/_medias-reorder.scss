@@ -46,11 +46,6 @@
       opacity: 0.4;
       cursor: grabbing;
     }
-
-    @media screen and (max-width: 767px) {
-      width: 72px;
-      height: 72px;
-    }
   }
 
   &__delete {
