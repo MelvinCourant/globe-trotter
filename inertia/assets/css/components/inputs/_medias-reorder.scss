@@ -11,6 +11,17 @@
   background: rgba(0, 0, 0, 0.90);
   border-radius: 10px;
 
+  @media screen and (max-width: 767px) {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    max-width: none;
+    transform: none;
+    border-radius: 0;
+    justify-content: center;
+  }
+
   &__slider {
     position: relative;
     z-index: 1;
@@ -34,6 +45,11 @@
     &--dragging {
       opacity: 0.4;
       cursor: grabbing;
+    }
+
+    @media screen and (max-width: 767px) {
+      width: 72px;
+      height: 72px;
     }
   }
 

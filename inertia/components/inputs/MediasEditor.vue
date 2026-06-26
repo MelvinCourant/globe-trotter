@@ -22,12 +22,17 @@ const crops = reactive<Record<number, Crop>>(
 )
 const currentMediaIndex = ref(Math.min(props.startIndex ?? 0, props.items.length - 1))
 const showReorder = ref(false)
+const isMobile = ref(false)
 const reorderEl = ref<{ $el: HTMLElement } | null>(null)
 const previewEl = ref<HTMLElement | null>(null)
 const naturalDims: Record<number, { w: number; h: number }> = {}
 
 const currentItem = computed(() => localItems.value[currentMediaIndex.value])
 const currentCrop = computed(() => (currentItem.value ? crops[currentItem.value.id] : { x: 50, y: 50 }))
+const reorderVisible = computed(() => (showReorder.value || isMobile.value) && localItems.value.length > 1)
+
+const mobileQuery = window.matchMedia('(max-width: 767px)')
+const onMobileChange = (e: MediaQueryListEvent | MediaQueryList) => { isMobile.value = e.matches }
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value))
 
@@ -39,12 +44,15 @@ let startCropY = 50
 
 onMounted(() => {
   localItems.value.forEach(loadDims)
+  onMobileChange(mobileQuery)
+  mobileQuery.addEventListener('change', onMobileChange)
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('mousemove', onDragMove)
-  window.removeEventListener('mouseup', onDragEnd)
+  window.removeEventListener('pointermove', onDragMove)
+  window.removeEventListener('pointerup', onDragEnd)
   document.removeEventListener('mousedown', onReorderOutsideClick)
+  mobileQuery.removeEventListener('change', onMobileChange)
 })
 
 watch(showReorder, (open) => {
@@ -96,17 +104,17 @@ function onDelete(index: number) {
   currentMediaIndex.value = clamp(currentMediaIndex.value, 0, Math.max(localItems.value.length - 1, 0))
 }
 
-function onDragStart(e: MouseEvent) {
+function onDragStart(e: PointerEvent) {
   dragging.value = true
   startX = e.clientX
   startY = e.clientY
   startCropX = currentCrop.value.x
   startCropY = currentCrop.value.y
-  window.addEventListener('mousemove', onDragMove)
-  window.addEventListener('mouseup', onDragEnd)
+  window.addEventListener('pointermove', onDragMove)
+  window.addEventListener('pointerup', onDragEnd)
 }
 
-function onDragMove(e: MouseEvent) {
+function onDragMove(e: PointerEvent) {
   if (!dragging.value || !previewEl.value) return
   const dims = naturalDims[currentItem.value.id]
   if (!dims) return
@@ -124,8 +132,8 @@ function onDragMove(e: MouseEvent) {
 
 function onDragEnd() {
   dragging.value = false
-  window.removeEventListener('mousemove', onDragMove)
-  window.removeEventListener('mouseup', onDragEnd)
+  window.removeEventListener('pointermove', onDragMove)
+  window.removeEventListener('pointerup', onDragEnd)
 }
 
 function confirm() {
@@ -144,7 +152,10 @@ function confirm() {
         >
           Annuler
         </button>
-        <h3 class="medias-editor__title">Rogner (n’affecte pas le plein écran)</h3>
+        <h3 class="medias-editor__title">
+          Rogner
+          <span class="medias-editor__hint">(n’affecte pas le plein écran)</span>
+        </h3>
         <button
           class="medias-editor__button medias-editor__button--confirm"
           type="button"
@@ -162,7 +173,7 @@ function confirm() {
             backgroundImage: `url('${currentItem.original}')`,
             backgroundPosition: `${currentCrop.x}% ${currentCrop.y}%`,
           }"
-          @mousedown="onDragStart"
+          @pointerdown="onDragStart"
         >
           <div
             v-show="dragging"
@@ -203,7 +214,7 @@ function confirm() {
           </svg>
         </Button>
         <Button
-          v-if="localItems.length > 1"
+          v-if="localItems.length > 1 && !isMobile"
           className="medias-editor__reorder"
           size="small"
           :iconOnly="true"
@@ -220,7 +231,7 @@ function confirm() {
         </Button>
         <MediasReorder
           ref="reorderEl"
-          v-if="showReorder && localItems.length > 1"
+          v-if="reorderVisible"
           v-show="!dragging"
           :items="localItems"
           :currentMediaIndex="currentMediaIndex"

@@ -31,8 +31,14 @@ function scrollBy(direction: number) {
   sliderEl.value?.scrollBy({ left: direction * sliderEl.value.clientWidth * 0.8, behavior: 'smooth' })
 }
 
+function scrollSelectedIntoView() {
+  const item = sliderEl.value?.children[props.currentMediaIndex] as HTMLElement | undefined
+  item?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })
+}
+
 onMounted(() => {
   updateScrollState()
+  scrollSelectedIntoView()
   window.addEventListener('resize', updateScrollState)
 })
 
@@ -42,6 +48,10 @@ onBeforeUnmount(() => {
 
 watch(() => props.items.length, () => {
   nextTick(updateScrollState)
+})
+
+watch(() => props.currentMediaIndex, () => {
+  nextTick(scrollSelectedIntoView)
 })
 
 function onDragStart(index: number) {
