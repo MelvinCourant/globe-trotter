@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import '../../assets/css/components/inputs/_medias-reorder.scss'
-import { ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import Button from "~/components/inputs/Button.vue";
 
-defineProps<{
+const props = defineProps<{
   items: { id: number; original: string;}[],
   currentMediaIndex: number
 }>()
@@ -15,6 +15,34 @@ const emit = defineEmits<{
 }>()
 
 const draggedIndex = ref<number | null>(null)
+
+const sliderEl = ref<HTMLElement | null>(null)
+const canScrollPrevious = ref(false)
+const canScrollNext = ref(false)
+
+function updateScrollState() {
+  const el = sliderEl.value
+  if (!el) return
+  canScrollPrevious.value = el.scrollLeft > 0
+  canScrollNext.value = Math.ceil(el.scrollLeft + el.clientWidth) < el.scrollWidth
+}
+
+function scrollBy(direction: number) {
+  sliderEl.value?.scrollBy({ left: direction * sliderEl.value.clientWidth * 0.8, behavior: 'smooth' })
+}
+
+onMounted(() => {
+  updateScrollState()
+  window.addEventListener('resize', updateScrollState)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateScrollState)
+})
+
+watch(() => props.items.length, () => {
+  nextTick(updateScrollState)
+})
 
 function onDragStart(index: number) {
   draggedIndex.value = index
@@ -33,7 +61,24 @@ function onDragEnd() {
 
 <template>
   <div class="medias-reorder">
-    <div class="medias-reorder__slider">
+    <Button
+      className="medias-reorder__arrow medias-reorder__arrow--previous"
+      size="small"
+      :iconOnly="true"
+      type="button"
+      title="Photos précédentes"
+      v-show="canScrollPrevious && draggedIndex === null"
+      @click="scrollBy(-1)"
+    >
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 1L4 7L10 13" stroke="var(--color)" stroke-width="2"/>
+      </svg>
+    </Button>
+    <div
+      ref="sliderEl"
+      class="medias-reorder__slider"
+      @scroll="updateScrollState"
+    >
       <div
         class="medias-reorder__item"
         :class="{ 'medias-reorder__item--dragging': draggedIndex === index }"
@@ -43,7 +88,7 @@ function onDragEnd() {
         :style="{
           backgroundImage: index === currentMediaIndex
             ? `url('${item.original}')`
-            : `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('${item.original}')`,
+            : `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('${item.original}')`,
         }"
         @click="emit('select', index)"
         @dragstart="onDragStart(index)"
@@ -68,5 +113,18 @@ function onDragEnd() {
         </Button>
       </div>
     </div>
+    <Button
+      className="medias-reorder__arrow medias-reorder__arrow--next"
+      size="small"
+      :iconOnly="true"
+      type="button"
+      title="Photos suivantes"
+      v-show="canScrollNext && draggedIndex === null"
+      @click="scrollBy(1)"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <path d="M4 13L10 7L4 1" stroke="var(--color)" stroke-width="2"/>
+      </svg>
+    </Button>
   </div>
 </template>

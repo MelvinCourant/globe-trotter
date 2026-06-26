@@ -12,6 +12,8 @@
   border-radius: 10px;
 
   &__slider {
+    position: relative;
+    z-index: 1;
     display: flex;
     gap: 10px;
     overflow-x: auto;
@@ -39,5 +41,21 @@
     position: absolute;
     top: 4px;
     right: 4px;
+  }
+
+  &__arrow {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 50%;
+
+    &--previous {
+      left: 10px;
+    }
+
+    &--next {
+      right: 10px;
+    }
   }
 }
